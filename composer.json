@@ -1,0 +1,25 @@
+{
+  "name": "sidus/filter-bundle",
+  "description": "Simple yml-configuration-based filtering with Doctrine ORM",
+  "keywords": [ "filter", "doctrine", "sort", "datagrid" ],
+  "homepage": "https://github.com/VincentChalnot/SidusFilterBundle",
+  "type": "library",
+  "license": "GPL-2.0",
+  "authors": [
+    {
+      "name": "Vincent Chalnot",
+      "email": "vincent@sidus.fr",
+      "homepage": "http://chalnot.fr",
+      "role": "Developer"
+    }
+  ],
+  "target-dir": "Sidus/FilterBundle",
+  "autoload": {
+    "psr-0": { "Sidus\\FilterBundle": "" }
+  },
+  "require": {
+    "php": ">=5.4",
+    "symfony/symfony": ">=2.6",
+    "doctrine/doctrine-bundle": ">=1.4"
+  }
+}

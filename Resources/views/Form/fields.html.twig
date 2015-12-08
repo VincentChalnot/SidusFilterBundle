@@ -1,0 +1,31 @@
+{% block sidus_date_range_widget %}
+    {% spaceless %}
+        <div {{ block('widget_container_attributes') }}>
+            {% if form.parent is empty %}
+                {{ block('global_form_errors') }}
+            {% endif %}
+            <div class="input-daterange input-group" data-datepicker="range">
+                {{ form_widget(form.startDate) }}
+                <span class="input-group-addon">à</span>
+                {{ form_widget(form.endDate) }}
+            </div>
+            {{ form_errors(form.startDate) }}
+            {{ form_errors(form.endDate) }}
+            {{ form_rest(form) }}
+        </div>
+    {% endspaceless %}
+{% endblock %}
+
+{% block sidus_sort_config_widget %}
+    {% spaceless %}
+        {# This is a hack to take the last values of the data object into account and not the ones binded during the handleRequest #}
+        {% set columnVars = form.column.vars %}
+        <input type="hidden" id="{{ columnVars.id }}" name="{{ columnVars.full_name }}" value="{{ form.vars.data.column }}">
+        {% set directionVars = form.direction.vars %}
+        <input type="hidden" id="{{ directionVars.id }}" name="{{ directionVars.full_name }}" value="{{ form.vars.data.direction ? 1 : 0 }}">
+    {% endspaceless %}
+{% endblock %}
+
+{% block sidus_sort_config_row %}
+    {{ block('sidus_sort_config_widget') }}
+{% endblock %}

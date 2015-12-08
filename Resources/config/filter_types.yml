@@ -1,0 +1,29 @@
+parameters:
+    sidus_filter.filter.type.date_range.class: Sidus\FilterBundle\Filter\Type\DateRangeFilterType
+    sidus_filter.filter.type.text.class: Sidus\FilterBundle\Filter\Type\TextFilterType
+    sidus_filter.filter.type.choice.class: Sidus\FilterBundle\Filter\Type\ChoiceFilterType
+
+services:
+    sidus_filter.filter.type.date_range:
+        class: %sidus_filter.filter.type.date_range.class%
+        arguments:
+            - date_range
+            - sidus_date_range
+        tags:
+            - { name: sidus.filter_type }
+
+    sidus_filter.filter.type.text:
+        class: %sidus_filter.filter.type.text.class%
+        arguments:
+            - text
+            - text
+        tags:
+            - { name: sidus.filter_type }
+
+    sidus_filter.filter.type.choice:
+        class: %sidus_filter.filter.type.choice.class%
+        arguments:
+            - choice
+            - choice
+        tags:
+            - { name: sidus.filter_type }
