@@ -3,6 +3,7 @@
     namespace Sidus\FilterBundle\Configuration;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\DTO\SortConfig;
@@ -67,10 +68,28 @@ class FilterConfigurationHandler
 
     /**
      * @param FilterInterface $filter
+     * @return FilterConfigurationHandler
      */
-    public function addFilter(FilterInterface $filter)
+    public function addFilter(FilterInterface $filter, $index = null)
     {
-        $this->filters[$filter->getCode()] = $filter;
+        if (null === $index) {
+            $this->filters[$filter->getCode()] = $filter;
+        } else {
+            $count = count($this->filters);
+            if (!is_int($index) && !is_numeric($index)) {
+                throw new \UnexpectedValueException("Given index should be an integer '{$index}' given");
+            }
+            if (abs($index) > $count) {
+                $index = 0;
+            }
+            if ($index < 0) {
+                $index = $count + $index;
+            }
+            $this->filters = array_slice($this->filters, 0, $index, true) +
+                [$filter->getCode() => $filter] +
+                array_slice($this->filters, $index, $count - $index, true);
+        }
+        return $this;
     }
 
     /**

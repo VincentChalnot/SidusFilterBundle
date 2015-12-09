@@ -30,10 +30,14 @@ class FilterFactory
     public function create($code, array $configuration)
     {
         $filterType = $this->filterTypeConfigurationhandler->getFilterType($configuration['type']);
+        $options = empty($configuration['options']) ? [] : $configuration['options'];
+        $attributes = empty($configuration['attributes']) ? [] : $configuration['attributes'];
         /** @var FilterInterface $filter */
-        $filter = new $this->filterClass($code, $filterType, $configuration['options'], $configuration['attributes']);
-        $filter->setLabel($configuration['label']);
-        if ($configuration['form_options']) {
+        $filter = new $this->filterClass($code, $filterType, $options, $attributes);
+        if (!empty($configuration['label'])) {
+            $filter->setLabel($configuration['label']);
+        }
+        if (!empty($configuration['form_options'])) {
             $filter->setFormOptions((array) $configuration['form_options']);
         }
         return $filter;
