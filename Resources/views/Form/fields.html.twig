@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block sidus_order_button_widget %}
-    <button {{ block('widget_container_attributes') }}><i class="fa fa-{{ form.vars.icon }}"></i></button>
+    <button {{ block('widget_container_attributes') }} name="{{ form.vars.full_name }}"><i class="fa fa-{{ form.vars.icon }}"></i></button>
 {% endblock %}
 
 {% block sidus_sort_config_widget %}

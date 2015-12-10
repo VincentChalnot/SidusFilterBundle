@@ -3,7 +3,6 @@
     namespace Sidus\FilterBundle\Configuration;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\DTO\SortConfig;
@@ -11,7 +10,9 @@ use Sidus\FilterBundle\Filter\FilterFactory;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilder;
+use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
+use UnexpectedValueException;
 
 class FilterConfigurationHandler
 {
@@ -57,6 +58,7 @@ class FilterConfigurationHandler
      * @param Registry $doctrine
      * @param FilterFactory $filterFactory
      * @param array $configuration
+     * @throws UnexpectedValueException
      */
     public function __construct($code, Registry $doctrine, FilterFactory $filterFactory, array $configuration = [])
     {
@@ -68,7 +70,9 @@ class FilterConfigurationHandler
 
     /**
      * @param FilterInterface $filter
+     * @param int $index
      * @return FilterConfigurationHandler
+     * @throws UnexpectedValueException
      */
     public function addFilter(FilterInterface $filter, $index = null)
     {
@@ -77,7 +81,7 @@ class FilterConfigurationHandler
         } else {
             $count = count($this->filters);
             if (!is_int($index) && !is_numeric($index)) {
-                throw new \UnexpectedValueException("Given index should be an integer '{$index}' given");
+                throw new UnexpectedValueException("Given index should be an integer '{$index}' given");
             }
             if (abs($index) > $count) {
                 $index = 0;
@@ -85,6 +89,7 @@ class FilterConfigurationHandler
             if ($index < 0) {
                 $index = $count + $index;
             }
+            /** @noinspection AdditionOperationOnArraysInspection */
             $this->filters = array_slice($this->filters, 0, $index, true) +
                 [$filter->getCode() => $filter] +
                 array_slice($this->filters, $index, $count - $index, true);
@@ -101,13 +106,14 @@ class FilterConfigurationHandler
     }
 
     /**
-     * @param $code
+     * @param string $code
      * @return FilterInterface
+     * @throws UnexpectedValueException
      */
     public function getFilter($code)
     {
         if (empty($this->filters[$code])) {
-            throw new \UnexpectedValueException("No filter with code : {$code}");
+            throw new UnexpectedValueException("No filter with code : {$code}");
         }
         return $this->filters[$code];
     }
@@ -143,12 +149,12 @@ class FilterConfigurationHandler
 
     /**
      * @return Form
-     * @throws \Exception
+     * @throws \LogicException
      */
     public function getForm()
     {
         if (!$this->form) {
-            throw new \Exception("You must first build the form by calling buildForm(\$builder) with your form builder");
+            throw new \LogicException("You must first build the form by calling buildForm(\$builder) with your form builder");
         }
         return $this->form;
     }
@@ -180,6 +186,7 @@ class FilterConfigurationHandler
 
     /**
      * @param array $configuration
+     * @throws UnexpectedValueException
      */
     protected function parseConfiguration(array $configuration)
     {
@@ -264,7 +271,9 @@ class FilterConfigurationHandler
         $sortConfig = $sortConfigForm->getData();
 
         foreach ($this->getSortable() as $sortable) {
-            if ($sortableForm->get($sortable)->isClicked()) {
+            /** @var SubmitButton $button */
+            $button = $sortableForm->get($sortable);
+            if ($button->isClicked()) {
                 if ($sortConfig->getColumn() === $sortable) {
                     $sortConfig->switchDirection();
                 } else {
@@ -276,10 +285,9 @@ class FilterConfigurationHandler
 
         $column = $sortConfig->getColumn();
         if ($column) {
+            $fullColumnReference = $column;
             if (false === strpos($column, '.')) {
                 $fullColumnReference = $this->alias . '.' . $column;
-            } else {
-                $fullColumnReference = $column;
             }
             $direction = $sortConfig->getDirection() ? 'DESC' : 'ASC'; // null or false both default to ASC
             $qb->addOrderBy($fullColumnReference, $direction);
