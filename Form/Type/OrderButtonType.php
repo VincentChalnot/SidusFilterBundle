@@ -13,10 +13,12 @@ class OrderButtonType extends SubmitType
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
         parent::buildView($view, $form, $options);
+        $view->vars['icon'] = $options['icon'];
+
         /** @var SortConfig $sortConfig */
         $sortConfig = $options['sort_config'];
         if ($sortConfig->getColumn() === $form->getName()) { // @todo maybe use a specific option instead of name ?
-            $view->vars['attr']['icon'] = $sortConfig->getDirection() ? 'sort-asc' : 'sort-desc';
+            $view->vars['icon'] = $sortConfig->getDirection() ? 'sort-asc' : 'sort-desc';
         }
     }
 
@@ -27,13 +29,11 @@ class OrderButtonType extends SubmitType
         ]);
         $resolver->setDefaults([
             'type' => 'submit',
-            'button_class' => 'link',
             'label' => false,
             'attr' => [
-                'value' => 'ASC',
-                'class' => 'pull-right',
-                'icon' => 'sort',
+                'class' => 'btn btn-xs btn-link pull-right',
             ],
+            'icon' => 'sort',
         ]);
     }
 

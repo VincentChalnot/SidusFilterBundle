@@ -16,6 +16,10 @@
     {% endspaceless %}
 {% endblock %}
 
+{% block sidus_order_button_widget %}
+    <button {{ block('widget_container_attributes') }}><i class="fa fa-{{ form.vars.icon }}"></i></button>
+{% endblock %}
+
 {% block sidus_sort_config_widget %}
     {% spaceless %}
         {# This is a hack to take the last values of the data object into account and not the ones binded during the handleRequest #}
