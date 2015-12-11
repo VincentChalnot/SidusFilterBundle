@@ -32,16 +32,12 @@ class Filter implements FilterInterface
      * @param array $options
      * @param array|null $attributes
      */
-    public function __construct($code, FilterTypeInterface $filterType, array $options = null, $attributes = null)
+    public function __construct($code, FilterTypeInterface $filterType, array $options = null)
     {
         $this->code = $code;
         $this->filterType = $filterType;
         $this->options = $options;
-        if (empty($attributes)) {
-            $this->attributes = [$code];
-        } else {
-            $this->attributes = $attributes;
-        }
+        $this->attributes = empty($attributes) ? [$code] : $attributes;
     }
 
     /**
@@ -58,6 +54,14 @@ class Filter implements FilterInterface
     public function getAttributes()
     {
         return $this->attributes;
+    }
+
+    /**
+     * @param array $attributes
+     */
+    public function setAttributes(array $attributes = null)
+    {
+        $this->attributes = $attributes;
     }
 
     /**

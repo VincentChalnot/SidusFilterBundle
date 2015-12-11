@@ -24,13 +24,13 @@ class ChoiceFilterType extends FilterType
         }
         $dql = [];
         foreach ($filter->getFullAttributeReferences($alias) as $column) {
-            $uid = uniqid();
+            $uid = uniqid('choices', true);
             if (is_array($data)) {
-                $dql[] = "{$column} IN (:choices{$uid})";
-                $qb->setParameter('choices' . $uid, $data);
+                $dql[] = "{$column} IN (:{$uid})";
+                $qb->setParameter($uid, $data);
             } else {
-                $dql[] = "{$column} = :choice{$uid}";
-                $qb->setParameter('choice' . $uid, $data);
+                $dql[] = "{$column} = :{$uid}";
+                $qb->setParameter($uid, $data);
             }
         }
         $qb->andWhere(implode(' OR ', $dql));
