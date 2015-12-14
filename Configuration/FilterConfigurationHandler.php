@@ -264,6 +264,24 @@ class FilterConfigurationHandler
      */
     protected function applySort(QueryBuilder $qb)
     {
+        $sortConfig = $this->applySortForm();
+
+        $column = $sortConfig->getColumn();
+        if ($column) {
+            $fullColumnReference = $column;
+            if (false === strpos($column, '.')) {
+                $fullColumnReference = $this->alias . '.' . $column;
+            }
+            $direction = $sortConfig->getDirection() ? 'DESC' : 'ASC'; // null or false both default to ASC
+            $qb->addOrderBy($fullColumnReference, $direction);
+        }
+    }
+
+    /**
+     * @todo : Put in form event
+     */
+    protected function applySortForm()
+    {
         $form = $this->getForm();
         $sortableForm = $form->get(self::SORTABLE_FORM_NAME);
         $sortConfigForm = $sortableForm->get(self::SORT_CONFIG_FORM_NAME);
@@ -282,16 +300,7 @@ class FilterConfigurationHandler
                 }
             }
         }
-
-        $column = $sortConfig->getColumn();
-        if ($column) {
-            $fullColumnReference = $column;
-            if (false === strpos($column, '.')) {
-                $fullColumnReference = $this->alias . '.' . $column;
-            }
-            $direction = $sortConfig->getDirection() ? 'DESC' : 'ASC'; // null or false both default to ASC
-            $qb->addOrderBy($fullColumnReference, $direction);
-        }
+        return $sortConfig;
     }
 
     /**

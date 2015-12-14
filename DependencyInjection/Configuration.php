@@ -12,13 +12,23 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
+    protected $root;
+
+    /**
+     * @param string $root
+     */
+    public function __construct($root = 'sidus_filter')
+    {
+        $this->root = $root;
+    }
+
     /**
      * {@inheritdoc}
      */
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('sidus_filter');
+        $rootNode = $treeBuilder->root($this->root);
         $rootNode
             ->children()
                 ->arrayNode('configurations')

@@ -26,7 +26,7 @@ class DateRangeFilterType extends FilterType
             $startDate = $data[DateRangeType::START_NAME];
             $dql = [];
             foreach ($columns as $column) {
-                $uid = uniqid('fromDate',  true);
+                $uid = uniqid('fromDate');
                 $dql[] = "{$column} >= :{$uid}";
                 $qb->setParameter($uid, $startDate);
             }
@@ -36,7 +36,7 @@ class DateRangeFilterType extends FilterType
             $endDate = $data[DateRangeType::END_NAME];
             $dql = [];
             foreach ($columns as $column) {
-                $uid = uniqid('endDate', true);
+                $uid = uniqid('endDate');
                 $dql[] = "{$column} <= :{$uid}";
                 $qb->setParameter($uid, $endDate);
             }

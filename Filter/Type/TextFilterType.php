@@ -24,7 +24,7 @@ class TextFilterType extends FilterType
         }
         $dql = [];
         foreach ($filter->getFullAttributeReferences($alias) as $column) {
-            $uid = uniqid('text', true);
+            $uid = uniqid('text');
             $dql[] = "{$column} LIKE :{$uid}";
             $qb->setParameter($uid, '%' . $data . '%');
         }

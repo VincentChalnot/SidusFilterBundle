@@ -24,7 +24,7 @@ class ChoiceFilterType extends FilterType
         }
         $dql = [];
         foreach ($filter->getFullAttributeReferences($alias) as $column) {
-            $uid = uniqid('choices', true);
+            $uid = uniqid('choices');
             if (is_array($data)) {
                 $dql[] = "{$column} IN (:{$uid})";
                 $qb->setParameter($uid, $data);

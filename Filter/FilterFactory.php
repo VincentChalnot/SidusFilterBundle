@@ -10,16 +10,16 @@ class FilterFactory
     protected $filterClass;
 
     /** @var FilterTypeConfigurationHandler */
-    protected $filterTypeConfigurationhandler;
+    protected $filterTypeConfigurationHandler;
 
     /**
      * @param string $filterClass
-     * @param FilterTypeConfigurationHandler $filterTypeConfigurationhandler
+     * @param FilterTypeConfigurationHandler $filterTypeConfigurationHandler
      */
-    public function __construct($filterClass, FilterTypeConfigurationHandler $filterTypeConfigurationhandler)
+    public function __construct($filterClass, FilterTypeConfigurationHandler $filterTypeConfigurationHandler)
     {
         $this->filterClass = $filterClass;
-        $this->filterTypeConfigurationhandler = $filterTypeConfigurationhandler;
+        $this->filterTypeConfigurationHandler = $filterTypeConfigurationHandler;
     }
 
     /**
@@ -29,7 +29,7 @@ class FilterFactory
      */
     public function create($code, array $configuration)
     {
-        $filterType = $this->filterTypeConfigurationhandler->getFilterType($configuration['type']);
+        $filterType = $this->filterTypeConfigurationHandler->getFilterType($configuration['type']);
         $options = empty($configuration['options']) ? [] : $configuration['options'];
         $attributes = empty($configuration['attributes']) ? [] : $configuration['attributes'];
         /** @var FilterInterface $filter */
