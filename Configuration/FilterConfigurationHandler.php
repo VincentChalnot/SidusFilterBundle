@@ -5,6 +5,8 @@
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
 use Sidus\FilterBundle\Filter\FilterFactory;
 use Sidus\FilterBundle\Filter\FilterInterface;
@@ -52,6 +54,9 @@ class FilterConfigurationHandler
 
     /** @var SortConfig */
     protected $sortConfig;
+
+    /** @var Pagerfanta */
+    protected $pager;
 
     /**
      * @param string $code
@@ -142,9 +147,11 @@ class FilterConfigurationHandler
      */
     public function handleRequest(Request $request)
     {
+        $qb = $this->getQueryBuilder();
         $this->getForm()->handleRequest($request);
-        $this->applyFilters($this->getQueryBuilder()); // @todo maybe do it in a form event ?
-        $this->applySort($this->getQueryBuilder());
+        $this->applyFilters($qb); // @todo maybe do it in a form event ?
+        $this->applySort($qb);
+        $this->applyPager($qb, $request); // @todo merge with filters ?
     }
 
     /**
@@ -309,5 +316,28 @@ class FilterConfigurationHandler
     public function getAlias()
     {
         return $this->alias;
+    }
+
+    /**
+     * @return Pagerfanta
+     */
+    public function getPager()
+    {
+        return $this->pager;
+    }
+
+    protected function applyPager(QueryBuilder $qb, Request $request)
+    {
+        $this->pager = new Pagerfanta(new DoctrineORMAdapter($qb));
+        $this->pager->setMaxPerPage(20);
+        $this->pager->setCurrentPage($request->get('page', 1));
+    }
+
+    /**
+     * @return array|\Traversable
+     */
+    public function getResults()
+    {
+        return $this->pager->getCurrentPageResults();
     }
 }
