@@ -32,7 +32,7 @@ class Filter implements FilterInterface
      * @param array $options
      * @param array|null $attributes
      */
-    public function __construct($code, FilterTypeInterface $filterType, array $options = null)
+    public function __construct($code, FilterTypeInterface $filterType, array $options = null, array $attributes = null)
     {
         $this->code = $code;
         $this->filterType = $filterType;

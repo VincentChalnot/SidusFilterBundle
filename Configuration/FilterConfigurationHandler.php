@@ -149,9 +149,9 @@ class FilterConfigurationHandler
     {
         $qb = $this->getQueryBuilder();
         $this->getForm()->handleRequest($request);
-        $this->applyFilters($qb); // @todo maybe do it in a form event ?
+        $this->applyFilters($qb); // maybe do it in a form event ?
         $this->applySort($qb);
-        $this->applyPager($qb, $request); // @todo merge with filters ?
+        $this->applyPager($qb, $request); // merge with filters ?
     }
 
     /**

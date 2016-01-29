@@ -2,10 +2,6 @@
 
 namespace Sidus\FilterBundle\Filter\Type;
 
-use Doctrine\ORM\QueryBuilder;
-use Sidus\FilterBundle\Filter\FilterInterface;
-use Sidus\FilterBundle\Form\Type\DateRangeType;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
 abstract class FilterType implements FilterTypeInterface

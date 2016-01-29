@@ -2,11 +2,9 @@
 
 namespace Sidus\FilterBundle\Filter\Type;
 
-use Doctrine\Common\Collections\Criteria;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormTypeInterface;
 
 class TextFilterType extends FilterType
 {

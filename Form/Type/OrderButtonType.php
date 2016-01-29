@@ -17,7 +17,7 @@ class OrderButtonType extends SubmitType
 
         /** @var SortConfig $sortConfig */
         $sortConfig = $options['sort_config'];
-        if ($sortConfig->getColumn() === $form->getName()) { // @todo maybe use a specific option instead of name ?
+        if ($sortConfig->getColumn() === $form->getName()) { // maybe use a specific option instead of name ?
             $view->vars['icon'] = $sortConfig->getDirection() ? 'sort-asc' : 'sort-desc';
         }
     }
