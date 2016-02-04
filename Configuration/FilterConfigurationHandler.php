@@ -38,7 +38,7 @@ class FilterConfigurationHandler
     protected $sortable;
 
     /** @var FilterInterface[] */
-    protected $filters;
+    protected $filters = [];
 
     /** @var Form */
     protected $form;
