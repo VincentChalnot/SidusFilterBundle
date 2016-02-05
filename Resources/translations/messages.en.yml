@@ -1,0 +1,6 @@
+sidus:
+    filter:
+        date_range:
+            to: to
+            start_date: Start date
+            end_date: End date

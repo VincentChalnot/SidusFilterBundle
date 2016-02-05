@@ -10,6 +10,11 @@ class DateRangeType extends AbstractType
     const START_NAME = 'startDate';
     const END_NAME = 'endDate';
 
+    /**
+     * @todo : FIXME : Inject date/time format from configuration and move bootstrap specific elements to different bundle !!!
+     * @param FormBuilderInterface $builder
+     * @param array $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -18,8 +23,8 @@ class DateRangeType extends AbstractType
                 'widget' => 'single_text',
                 'attr' => [
                     'class' => 'input-sm form-control',
-                    'data-datepicker' => '',
-                    'placeholder' => 'Date de début',
+                    'data-provider' => 'datepicker',
+                    'placeholder' => 'sidus.filter.date_range.start_date',
                 ],
             ])
             ->add(self::END_NAME, 'date', [
@@ -27,8 +32,8 @@ class DateRangeType extends AbstractType
                 'widget' => 'single_text',
                 'attr' => [
                     'class' => 'input-sm form-control',
-                    'data-datepicker' => '',
-                    'placeholder' => 'Date de fin',
+                    'data-provider' => 'datepicker',
+                    'placeholder' => 'sidus.filter.date_range.end_date',
                 ],
             ]);
     }

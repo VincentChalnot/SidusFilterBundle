@@ -6,7 +6,7 @@
             {% endif %}
             <div class="input-daterange input-group" data-datepicker="range">
                 {{ form_widget(form.startDate) }}
-                <span class="input-group-addon">à</span>
+                <span class="input-group-addon">{{ 'sidus.filter.date_range.to'|trans }}</span>
                 {{ form_widget(form.endDate) }}
             </div>
             {{ form_errors(form.startDate) }}
