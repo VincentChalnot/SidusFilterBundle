@@ -44,6 +44,11 @@ class OrderButtonType extends SubmitType
 
     public function getName()
     {
+        return $this->getBlockPrefix();
+    }
+
+    public function getBlockPrefix()
+    {
         return 'sidus_order_button';
     }
 } 
