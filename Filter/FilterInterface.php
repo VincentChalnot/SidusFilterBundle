@@ -40,9 +40,11 @@ interface FilterInterface
     public function getOptions();
 
     /**
+     * @param QueryBuilder $qb
+     * @param $alias
      * @return array
      */
-    public function getFormOptions();
+    public function getFormOptions(QueryBuilder $qb, $alias);
 
     /**
      * @param array $formOptions

@@ -33,4 +33,25 @@ class ChoiceFilterType extends FilterType
         }
         $qb->andWhere(implode(' OR ', $dql));
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFormOptions(FilterInterface $filter, QueryBuilder $qb, $alias)
+    {
+        if (isset($this->formOptions['choices'])) {
+            return $this->formOptions;
+        }
+        $choices = [];
+        foreach ($filter->getFullAttributeReferences($alias) as $column) {
+            $qb = clone $qb;
+            $qb->select("{$column} AS __value")
+                ->groupBy($column);
+            foreach ($qb->getQuery()->getArrayResult() as $result) {
+                $value = $result['__value'];
+                $choices[$value] = $value;
+            }
+        }
+        return array_merge($this->formOptions, ['choices' => $choices]);
+    }
 }

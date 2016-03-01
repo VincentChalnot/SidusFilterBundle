@@ -2,6 +2,8 @@
 
 namespace Sidus\FilterBundle\Filter\Type;
 
+use Doctrine\ORM\QueryBuilder;
+use Sidus\FilterBundle\Filter\FilterInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
 abstract class FilterType implements FilterTypeInterface
@@ -12,14 +14,19 @@ abstract class FilterType implements FilterTypeInterface
     /** @var FormTypeInterface|string */
     protected $formType;
 
+    /** @var array */
+    protected $formOptions;
+
     /**
-     * @param $name
+     * @param string $name
      * @param FormTypeInterface $formType
+     * @param array $formOptions
      */
-    public function __construct($name, $formType)
+    public function __construct($name, $formType, array $formOptions = [])
     {
         $this->name = $name;
         $this->formType = $formType;
+        $this->formOptions = $formOptions;
     }
 
     /**
@@ -36,5 +43,13 @@ abstract class FilterType implements FilterTypeInterface
     public function getFormType()
     {
         return $this->formType;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFormOptions(FilterInterface $filter, QueryBuilder $qb, $alias)
+    {
+        return $this->formOptions;
     }
 }

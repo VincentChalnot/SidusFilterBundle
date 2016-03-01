@@ -228,7 +228,8 @@ class FilterConfigurationHandler
             'label' => false,
         ]);
         foreach ($this->getFilters() as $filter) {
-            $filtersBuilder->add($filter->getCode(), $filter->getFilterType()->getFormType(), $filter->getFormOptions());
+            $options = $filter->getFormOptions($this->getQueryBuilder(), $this->getAlias());
+            $filtersBuilder->add($filter->getCode(), $filter->getFilterType()->getFormType(), $options);
         }
         $builder->add($filtersBuilder);
     }

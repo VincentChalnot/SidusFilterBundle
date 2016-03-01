@@ -99,14 +99,18 @@ class Filter implements FilterInterface
     }
 
     /**
+     * @param QueryBuilder $qb
+     * @param string $alias
      * @return array
      */
-    public function getFormOptions()
+    public function getFormOptions(QueryBuilder $qb, $alias)
     {
-        return array_merge([
+        $defaultOptions = [
             'label' => $this->getLabel(),
             'required' => false,
-        ], $this->formOptions);
+        ];
+        $typeOptions = $this->getFilterType()->getFormOptions($this, $qb, $alias);
+        return array_merge($defaultOptions, $typeOptions, $this->formOptions);
     }
 
     /**

@@ -26,4 +26,12 @@ interface FilterTypeInterface
      * @param string $alias
      */
     public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias);
+
+    /**
+     * @param FilterInterface $filter
+     * @param QueryBuilder $qb
+     * @param string $alias
+     * @return array
+     */
+    public function getFormOptions(FilterInterface $filter, QueryBuilder $qb, $alias);
 }
