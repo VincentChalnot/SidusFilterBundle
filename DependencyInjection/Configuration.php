@@ -56,6 +56,7 @@ class Configuration implements ConfigurationInterface
     {
         $fieldDefinition = $filterDefinition
             ->scalarNode('entity')->isRequired()->end()
+            ->integerNode('results_per_page')->defaultValue(15)->end()
             ->arrayNode('sortable')
                 ->prototype('scalar')->end()
             ->end()

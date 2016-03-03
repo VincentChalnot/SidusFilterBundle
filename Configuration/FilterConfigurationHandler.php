@@ -58,6 +58,9 @@ class FilterConfigurationHandler
     /** @var Pagerfanta */
     protected $pager;
 
+    /** @var int */
+    protected $resultsPerPage;
+
     /**
      * @param string $code
      * @param Registry $doctrine
@@ -203,6 +206,7 @@ class FilterConfigurationHandler
             $this->addFilter($this->filterFactory->create($code, $field));
         }
         $this->sortable = $configuration['sortable'];
+        $this->resultsPerPage = $configuration['results_per_page'];
         $this->sortConfig = new SortConfig();
     }
 
@@ -286,7 +290,8 @@ class FilterConfigurationHandler
     }
 
     /**
-     * @todo : Put in form event
+     * @todo : Put in form event ?
+     * @throws \Exception
      */
     protected function applySortForm()
     {
@@ -327,10 +332,15 @@ class FilterConfigurationHandler
         return $this->pager;
     }
 
+    /**
+     * @param QueryBuilder $qb
+     * @param Request $request
+     * @throws \Exception
+     */
     protected function applyPager(QueryBuilder $qb, Request $request)
     {
         $this->pager = new Pagerfanta(new DoctrineORMAdapter($qb));
-        $this->pager->setMaxPerPage(20);
+        $this->pager->setMaxPerPage($this->resultsPerPage);
         $this->pager->setCurrentPage($request->get('page', 1));
     }
 
