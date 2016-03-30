@@ -16,6 +16,9 @@ class SortConfig
     /** @var bool */
     protected $direction;
 
+    /** @var int */
+    protected $page = 1;
+
     /**
      * @return string
      */
@@ -86,8 +89,28 @@ class SortConfig
         $this->direction = $direction;
     }
 
+    /**
+     * Reverse search direction
+     */
     public function switchDirection()
     {
         $this->direction = !$this->direction;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
+     * @param int $page
+     */
+    public function setPage($page)
+    {
+        $page = (int) $page;
+        $this->page = $page ?: 1;
     }
 }

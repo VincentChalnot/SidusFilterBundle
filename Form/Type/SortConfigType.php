@@ -10,6 +10,7 @@ class SortConfigType extends AbstractType
 {
     const COLUMN_NAME = 'column';
     const DIRECTION_NAME = 'direction';
+    const PAGE_NAME = 'page';
 
     /** @var string */
     protected $sortConfigClass;
@@ -26,13 +27,15 @@ class SortConfigType extends AbstractType
     {
         $builder
             ->add(self::COLUMN_NAME, 'hidden')
-            ->add(self::DIRECTION_NAME, 'hidden');
+            ->add(self::DIRECTION_NAME, 'hidden')
+            ->add(self::PAGE_NAME, 'hidden');
     }
 
     public function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefaults([
             'data_class' => $this->sortConfigClass,
+            'pager' => null,
         ]);
     }
 
@@ -41,4 +44,4 @@ class SortConfigType extends AbstractType
     {
         return 'sidus_sort_config';
     }
-} 
+}

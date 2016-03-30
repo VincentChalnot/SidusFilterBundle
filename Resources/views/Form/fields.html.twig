@@ -27,6 +27,8 @@
         <input type="hidden" id="{{ columnVars.id }}" name="{{ columnVars.full_name }}" value="{{ form.vars.data.column }}">
         {% set directionVars = form.direction.vars %}
         <input type="hidden" id="{{ directionVars.id }}" name="{{ directionVars.full_name }}" value="{{ form.vars.data.direction ? 1 : 0 }}">
+        {% set pageVars = form.page.vars %}
+        <input type="hidden" id="{{ pageVars.id }}" name="{{ pageVars.full_name }}" value="{{ form.vars.data.page }}">
     {% endspaceless %}
 {% endblock %}
 

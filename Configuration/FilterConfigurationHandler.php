@@ -339,9 +339,13 @@ class FilterConfigurationHandler
      */
     protected function applyPager(QueryBuilder $qb, Request $request)
     {
+        $selectedPage = $request->query->get('page');
+        if ($selectedPage) {
+            $this->sortConfig->setPage($selectedPage);
+        }
         $this->pager = new Pagerfanta(new DoctrineORMAdapter($qb));
         $this->pager->setMaxPerPage($this->resultsPerPage);
-        $this->pager->setCurrentPage($request->get('page', 1));
+        $this->pager->setCurrentPage($this->sortConfig->getPage());
     }
 
     /**
