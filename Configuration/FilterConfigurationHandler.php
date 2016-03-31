@@ -150,11 +150,30 @@ class FilterConfigurationHandler
      */
     public function handleRequest(Request $request)
     {
-        $qb = $this->getQueryBuilder();
         $this->getForm()->handleRequest($request);
+        $this->handleForm($request->get('page'));
+    }
+
+
+    /**
+     * @param array $data
+     */
+    public function handleArray(array $data = [])
+    {
+        $this->getForm()->submit($data);
+        $this->handleForm(array_key_exists('page', $data) ? $data['page'] : null);
+    }
+
+    /**
+     * @param int $selectedPage
+     * @throws \Exception
+     */
+    protected function handleForm($selectedPage = null)
+    {
+        $qb = $this->getQueryBuilder();
         $this->applyFilters($qb); // maybe do it in a form event ?
         $this->applySort($qb);
-        $this->applyPager($qb, $request); // merge with filters ?
+        $this->applyPager($qb, $selectedPage); // merge with filters ?
     }
 
     /**
@@ -329,17 +348,19 @@ class FilterConfigurationHandler
      */
     public function getPager()
     {
+        if (null === $this->pager) {
+            $this->applyPager($this->getQueryBuilder());
+        }
         return $this->pager;
     }
 
     /**
      * @param QueryBuilder $qb
-     * @param Request $request
+     * @param int $selectedPage
      * @throws \Exception
      */
-    protected function applyPager(QueryBuilder $qb, Request $request)
+    protected function applyPager(QueryBuilder $qb, $selectedPage = null)
     {
-        $selectedPage = $request->query->get('page');
         if ($selectedPage) {
             $this->sortConfig->setPage($selectedPage);
         }
@@ -353,6 +374,6 @@ class FilterConfigurationHandler
      */
     public function getResults()
     {
-        return $this->pager->getCurrentPageResults();
+        return $this->getPager()->getCurrentPageResults();
     }
 }
