@@ -1,21 +1,32 @@
 <?php
 
-    namespace Sidus\FilterBundle\Configuration;
+namespace Sidus\FilterBundle\Configuration;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Exception\LessThan1CurrentPageException;
+use Pagerfanta\Exception\LessThan1MaxPerPageException;
+use Pagerfanta\Exception\NotIntegerCurrentPageException;
+use Pagerfanta\Exception\NotIntegerMaxPerPageException;
+use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
 use Sidus\FilterBundle\Filter\FilterFactory;
 use Sidus\FilterBundle\Filter\FilterInterface;
+use Symfony\Component\Form\Exception\AlreadySubmittedException;
 use Symfony\Component\Form\Form;
-use Symfony\Component\Form\FormBuilder;
+use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 use UnexpectedValueException;
 
+/**
+ * Build the necessary logic around filters based on a configuration
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
+ */
 class FilterConfigurationHandler
 {
     const FILTERS_FORM_NAME = 'filters';
@@ -62,10 +73,10 @@ class FilterConfigurationHandler
     protected $resultsPerPage;
 
     /**
-     * @param string $code
-     * @param Registry $doctrine
+     * @param string        $code
+     * @param Registry      $doctrine
      * @param FilterFactory $filterFactory
-     * @param array $configuration
+     * @param array         $configuration
      * @throws UnexpectedValueException
      */
     public function __construct($code, Registry $doctrine, FilterFactory $filterFactory, array $configuration = [])
@@ -77,8 +88,46 @@ class FilterConfigurationHandler
     }
 
     /**
+     * @return array|\Traversable
+     * @throws LessThan1MaxPerPageException
+     * @throws NotIntegerMaxPerPageException
+     * @throws LessThan1CurrentPageException
+     * @throws NotIntegerCurrentPageException
+     * @throws OutOfRangeCurrentPageException
+     */
+    public function getResults()
+    {
+        return $this->getPager()->getCurrentPageResults();
+    }
+
+    /**
+     * @return string
+     */
+    public function getAlias()
+    {
+        return $this->alias;
+    }
+
+    /**
+     * @return Pagerfanta
+     * @throws LessThan1MaxPerPageException
+     * @throws NotIntegerMaxPerPageException
+     * @throws LessThan1CurrentPageException
+     * @throws NotIntegerCurrentPageException
+     * @throws OutOfRangeCurrentPageException
+     */
+    public function getPager()
+    {
+        if (null === $this->pager) {
+            $this->applyPager($this->getQueryBuilder());
+        }
+
+        return $this->pager;
+    }
+
+    /**
      * @param FilterInterface $filter
-     * @param int $index
+     * @param int             $index
      * @return FilterConfigurationHandler
      * @throws UnexpectedValueException
      */
@@ -102,6 +151,7 @@ class FilterConfigurationHandler
                 [$filter->getCode() => $filter] +
                 array_slice($this->filters, $index, $count - $index, true);
         }
+
         return $this;
     }
 
@@ -123,6 +173,7 @@ class FilterConfigurationHandler
         if (empty($this->filters[$code])) {
             throw new UnexpectedValueException("No filter with code : {$code}");
         }
+
         return $this->filters[$code];
     }
 
@@ -141,12 +192,19 @@ class FilterConfigurationHandler
     public function addSortable($sortable)
     {
         $this->sortable[] = $sortable;
+
         return $this;
     }
 
     /**
      * @param Request $request
-     * @throws \Exception
+     * @throws \LogicException
+     * @throws \OutOfBoundsException
+     * @throws LessThan1MaxPerPageException
+     * @throws NotIntegerMaxPerPageException
+     * @throws LessThan1CurrentPageException
+     * @throws NotIntegerCurrentPageException
+     * @throws OutOfRangeCurrentPageException
      */
     public function handleRequest(Request $request)
     {
@@ -157,23 +215,19 @@ class FilterConfigurationHandler
 
     /**
      * @param array $data
+     * @throws \LogicException
+     * @throws \OutOfBoundsException
+     * @throws AlreadySubmittedException
+     * @throws LessThan1MaxPerPageException
+     * @throws NotIntegerMaxPerPageException
+     * @throws LessThan1CurrentPageException
+     * @throws NotIntegerCurrentPageException
+     * @throws OutOfRangeCurrentPageException
      */
     public function handleArray(array $data = [])
     {
         $this->getForm()->submit($data);
         $this->handleForm(array_key_exists('page', $data) ? $data['page'] : null);
-    }
-
-    /**
-     * @param int $selectedPage
-     * @throws \Exception
-     */
-    protected function handleForm($selectedPage = null)
-    {
-        $qb = $this->getQueryBuilder();
-        $this->applyFilters($qb); // maybe do it in a form event ?
-        $this->applySort($qb);
-        $this->applyPager($qb, $selectedPage); // merge with filters ?
     }
 
     /**
@@ -185,6 +239,7 @@ class FilterConfigurationHandler
         if (!$this->form) {
             throw new \LogicException("You must first build the form by calling buildForm(\$builder) with your form builder");
         }
+
         return $this->form;
     }
 
@@ -198,54 +253,41 @@ class FilterConfigurationHandler
             $this->alias = $alias;
             $this->queryBuilder = $this->repository->createQueryBuilder($alias);
         }
+
         return $this->queryBuilder;
     }
 
     /**
-     * @param $queryBuilder
-     * @param string $alias
+     * @param QueryBuilder $queryBuilder
+     * @param string       $alias
      * @return FilterConfigurationHandler
      */
     public function setQueryBuilder($queryBuilder, $alias)
     {
         $this->alias = $alias;
         $this->queryBuilder = $queryBuilder;
+
         return $this;
     }
 
     /**
-     * @param array $configuration
-     * @throws UnexpectedValueException
-     */
-    protected function parseConfiguration(array $configuration)
-    {
-        $this->entityReference = $configuration['entity'];
-        $this->repository = $this->doctrine->getRepository($this->entityReference);
-        foreach ($configuration['fields'] as $code => $field) {
-            $this->addFilter($this->filterFactory->create($code, $field));
-        }
-        $this->sortable = $configuration['sortable'];
-        $this->resultsPerPage = $configuration['results_per_page'];
-        $this->sortConfig = new SortConfig();
-    }
-
-    /**
-     * @param FormBuilder $builder
+     * @param FormBuilderInterface $builder
      * @return Form
      */
-    public function buildForm(FormBuilder $builder)
+    public function buildForm(FormBuilderInterface $builder)
     {
         $this->buildFilterForm($builder);
         $this->buildSortableForm($builder);
 
         $this->form = $builder->getForm();
+
         return $this->form;
     }
 
     /**
-     * @param FormBuilder $builder
+     * @param FormBuilderInterface $builder
      */
-    protected function buildFilterForm(FormBuilder $builder)
+    protected function buildFilterForm(FormBuilderInterface $builder)
     {
         $filtersBuilder = $builder->create(self::FILTERS_FORM_NAME, 'form', [
             'label' => false,
@@ -258,9 +300,9 @@ class FilterConfigurationHandler
     }
 
     /**
-     * @param FormBuilder $builder
+     * @param FormBuilderInterface $builder
      */
-    protected function buildSortableForm(FormBuilder $builder)
+    protected function buildSortableForm(FormBuilderInterface $builder)
     {
         $sortableBuilder = $builder->create(self::SORTABLE_FORM_NAME, 'form', [
             'label' => false,
@@ -278,7 +320,8 @@ class FilterConfigurationHandler
 
     /**
      * @param QueryBuilder $qb
-     * @throws \Exception
+     * @throws \LogicException
+     * @throws \OutOfBoundsException
      */
     protected function applyFilters(QueryBuilder $qb)
     {
@@ -291,7 +334,8 @@ class FilterConfigurationHandler
 
     /**
      * @param QueryBuilder $qb
-     * @throws \Exception
+     * @throws \LogicException
+     * @throws \OutOfBoundsException
      */
     protected function applySort(QueryBuilder $qb)
     {
@@ -301,7 +345,7 @@ class FilterConfigurationHandler
         if ($column) {
             $fullColumnReference = $column;
             if (false === strpos($column, '.')) {
-                $fullColumnReference = $this->alias . '.' . $column;
+                $fullColumnReference = $this->alias.'.'.$column;
             }
             $direction = $sortConfig->getDirection() ? 'DESC' : 'ASC'; // null or false both default to ASC
             $qb->addOrderBy($fullColumnReference, $direction);
@@ -310,7 +354,8 @@ class FilterConfigurationHandler
 
     /**
      * @todo : Put in form event ?
-     * @throws \Exception
+     * @throws \LogicException
+     * @throws \OutOfBoundsException
      */
     protected function applySortForm()
     {
@@ -332,32 +377,18 @@ class FilterConfigurationHandler
                 }
             }
         }
+
         return $sortConfig;
     }
 
     /**
-     * @return string
-     */
-    public function getAlias()
-    {
-        return $this->alias;
-    }
-
-    /**
-     * @return Pagerfanta
-     */
-    public function getPager()
-    {
-        if (null === $this->pager) {
-            $this->applyPager($this->getQueryBuilder());
-        }
-        return $this->pager;
-    }
-
-    /**
      * @param QueryBuilder $qb
-     * @param int $selectedPage
-     * @throws \Exception
+     * @param int          $selectedPage
+     * @throws LessThan1MaxPerPageException
+     * @throws NotIntegerMaxPerPageException
+     * @throws LessThan1CurrentPageException
+     * @throws NotIntegerCurrentPageException
+     * @throws OutOfRangeCurrentPageException
      */
     protected function applyPager(QueryBuilder $qb, $selectedPage = null)
     {
@@ -370,10 +401,36 @@ class FilterConfigurationHandler
     }
 
     /**
-     * @return array|\Traversable
+     * @param int $selectedPage
+     * @throws \LogicException
+     * @throws \OutOfBoundsException
+     * @throws LessThan1MaxPerPageException
+     * @throws NotIntegerMaxPerPageException
+     * @throws LessThan1CurrentPageException
+     * @throws NotIntegerCurrentPageException
+     * @throws OutOfRangeCurrentPageException
      */
-    public function getResults()
+    protected function handleForm($selectedPage = null)
     {
-        return $this->getPager()->getCurrentPageResults();
+        $qb = $this->getQueryBuilder();
+        $this->applyFilters($qb); // maybe do it in a form event ?
+        $this->applySort($qb);
+        $this->applyPager($qb, $selectedPage); // merge with filters ?
+    }
+
+    /**
+     * @param array $configuration
+     * @throws UnexpectedValueException
+     */
+    protected function parseConfiguration(array $configuration)
+    {
+        $this->entityReference = $configuration['entity'];
+        $this->repository = $this->doctrine->getRepository($this->entityReference);
+        foreach ($configuration['fields'] as $code => $field) {
+            $this->addFilter($this->filterFactory->create($code, $field));
+        }
+        $this->sortable = $configuration['sortable'];
+        $this->resultsPerPage = $configuration['results_per_page'];
+        $this->sortConfig = new SortConfig();
     }
 }
