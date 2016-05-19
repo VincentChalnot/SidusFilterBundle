@@ -244,6 +244,14 @@ class FilterConfigurationHandler
     }
 
     /**
+     * @return SortConfig
+     */
+    public function getSortConfig()
+    {
+        return $this->sortConfig;
+    }
+
+    /**
      * @param string $alias
      * @return QueryBuilder
      */

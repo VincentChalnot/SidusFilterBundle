@@ -2,6 +2,11 @@
 
 namespace Sidus\FilterBundle\DTO;
 
+/**
+ * This class carries the configuration for sorting data in the filter configuration handler
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
+ */
 class SortConfig
 {
     /** @var string */
@@ -29,10 +34,13 @@ class SortConfig
 
     /**
      * @param string $defaultColumn
+     * @return SortConfig
      */
     public function setDefaultColumn($defaultColumn)
     {
         $this->defaultColumn = $defaultColumn;
+
+        return $this;
     }
 
     /**
@@ -45,10 +53,13 @@ class SortConfig
 
     /**
      * @param boolean $defaultDirection
+     * @return SortConfig
      */
     public function setDefaultDirection($defaultDirection)
     {
         $this->defaultDirection = $defaultDirection;
+
+        return $this;
     }
 
     /**
@@ -59,15 +70,19 @@ class SortConfig
         if (null === $this->column) {
             return $this->getDefaultColumn();
         }
+
         return $this->column;
     }
 
     /**
      * @param string $column
+     * @return SortConfig
      */
     public function setColumn($column)
     {
         $this->column = $column;
+
+        return $this;
     }
 
     /**
@@ -78,23 +93,30 @@ class SortConfig
         if (null === $this->direction) {
             return $this->getDefaultDirection();
         }
+
         return $this->direction;
     }
 
     /**
      * @param boolean $direction
+     * @return SortConfig
      */
     public function setDirection($direction)
     {
         $this->direction = $direction;
+
+        return $this;
     }
 
     /**
      * Reverse search direction
+     * @return SortConfig
      */
     public function switchDirection()
     {
         $this->direction = !$this->direction;
+
+        return $this;
     }
 
     /**
@@ -107,10 +129,13 @@ class SortConfig
 
     /**
      * @param int $page
+     * @return SortConfig
      */
     public function setPage($page)
     {
         $page = (int) $page;
         $this->page = $page ?: 1;
+
+        return $this;
     }
 }
