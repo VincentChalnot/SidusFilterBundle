@@ -342,13 +342,10 @@ class FilterConfigurationHandler
 
     /**
      * @param QueryBuilder $qb
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
+     * @param SortConfig   $sortConfig
      */
-    protected function applySort(QueryBuilder $qb)
+    protected function applySort(QueryBuilder $qb, SortConfig $sortConfig)
     {
-        $sortConfig = $this->applySortForm();
-
         $column = $sortConfig->getColumn();
         if ($column) {
             $fullColumnReference = $column;
@@ -422,7 +419,7 @@ class FilterConfigurationHandler
     {
         $qb = $this->getQueryBuilder();
         $this->applyFilters($qb); // maybe do it in a form event ?
-        $this->applySort($qb);
+        $this->applySort($qb, $this->applySortForm());
         $this->applyPager($qb, $selectedPage); // merge with filters ?
     }
 
