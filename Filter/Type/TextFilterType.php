@@ -10,9 +10,9 @@ class TextFilterType extends FilterType
 {
     /**
      * @param FilterInterface $filter
-     * @param FormInterface $form
-     * @param QueryBuilder $qb
-     * @param string $alias
+     * @param FormInterface   $form
+     * @param QueryBuilder    $qb
+     * @param string          $alias
      */
     public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
     {
@@ -24,7 +24,7 @@ class TextFilterType extends FilterType
         foreach ($filter->getFullAttributeReferences($alias) as $column) {
             $uid = uniqid('text');
             $dql[] = "{$column} LIKE :{$uid}";
-            $qb->setParameter($uid, '%' . $data . '%');
+            $qb->setParameter($uid, '%'.$data.'%');
         }
         $qb->andWhere(implode(' OR ', $dql));
     }

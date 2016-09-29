@@ -27,10 +27,10 @@ class Filter implements FilterInterface
     protected $formOptions = [];
 
     /**
-     * @param string $code
+     * @param string              $code
      * @param FilterTypeInterface $filterType
-     * @param array $options
-     * @param array|null $attributes
+     * @param array               $options
+     * @param array|null          $attributes
      */
     public function __construct($code, FilterTypeInterface $filterType, array $options = null, array $attributes = null)
     {
@@ -82,11 +82,13 @@ class Filter implements FilterInterface
 
     /**
      * @param string $label
+     *
      * @return Filter
      */
     public function setLabel($label)
     {
         $this->label = $label;
+
         return $this;
     }
 
@@ -100,7 +102,8 @@ class Filter implements FilterInterface
 
     /**
      * @param QueryBuilder $qb
-     * @param string $alias
+     * @param string       $alias
+     *
      * @return array
      */
     public function getFormOptions(QueryBuilder $qb, $alias)
@@ -110,23 +113,26 @@ class Filter implements FilterInterface
             'required' => false,
         ];
         $typeOptions = $this->getFilterType()->getFormOptions($this, $qb, $alias);
+
         return array_merge($defaultOptions, $typeOptions, $this->formOptions);
     }
 
     /**
      * @param array $formOptions
+     *
      * @return Filter
      */
     public function setFormOptions(array $formOptions)
     {
         $this->formOptions = $formOptions;
+
         return $this;
     }
 
     /**
      * @param FormInterface $form
-     * @param QueryBuilder $qb
-     * @param string $alias
+     * @param QueryBuilder  $qb
+     * @param string        $alias
      */
     public function handleForm(FormInterface $form, QueryBuilder $qb, $alias)
     {
@@ -135,6 +141,7 @@ class Filter implements FilterInterface
 
     /**
      * @param string $alias
+     *
      * @return array
      */
     public function getFullAttributeReferences($alias)
@@ -142,11 +149,12 @@ class Filter implements FilterInterface
         $references = [];
         foreach ($this->getAttributes() as $attribute) {
             if (false === strpos($attribute, '.')) {
-                $references[] = $alias . '.' . $attribute;
+                $references[] = $alias.'.'.$attribute;
             } else {
                 $references[] = $attribute;
             }
         }
+
         return $references;
     }
 }
