@@ -34,6 +34,7 @@ class SortConfig
 
     /**
      * @param string $defaultColumn
+     *
      * @return SortConfig
      */
     public function setDefaultColumn($defaultColumn)
@@ -53,6 +54,7 @@ class SortConfig
 
     /**
      * @param boolean $defaultDirection
+     *
      * @return SortConfig
      */
     public function setDefaultDirection($defaultDirection)
@@ -76,6 +78,7 @@ class SortConfig
 
     /**
      * @param string $column
+     *
      * @return SortConfig
      */
     public function setColumn($column)
@@ -99,6 +102,7 @@ class SortConfig
 
     /**
      * @param boolean $direction
+     *
      * @return SortConfig
      */
     public function setDirection($direction)
@@ -110,6 +114,7 @@ class SortConfig
 
     /**
      * Reverse search direction
+     *
      * @return SortConfig
      */
     public function switchDirection()
@@ -129,6 +134,7 @@ class SortConfig
 
     /**
      * @param int $page
+     *
      * @return SortConfig
      */
     public function setPage($page)

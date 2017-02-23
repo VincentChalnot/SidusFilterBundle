@@ -8,8 +8,18 @@ use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class OrderButtonType
+ *
+ * @package Sidus\FilterBundle\Form\Type
+ */
 class OrderButtonType extends SubmitType
 {
+    /**
+     * @param FormView      $view
+     * @param FormInterface $form
+     * @param array         $options
+     */
     public function buildView(FormView $view, FormInterface $form, array $options)
     {
         parent::buildView($view, $form, $options);
@@ -22,33 +32,43 @@ class OrderButtonType extends SubmitType
         }
     }
 
+    /**
+     * @param OptionsResolver $resolver
+     *
+     * @throws \Symfony\Component\OptionsResolver\Exception\AccessException
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setRequired([
-            'sort_config',
-        ]);
-        $resolver->setDefaults([
-            'type' => 'submit',
-            'label' => false,
-            'attr' => [
-                'class' => 'btn btn-xs btn-link pull-right',
-            ],
-            'icon' => 'sort',
-        ]);
+        $resolver->setRequired(
+            [
+                'sort_config',
+            ]
+        );
+        $resolver->setDefaults(
+            [
+                'type' => SubmitType::class,
+                'label' => false,
+                'attr' => [
+                    'class' => 'btn btn-xs btn-link pull-right',
+                ],
+                'icon' => 'sort',
+            ]
+        );
     }
 
+    /**
+     * @return string
+     */
     public function getParent()
     {
-        return 'submit';
+        return SubmitType::class;
     }
 
-    public function getName()
-    {
-        return $this->getBlockPrefix();
-    }
-
+    /**
+     * @return string
+     */
     public function getBlockPrefix()
     {
         return 'sidus_order_button';
     }
-} 
+}

@@ -1,25 +1,31 @@
 {
-  "name": "sidus/filter-bundle",
-  "description": "Simple yml-configuration-based filtering with Doctrine ORM",
-  "keywords": [ "filter", "doctrine", "sort", "datagrid" ],
-  "homepage": "https://github.com/VincentChalnot/SidusFilterBundle",
-  "type": "library",
-  "license": "GPL-2.0",
-  "authors": [
-    {
-      "name": "Vincent Chalnot",
-      "email": "vincent@sidus.fr",
-      "homepage": "http://chalnot.fr",
-      "role": "Developer"
+    "name": "sidus/filter-bundle",
+    "description": "Simple yml-configuration-based filtering with Doctrine ORM",
+    "keywords": [
+        "filter",
+        "doctrine",
+        "sort",
+        "datagrid"
+    ],
+    "homepage": "https://github.com/VincentChalnot/SidusFilterBundle",
+    "type": "library",
+    "license": "GPL-2.0",
+    "authors": [
+        {
+            "name": "Vincent Chalnot",
+            "email": "vincent@sidus.fr",
+            "homepage": "http://chalnot.fr",
+            "role": "Developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Sidus\\FilterBundle\\": ""
+        }
+    },
+    "require": {
+        "php": ">=5.6",
+        "doctrine/doctrine-bundle": "~1.4",
+        "white-october/pagerfanta-bundle": "~1.0"
     }
-  ],
-  "target-dir": "Sidus/FilterBundle",
-  "autoload": {
-    "psr-0": { "Sidus\\FilterBundle": "" }
-  },
-  "require": {
-    "php": ">=5.6",
-    "doctrine/doctrine-bundle": "~1.4",
-    "white-october/pagerfanta-bundle": "~1.0"
-  }
 }

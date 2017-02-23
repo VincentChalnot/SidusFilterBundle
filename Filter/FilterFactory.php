@@ -13,7 +13,7 @@ class FilterFactory
     protected $filterTypeConfigurationHandler;
 
     /**
-     * @param string $filterClass
+     * @param string                         $filterClass
      * @param FilterTypeConfigurationHandler $filterTypeConfigurationHandler
      */
     public function __construct($filterClass, FilterTypeConfigurationHandler $filterTypeConfigurationHandler)
@@ -24,7 +24,8 @@ class FilterFactory
 
     /**
      * @param string $code
-     * @param array $configuration
+     * @param array  $configuration
+     *
      * @return FilterInterface
      */
     public function create($code, array $configuration)
@@ -40,6 +41,7 @@ class FilterFactory
         if (!empty($configuration['form_options'])) {
             $filter->setFormOptions((array) $configuration['form_options']);
         }
+
         return $filter;
     }
 }

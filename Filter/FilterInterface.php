@@ -30,6 +30,7 @@ interface FilterInterface
 
     /**
      * @param string $label
+     *
      * @return FilterInterface
      */
     public function setLabel($label);
@@ -41,26 +42,29 @@ interface FilterInterface
 
     /**
      * @param QueryBuilder $qb
-     * @param $alias
+     * @param              $alias
+     *
      * @return array
      */
     public function getFormOptions(QueryBuilder $qb, $alias);
 
     /**
      * @param array $formOptions
+     *
      * @return FilterInterface
      */
     public function setFormOptions(array $formOptions);
 
     /**
      * @param FormInterface $form
-     * @param QueryBuilder $qb
-     * @param string $alias
+     * @param QueryBuilder  $qb
+     * @param string        $alias
      */
     public function handleForm(FormInterface $form, QueryBuilder $qb, $alias);
 
     /**
      * @param string $alias
+     *
      * @return array
      */
     public function getFullAttributeReferences($alias);

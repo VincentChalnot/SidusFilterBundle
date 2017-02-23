@@ -3,9 +3,15 @@
 namespace Sidus\FilterBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
+/**
+ * Class SortConfigType
+ *
+ * @package Sidus\FilterBundle\Form\Type
+ */
 class SortConfigType extends AbstractType
 {
     const COLUMN_NAME = 'column';
@@ -23,24 +29,38 @@ class SortConfigType extends AbstractType
         $this->sortConfigClass = $sortConfigClass;
     }
 
+    /**
+     * @param FormBuilderInterface $builder
+     * @param array                $options
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add(self::COLUMN_NAME, 'hidden')
-            ->add(self::DIRECTION_NAME, 'hidden')
-            ->add(self::PAGE_NAME, 'hidden');
+            ->add(self::COLUMN_NAME, HiddenType::class)
+            ->add(self::DIRECTION_NAME, HiddenType::class)
+            ->add(self::PAGE_NAME, HiddenType::class);
     }
 
+    /**
+     * @param OptionsResolver $resolver
+     *
+     * @throws \Symfony\Component\OptionsResolver\Exception\AccessException
+     */
     public function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-            'data_class' => $this->sortConfigClass,
-            'pager' => null,
-        ]);
+        $resolver->setDefaults(
+            [
+                'data_class' => $this->sortConfigClass,
+                'pager' => null,
+            ]
+        );
     }
 
 
-    public function getName()
+    /**
+     * @return string
+     */
+    public function getBlockPrefix()
     {
         return 'sidus_sort_config';
     }

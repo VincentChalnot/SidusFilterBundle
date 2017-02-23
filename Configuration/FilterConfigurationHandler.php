@@ -15,7 +15,10 @@ use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
 use Sidus\FilterBundle\Filter\FilterFactory;
 use Sidus\FilterBundle\Filter\FilterInterface;
+use Sidus\FilterBundle\Form\Type\OrderButtonType;
+use Sidus\FilterBundle\Form\Type\SortConfigType;
 use Symfony\Component\Form\Exception\AlreadySubmittedException;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\SubmitButton;
@@ -77,6 +80,7 @@ class FilterConfigurationHandler
      * @param Registry      $doctrine
      * @param FilterFactory $filterFactory
      * @param array         $configuration
+     *
      * @throws UnexpectedValueException
      */
     public function __construct($code, Registry $doctrine, FilterFactory $filterFactory, array $configuration = [])
@@ -128,6 +132,7 @@ class FilterConfigurationHandler
     /**
      * @param FilterInterface $filter
      * @param int             $index
+     *
      * @return FilterConfigurationHandler
      * @throws UnexpectedValueException
      */
@@ -165,6 +170,7 @@ class FilterConfigurationHandler
 
     /**
      * @param string $code
+     *
      * @return FilterInterface
      * @throws UnexpectedValueException
      */
@@ -187,6 +193,7 @@ class FilterConfigurationHandler
 
     /**
      * @param string $sortable
+     *
      * @return FilterConfigurationHandler
      */
     public function addSortable($sortable)
@@ -198,6 +205,7 @@ class FilterConfigurationHandler
 
     /**
      * @param Request $request
+     *
      * @throws \LogicException
      * @throws \OutOfBoundsException
      * @throws LessThan1MaxPerPageException
@@ -215,6 +223,7 @@ class FilterConfigurationHandler
 
     /**
      * @param array $data
+     *
      * @throws \LogicException
      * @throws \OutOfBoundsException
      * @throws AlreadySubmittedException
@@ -237,7 +246,9 @@ class FilterConfigurationHandler
     public function getForm()
     {
         if (!$this->form) {
-            throw new \LogicException("You must first build the form by calling buildForm(\$builder) with your form builder");
+            throw new \LogicException(
+                "You must first build the form by calling buildForm(\$builder) with your form builder"
+            );
         }
 
         return $this->form;
@@ -253,6 +264,7 @@ class FilterConfigurationHandler
 
     /**
      * @param string $alias
+     *
      * @return QueryBuilder
      */
     public function getQueryBuilder($alias = 'e')
@@ -268,6 +280,7 @@ class FilterConfigurationHandler
     /**
      * @param QueryBuilder $queryBuilder
      * @param string       $alias
+     *
      * @return FilterConfigurationHandler
      */
     public function setQueryBuilder($queryBuilder, $alias)
@@ -280,6 +293,7 @@ class FilterConfigurationHandler
 
     /**
      * @param FormBuilderInterface $builder
+     *
      * @return Form
      */
     public function buildForm(FormBuilderInterface $builder)
@@ -297,9 +311,13 @@ class FilterConfigurationHandler
      */
     protected function buildFilterForm(FormBuilderInterface $builder)
     {
-        $filtersBuilder = $builder->create(self::FILTERS_FORM_NAME, 'form', [
-            'label' => false,
-        ]);
+        $filtersBuilder = $builder->create(
+            self::FILTERS_FORM_NAME,
+            FormType::class,
+            [
+                'label' => false,
+            ]
+        );
         foreach ($this->getFilters() as $filter) {
             $options = $filter->getFormOptions($this->getQueryBuilder(), $this->getAlias());
             $filtersBuilder->add($filter->getCode(), $filter->getFilterType()->getFormType(), $options);
@@ -312,22 +330,35 @@ class FilterConfigurationHandler
      */
     protected function buildSortableForm(FormBuilderInterface $builder)
     {
-        $sortableBuilder = $builder->create(self::SORTABLE_FORM_NAME, 'form', [
-            'label' => false,
-        ]);
-        $sortableBuilder->add(self::SORT_CONFIG_FORM_NAME, 'sidus_sort_config', [
-            'data' => $this->sortConfig,
-        ]);
+        $sortableBuilder = $builder->create(
+            self::SORTABLE_FORM_NAME,
+            FormType::class,
+            [
+                'label' => false,
+            ]
+        );
+        $sortableBuilder->add(
+            self::SORT_CONFIG_FORM_NAME,
+            SortConfigType::class,
+            [
+                'data' => $this->sortConfig,
+            ]
+        );
         foreach ($this->getSortable() as $sortable) {
-            $sortableBuilder->add($sortable, 'sidus_order_button', [
-                'sort_config' => $this->sortConfig,
-            ]);
+            $sortableBuilder->add(
+                $sortable,
+                OrderButtonType::class,
+                [
+                    'sort_config' => $this->sortConfig,
+                ]
+            );
         }
         $builder->add($sortableBuilder);
     }
 
     /**
      * @param QueryBuilder $qb
+     *
      * @throws \LogicException
      * @throws \OutOfBoundsException
      */
@@ -389,6 +420,7 @@ class FilterConfigurationHandler
     /**
      * @param QueryBuilder $qb
      * @param int          $selectedPage
+     *
      * @throws LessThan1MaxPerPageException
      * @throws NotIntegerMaxPerPageException
      * @throws LessThan1CurrentPageException
@@ -407,6 +439,7 @@ class FilterConfigurationHandler
 
     /**
      * @param int $selectedPage
+     *
      * @throws \LogicException
      * @throws \OutOfBoundsException
      * @throws LessThan1MaxPerPageException
@@ -425,6 +458,7 @@ class FilterConfigurationHandler
 
     /**
      * @param array $configuration
+     *
      * @throws UnexpectedValueException
      */
     protected function parseConfiguration(array $configuration)

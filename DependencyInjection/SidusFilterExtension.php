@@ -19,6 +19,8 @@ class SidusFilterExtension extends Extension
 {
     /**
      * {@inheritdoc}
+     * @throws \Exception
+     * @throws \Symfony\Component\DependencyInjection\Exception\BadMethodCallException
      */
     public function load(array $configs, ContainerBuilder $container)
     {
@@ -30,25 +32,30 @@ class SidusFilterExtension extends Extension
             $this->addConfigurationServiceDefinition($code, $configuration, $container);
         }
 
-        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.yml');
-        $loader->load('form.yml');
+        $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config/services'));
+        $loader->load('configuration.yml');
         $loader->load('filter_types.yml');
+        $loader->load('forms.yml');
     }
 
     /**
-     * @param string $code
-     * @param array $configuration
+     * @param string           $code
+     * @param array            $configuration
      * @param ContainerBuilder $container
+     *
+     * @throws \Symfony\Component\DependencyInjection\Exception\BadMethodCallException
      */
     protected function addConfigurationServiceDefinition($code, array $configuration, ContainerBuilder $container)
     {
-        $definition = new Definition(new Parameter('sidus_filter.configuration.class'), [
-            $code,
-            new Reference('doctrine'),
-            new Reference('sidus_filter.filter.factory'),
-            $configuration,
-        ]);
-        $container->setDefinition('sidus_filter.configuration.' . $code, $definition);
+        $definition = new Definition(
+            new Parameter('sidus_filter.configuration.class'),
+            [
+                $code,
+                new Reference('doctrine'),
+                new Reference('sidus_filter.filter.factory'),
+                $configuration,
+            ]
+        );
+        $container->setDefinition('sidus_filter.configuration.'.$code, $definition);
     }
 }

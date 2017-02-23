@@ -12,6 +12,7 @@ class FilterTypeCompilerPass implements CompilerPassInterface
      * Inject tagged attribute types into configuration handler
      *
      * @param ContainerBuilder $container
+     *
      * @api
      */
     public function process(ContainerBuilder $container)

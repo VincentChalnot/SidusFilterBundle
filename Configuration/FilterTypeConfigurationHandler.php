@@ -27,6 +27,7 @@ class FilterTypeConfigurationHandler
 
     /**
      * @param $code
+     *
      * @return FilterTypeInterface
      */
     public function getFilterType($code)
@@ -34,6 +35,7 @@ class FilterTypeConfigurationHandler
         if (empty($this->filterTypes[$code])) {
             throw new \UnexpectedValueException("No type with code : {$code}");
         }
+
         return $this->filterTypes[$code];
     }
 }

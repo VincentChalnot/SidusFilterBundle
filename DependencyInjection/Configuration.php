@@ -9,7 +9,8 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
 /**
  * This is the class that validates and merges configuration from your app/config files
  *
- * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
+ * To learn more see {@link
+ * http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
  */
 class Configuration implements ConfigurationInterface
 {
@@ -34,16 +35,16 @@ class Configuration implements ConfigurationInterface
 
         $filterDefinition = $rootNode
             ->children()
-                ->arrayNode('configurations')
-                    ->prototype('array')
-                        ->children();
+            ->arrayNode('configurations')
+            ->prototype('array')
+            ->children();
 
         $this->appendFilterDefinition($filterDefinition);
 
 
         $filterDefinition->end()
-                    ->end()
-                ->end()
+            ->end()
+            ->end()
             ->end();
 
         return $treeBuilder;
@@ -58,16 +59,16 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('entity')->isRequired()->end()
             ->integerNode('results_per_page')->defaultValue(15)->end()
             ->arrayNode('sortable')
-                ->prototype('scalar')->end()
+            ->prototype('scalar')->end()
             ->end()
             ->arrayNode('fields')
-                ->prototype('array')
-                    ->children();
+            ->prototype('array')
+            ->children();
 
         $this->appendFieldDefinition($fieldDefinition);
 
         $fieldDefinition->end()
-                ->end()
+            ->end()
             ->end();
     }
 
@@ -80,7 +81,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('type')->defaultValue('text')->end()
             ->scalarNode('label')->defaultNull()->end()
             ->arrayNode('attributes')
-                ->prototype('scalar')->end()
+            ->prototype('scalar')->end()
             ->end()
             ->variableNode('options')->defaultNull()->end()
             ->scalarNode('form_type')->defaultValue('text')->end()

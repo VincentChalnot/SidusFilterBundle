@@ -1,11 +1,6 @@
-parameters:
-    sidus_filter.filter.type.date_range.class: Sidus\FilterBundle\Filter\Type\DateRangeFilterType
-    sidus_filter.filter.type.text.class: Sidus\FilterBundle\Filter\Type\TextFilterType
-    sidus_filter.filter.type.choice.class: Sidus\FilterBundle\Filter\Type\ChoiceFilterType
-
 services:
     sidus_filter.filter.type.date_range:
-        class: '%sidus_filter.filter.type.date_range.class%'
+        class: Sidus\FilterBundle\Filter\Type\DateRangeFilterType
         arguments:
             - date_range
             - 'Sidus\FilterBundle\Form\Type\DateRangeType'
@@ -13,7 +8,7 @@ services:
             - { name: sidus.filter_type }
 
     sidus_filter.filter.type.text:
-        class: '%sidus_filter.filter.type.text.class%'
+        class: Sidus\FilterBundle\Filter\Type\TextFilterType
         arguments:
             - text
             - 'Symfony\Component\Form\Extension\Core\Type\TextType'
@@ -21,7 +16,7 @@ services:
             - { name: sidus.filter_type }
 
     sidus_filter.filter.type.choice:
-        class: '%sidus_filter.filter.type.choice.class%'
+        class: Sidus\FilterBundle\Filter\Type\ChoiceFilterType
         arguments:
             - choice
             - 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'

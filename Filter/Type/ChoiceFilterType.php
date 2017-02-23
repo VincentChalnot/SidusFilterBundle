@@ -10,9 +10,9 @@ class ChoiceFilterType extends FilterType
 {
     /**
      * @param FilterInterface $filter
-     * @param FormInterface $form
-     * @param QueryBuilder $qb
-     * @param string $alias
+     * @param FormInterface   $form
+     * @param QueryBuilder    $qb
+     * @param string          $alias
      */
     public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
     {
@@ -35,7 +35,7 @@ class ChoiceFilterType extends FilterType
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFormOptions(FilterInterface $filter, QueryBuilder $qb, $alias)
     {
@@ -52,6 +52,7 @@ class ChoiceFilterType extends FilterType
                 $choices[$value] = $value;
             }
         }
+
         return array_merge($this->formOptions, ['choices' => $choices]);
     }
 }

@@ -5,17 +5,17 @@ parameters:
 
 services:
     sidus_filter.form.type.date_range:
-        class: %sidus_filter.form.type.date_range.class%
+        class: '%sidus_filter.form.type.date_range.class%'
         tags:
-            - { name: form.type, alias: sidus_date_range }
+            - { name: form.type }
 
     sidus_filter.form.type.order_button:
-        class: %sidus_filter.form.type.order_button.class%
+        class: '%sidus_filter.form.type.order_button.class%'
         tags:
-            - { name: form.type, alias: sidus_order_button }
+            - { name: form.type }
 
     sidus_filter.form.type.sort_config:
-        class: %sidus_filter.form.type.sort_config.class%
-        arguments: [%sidus_filter.filter.dto.sort_config%]
+        class: '%sidus_filter.form.type.sort_config.class%'
+        arguments: ['%sidus_filter.filter.dto.sort_config%']
         tags:
-            - { name: form.type, alias: sidus_sort_config }
+            - { name: form.type }

@@ -17,16 +17,19 @@
 {% endblock %}
 
 {% block sidus_order_button_widget %}
-    <button {{ block('widget_container_attributes') }} name="{{ form.vars.full_name }}"><i class="fa fa-{{ form.vars.icon }}"></i></button>
+    <button {{ block('widget_container_attributes') }} name="{{ form.vars.full_name }}"><i
+                class="fa fa-{{ form.vars.icon }}"></i></button>
 {% endblock %}
 
 {% block sidus_sort_config_widget %}
     {% spaceless %}
         {# This is a hack to take the last values of the data object into account and not the ones binded during the handleRequest #}
         {% set columnVars = form.column.vars %}
-        <input type="hidden" id="{{ columnVars.id }}" name="{{ columnVars.full_name }}" value="{{ form.vars.data.column }}">
+        <input type="hidden" id="{{ columnVars.id }}" name="{{ columnVars.full_name }}"
+               value="{{ form.vars.data.column }}">
         {% set directionVars = form.direction.vars %}
-        <input type="hidden" id="{{ directionVars.id }}" name="{{ directionVars.full_name }}" value="{{ form.vars.data.direction ? 1 : 0 }}">
+        <input type="hidden" id="{{ directionVars.id }}" name="{{ directionVars.full_name }}"
+               value="{{ form.vars.data.direction ? 1 : 0 }}">
         {% set pageVars = form.page.vars %}
         <input type="hidden" id="{{ pageVars.id }}" name="{{ pageVars.full_name }}" value="{{ form.vars.data.page }}">
     {% endspaceless %}

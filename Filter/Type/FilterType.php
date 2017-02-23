@@ -18,9 +18,9 @@ abstract class FilterType implements FilterTypeInterface
     protected $formOptions;
 
     /**
-     * @param string $name
+     * @param string            $name
      * @param FormTypeInterface $formType
-     * @param array $formOptions
+     * @param array             $formOptions
      */
     public function __construct($name, $formType, array $formOptions = [])
     {
@@ -46,7 +46,7 @@ abstract class FilterType implements FilterTypeInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritdoc}
      */
     public function getFormOptions(FilterInterface $filter, QueryBuilder $qb, $alias)
     {

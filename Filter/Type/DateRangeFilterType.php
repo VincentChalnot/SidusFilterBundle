@@ -11,9 +11,9 @@ class DateRangeFilterType extends FilterType
 {
     /**
      * @param FilterInterface $filter
-     * @param FormInterface $form
-     * @param QueryBuilder $qb
-     * @param string $alias
+     * @param FormInterface   $form
+     * @param QueryBuilder    $qb
+     * @param string          $alias
      */
     public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
     {
