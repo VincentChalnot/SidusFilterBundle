@@ -56,6 +56,7 @@ class SidusFilterExtension extends Extension
                 $configuration,
             ]
         );
+        $definition->setPublic(false);
         $container->setDefinition('sidus_filter.configuration.'.$code, $definition);
     }
 }
