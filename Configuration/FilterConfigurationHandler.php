@@ -6,6 +6,7 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
+use Pagerfanta\Exception\InvalidArgumentException;
 use Pagerfanta\Exception\LessThan1CurrentPageException;
 use Pagerfanta\Exception\LessThan1MaxPerPageException;
 use Pagerfanta\Exception\NotIntegerCurrentPageException;
@@ -92,12 +93,9 @@ class FilterConfigurationHandler
     }
 
     /**
+     * @throws InvalidArgumentException
+     *
      * @return array|\Traversable
-     * @throws LessThan1MaxPerPageException
-     * @throws NotIntegerMaxPerPageException
-     * @throws LessThan1CurrentPageException
-     * @throws NotIntegerCurrentPageException
-     * @throws OutOfRangeCurrentPageException
      */
     public function getResults()
     {
@@ -113,12 +111,9 @@ class FilterConfigurationHandler
     }
 
     /**
+     * @throws InvalidArgumentException
+     *
      * @return Pagerfanta
-     * @throws LessThan1MaxPerPageException
-     * @throws NotIntegerMaxPerPageException
-     * @throws LessThan1CurrentPageException
-     * @throws NotIntegerCurrentPageException
-     * @throws OutOfRangeCurrentPageException
      */
     public function getPager()
     {
