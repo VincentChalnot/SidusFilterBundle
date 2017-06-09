@@ -460,11 +460,20 @@ class FilterConfigurationHandler
     {
         $this->entityReference = $configuration['entity'];
         $this->repository = $this->doctrine->getRepository($this->entityReference);
+        /** @noinspection ForeachSourceInspection */
         foreach ($configuration['fields'] as $code => $field) {
             $this->addFilter($this->filterFactory->create($code, $field));
         }
         $this->sortable = $configuration['sortable'];
         $this->resultsPerPage = $configuration['results_per_page'];
         $this->sortConfig = new SortConfig();
+
+        /** @noinspection ForeachSourceInspection */
+        /** @noinspection LoopWhichDoesNotLoopInspection */
+        foreach ($configuration['default_sort'] as $column => $direction) {
+            $this->sortConfig->setDefaultColumn($column);
+            $this->sortConfig->setDefaultDirection($direction === 'DESC');
+            break;
+        }
     }
 }

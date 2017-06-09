@@ -61,6 +61,9 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('sortable')
             ->prototype('scalar')->end()
             ->end()
+            ->arrayNode('default_sort')
+            ->prototype('scalar')->defaultValue([])->end()
+            ->end()
             ->arrayNode('fields')
             ->prototype('array')
             ->children();
