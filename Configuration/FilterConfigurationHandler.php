@@ -22,6 +22,7 @@ use Symfony\Component\Form\Exception\AlreadySubmittedException;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
 use UnexpectedValueException;
@@ -392,6 +393,7 @@ class FilterConfigurationHandler
     {
         $form = $this->getForm();
         $sortableForm = $form->get(self::SORTABLE_FORM_NAME);
+        /** @var FormInterface $sortConfigForm */
         $sortConfigForm = $sortableForm->get(self::SORT_CONFIG_FORM_NAME);
         /** @var SortConfig $sortConfig */
         $sortConfig = $sortConfigForm->getData();

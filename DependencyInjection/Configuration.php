@@ -41,7 +41,6 @@ class Configuration implements ConfigurationInterface
 
         $this->appendFilterDefinition($filterDefinition);
 
-
         $filterDefinition->end()
             ->end()
             ->end()

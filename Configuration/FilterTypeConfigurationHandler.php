@@ -26,7 +26,9 @@ class FilterTypeConfigurationHandler
     }
 
     /**
-     * @param $code
+     * @param string $code
+     *
+     * @throws \UnexpectedValueException
      *
      * @return FilterTypeInterface
      */

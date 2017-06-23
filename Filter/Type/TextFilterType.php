@@ -6,7 +6,7 @@ use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Symfony\Component\Form\FormInterface;
 
-class TextFilterType extends FilterType
+class TextFilterType extends AbstractFilterType
 {
     /**
      * @param FilterInterface $filter
@@ -17,15 +17,17 @@ class TextFilterType extends FilterType
     public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
     {
         $data = $form->getData();
-        if (!$data) {
+        if (!$form->isSubmitted() || null === $data) {
             return;
         }
         $dql = [];
         foreach ($filter->getFullAttributeReferences($alias) as $column) {
-            $uid = uniqid('text');
+            $uid = uniqid('text', false);
             $dql[] = "{$column} LIKE :{$uid}";
             $qb->setParameter($uid, '%'.$data.'%');
         }
-        $qb->andWhere(implode(' OR ', $dql));
+        if (0 < count($dql)) {
+            $qb->andWhere(implode(' OR ', $dql));
+        }
     }
 }

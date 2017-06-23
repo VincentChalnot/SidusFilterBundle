@@ -6,7 +6,7 @@ use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Symfony\Component\Form\FormInterface;
 
-class ChoiceFilterType extends FilterType
+class ChoiceFilterType extends AbstractFilterType
 {
     /**
      * @param FilterInterface $filter
@@ -17,12 +17,15 @@ class ChoiceFilterType extends FilterType
     public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
     {
         $data = $form->getData();
-        if (!$data) {
+        if (!$form->isSubmitted() || null === $data) {
+            return;
+        }
+        if (is_array($data) && 0 === count($data)) {
             return;
         }
         $dql = [];
         foreach ($filter->getFullAttributeReferences($alias) as $column) {
-            $uid = uniqid('choices');
+            $uid = uniqid('choices', false);
             if (is_array($data)) {
                 $dql[] = "{$column} IN (:{$uid})";
                 $qb->setParameter($uid, $data);
@@ -31,7 +34,9 @@ class ChoiceFilterType extends FilterType
                 $qb->setParameter($uid, $data);
             }
         }
-        $qb->andWhere(implode(' OR ', $dql));
+        if (0 < count($dql)) {
+            $qb->andWhere(implode(' OR ', $dql));
+        }
     }
 
     /**

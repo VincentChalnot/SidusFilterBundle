@@ -6,7 +6,7 @@ use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
-abstract class FilterType implements FilterTypeInterface
+abstract class AbstractFilterType implements FilterTypeInterface
 {
     /** @var string */
     protected $name;

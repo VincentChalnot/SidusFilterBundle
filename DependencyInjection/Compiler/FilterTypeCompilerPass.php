@@ -13,6 +13,9 @@ class FilterTypeCompilerPass implements CompilerPassInterface
      *
      * @param ContainerBuilder $container
      *
+     * @throws \Symfony\Component\DependencyInjection\Exception\InvalidArgumentException
+     * @throws \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException
+     *
      * @api
      */
     public function process(ContainerBuilder $container)

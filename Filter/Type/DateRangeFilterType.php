@@ -7,7 +7,7 @@ use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Form\Type\DateRangeType;
 use Symfony\Component\Form\FormInterface;
 
-class DateRangeFilterType extends FilterType
+class DateRangeFilterType extends AbstractFilterType
 {
     /**
      * @param FilterInterface $filter
@@ -18,7 +18,7 @@ class DateRangeFilterType extends FilterType
     public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
     {
         $data = $form->getData();
-        if (!$data) {
+        if (!$form->isSubmitted() || null === $data) {
             return;
         }
         $columns = $filter->getFullAttributeReferences($alias);
@@ -26,21 +26,25 @@ class DateRangeFilterType extends FilterType
             $startDate = $data[DateRangeType::START_NAME];
             $dql = [];
             foreach ($columns as $column) {
-                $uid = uniqid('fromDate');
+                $uid = uniqid('fromDate', false);
                 $dql[] = "{$column} >= :{$uid}";
                 $qb->setParameter($uid, $startDate);
             }
-            $qb->andWhere(implode(' OR ', $dql));
+            if (0 < count($dql)) {
+                $qb->andWhere(implode(' OR ', $dql));
+            }
         }
         if (!empty($data[DateRangeType::END_NAME])) {
             $endDate = $data[DateRangeType::END_NAME];
             $dql = [];
             foreach ($columns as $column) {
-                $uid = uniqid('endDate');
+                $uid = uniqid('endDate', false);
                 $dql[] = "{$column} <= :{$uid}";
                 $qb->setParameter($uid, $endDate);
             }
-            $qb->andWhere(implode(' OR ', $dql));
+            if (0 < count($dql)) {
+                $qb->andWhere(implode(' OR ', $dql));
+            }
         }
     }
 }
