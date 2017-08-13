@@ -316,7 +316,7 @@ class FilterConfigurationHandler
         );
         foreach ($this->getFilters() as $filter) {
             $options = $filter->getFormOptions($this->getQueryBuilder(), $this->getAlias());
-            $filtersBuilder->add($filter->getCode(), $filter->getFilterType()->getFormType(), $options);
+            $filtersBuilder->add($filter->getCode(), $filter->getFormType(), $options);
         }
         $builder->add($filtersBuilder);
     }

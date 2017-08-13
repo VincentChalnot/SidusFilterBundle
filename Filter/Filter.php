@@ -5,6 +5,7 @@ namespace Sidus\FilterBundle\Filter;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormTypeInterface;
 
 class Filter implements FilterInterface
 {
@@ -16,6 +17,9 @@ class Filter implements FilterInterface
 
     /** @var FilterTypeInterface */
     protected $filterType;
+
+    /** @var string */
+    protected $formType;
 
     /** @var string */
     protected $label;
@@ -72,6 +76,7 @@ class Filter implements FilterInterface
         return $this->filterType;
     }
 
+
     /**
      * @return string
      */
@@ -98,6 +103,30 @@ class Filter implements FilterInterface
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getFormType()
+    {
+        if (null !== $this->formType) {
+            return $this->formType;
+        }
+
+        return $this->getFilterType()->getFormType();
+    }
+
+    /**
+     * @param string $formType
+     *
+     * @return Filter
+     */
+    public function setFormType($formType)
+    {
+        $this->formType = $formType;
+
+        return $this;
     }
 
     /**

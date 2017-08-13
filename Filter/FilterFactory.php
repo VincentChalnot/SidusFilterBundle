@@ -41,6 +41,9 @@ class FilterFactory
         if (!empty($configuration['form_options'])) {
             $filter->setFormOptions((array) $configuration['form_options']);
         }
+        if (!empty($configuration['form_type'])) {
+            $filter->setFormType($configuration['form_type']);
+        }
 
         return $filter;
     }

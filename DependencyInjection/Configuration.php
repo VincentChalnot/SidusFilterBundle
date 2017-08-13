@@ -86,7 +86,7 @@ class Configuration implements ConfigurationInterface
             ->prototype('scalar')->end()
             ->end()
             ->variableNode('options')->defaultNull()->end()
-            ->scalarNode('form_type')->defaultValue('text')->end()
+            ->scalarNode('form_type')->defaultNull()->end()
             ->variableNode('form_options')->defaultNull()->end();
     }
 }

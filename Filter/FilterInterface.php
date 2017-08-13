@@ -5,6 +5,7 @@ namespace Sidus\FilterBundle\Filter;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
 use Symfony\Component\Form\FormInterface;
+use Symfony\Component\Form\FormTypeInterface;
 
 interface FilterInterface
 {
@@ -39,6 +40,20 @@ interface FilterInterface
      * @return array
      */
     public function getOptions();
+
+    /**
+     * Override form type from default filter type
+     *
+     * @return FormTypeInterface|string
+     */
+    public function getFormType();
+
+    /**
+     * @param string $formType
+     *
+     * @return Filter
+     */
+    public function setFormType($formType);
 
     /**
      * @param QueryBuilder $qb
