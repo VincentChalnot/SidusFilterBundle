@@ -11,6 +11,7 @@ use Pagerfanta\Exception\LessThan1CurrentPageException;
 use Pagerfanta\Exception\LessThan1MaxPerPageException;
 use Pagerfanta\Exception\NotIntegerCurrentPageException;
 use Pagerfanta\Exception\NotIntegerMaxPerPageException;
+use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
@@ -431,7 +432,11 @@ class FilterConfigurationHandler
         }
         $this->pager = new Pagerfanta(new DoctrineORMAdapter($qb));
         $this->pager->setMaxPerPage($this->resultsPerPage);
-        $this->pager->setCurrentPage($this->sortConfig->getPage());
+        try {
+            $this->pager->setCurrentPage($this->sortConfig->getPage());
+        } catch (NotValidCurrentPageException $e) {
+            $this->sortConfig->setPage($this->pager->getCurrentPage());
+        }
     }
 
     /**
