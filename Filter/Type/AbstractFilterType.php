@@ -2,10 +2,12 @@
 
 namespace Sidus\FilterBundle\Filter\Type;
 
-use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Symfony\Component\Form\FormTypeInterface;
 
+/**
+ * Generic filter type
+ */
 abstract class AbstractFilterType implements FilterTypeInterface
 {
     /** @var string */
@@ -48,7 +50,7 @@ abstract class AbstractFilterType implements FilterTypeInterface
     /**
      * {@inheritdoc}
      */
-    public function getFormOptions(FilterInterface $filter, QueryBuilder $qb, $alias)
+    public function getFormOptions(FilterInterface $filter)
     {
         return $this->formOptions;
     }

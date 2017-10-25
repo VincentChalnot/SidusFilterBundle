@@ -4,6 +4,9 @@ namespace Sidus\FilterBundle\Configuration;
 
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
 
+/**
+ * Registry for filter types
+ */
 class FilterTypeConfigurationHandler
 {
     /** @var FilterTypeInterface[] */

@@ -1,24 +1,27 @@
 <?php
 
-namespace Sidus\FilterBundle\Filter\Type;
+namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
-use Sidus\FilterBundle\Filter\FilterInterface;
+use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterInterface;
 use Sidus\FilterBundle\Form\Type\DateRangeType;
 use Symfony\Component\Form\FormInterface;
 
-class DateRangeFilterType extends AbstractFilterType
+/**
+ * Filtering on dates with Doctrine entities
+ */
+class DateRangeFilterType extends AbstractDoctrineFilterType
 {
     /**
-     * @param FilterInterface $filter
-     * @param FormInterface   $form
-     * @param QueryBuilder    $qb
-     * @param string          $alias
+     * @param DoctrineFilterInterface $filter
+     * @param FormInterface           $form
+     * @param QueryBuilder            $qb
+     * @param string                  $alias
      */
-    public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
+    public function handleForm(DoctrineFilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
     {
         $data = $form->getData();
-        if (!$form->isSubmitted() || null === $data) {
+        if (null === $data || !$form->isSubmitted()) {
             return;
         }
         $columns = $filter->getFullAttributeReferences($alias);

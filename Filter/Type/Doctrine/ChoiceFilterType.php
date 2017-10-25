@@ -1,23 +1,28 @@
 <?php
 
-namespace Sidus\FilterBundle\Filter\Type;
+namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
-use Sidus\FilterBundle\Filter\FilterInterface;
+use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterInterface;
 use Symfony\Component\Form\FormInterface;
 
-class ChoiceFilterType extends AbstractFilterType
+/**
+ * Filter logic for choice with Doctrine entities
+ */
+class ChoiceFilterType extends AbstractDoctrineFilterType
 {
     /**
-     * @param FilterInterface $filter
-     * @param FormInterface   $form
-     * @param QueryBuilder    $qb
-     * @param string          $alias
+     * @param DoctrineFilterInterface $filter
+     * @param FormInterface           $form
+     * @param QueryBuilder            $qb
+     * @param string                  $alias
+     *
+     * @throws \LogicException
      */
-    public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
+    public function handleForm(DoctrineFilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
     {
         $data = $form->getData();
-        if (!$form->isSubmitted() || null === $data) {
+        if (null === $data || !$form->isSubmitted()) {
             return;
         }
         if (is_array($data) && 0 === count($data)) {
@@ -41,8 +46,10 @@ class ChoiceFilterType extends AbstractFilterType
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \LogicException
      */
-    public function getFormOptions(FilterInterface $filter, QueryBuilder $qb, $alias)
+    public function getDoctrineFormOptions(DoctrineFilterInterface $filter, QueryBuilder $qb, $alias)
     {
         if (isset($this->formOptions['choices'])) {
             return $this->formOptions;

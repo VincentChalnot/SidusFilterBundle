@@ -6,6 +6,9 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 
+/**
+ * Form type to allow picking of a date range
+ */
 class DateRangeType extends AbstractType
 {
     const START_NAME = 'startDate';

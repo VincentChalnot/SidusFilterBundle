@@ -2,21 +2,18 @@
 
 namespace Sidus\FilterBundle\Filter;
 
-use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\FormTypeInterface;
 
-class Filter implements FilterInterface
+/**
+ * Base filter logic
+ */
+abstract class AbstractFilter implements FilterInterface
 {
     /** @var string */
     protected $code;
 
     /** @var array */
     protected $attributes;
-
-    /** @var FilterTypeInterface */
-    protected $filterType;
 
     /** @var string */
     protected $formType;
@@ -29,20 +26,6 @@ class Filter implements FilterInterface
 
     /** @var array */
     protected $formOptions = [];
-
-    /**
-     * @param string              $code
-     * @param FilterTypeInterface $filterType
-     * @param array               $options
-     * @param array|null          $attributes
-     */
-    public function __construct($code, FilterTypeInterface $filterType, array $options = null, array $attributes = null)
-    {
-        $this->code = $code;
-        $this->filterType = $filterType;
-        $this->options = $options;
-        $this->attributes = empty($attributes) ? [$code] : $attributes;
-    }
 
     /**
      * @return string
@@ -71,11 +54,7 @@ class Filter implements FilterInterface
     /**
      * @return FilterTypeInterface
      */
-    public function getFilterType()
-    {
-        return $this->filterType;
-    }
-
+    abstract public function getFilterType();
 
     /**
      * @return string
@@ -87,14 +66,10 @@ class Filter implements FilterInterface
 
     /**
      * @param string $label
-     *
-     * @return Filter
      */
     public function setLabel($label)
     {
         $this->label = $label;
-
-        return $this;
     }
 
     /**
@@ -106,7 +81,7 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getFormType()
     {
@@ -119,71 +94,31 @@ class Filter implements FilterInterface
 
     /**
      * @param string $formType
-     *
-     * @return Filter
      */
     public function setFormType($formType)
     {
         $this->formType = $formType;
-
-        return $this;
     }
 
     /**
-     * @param QueryBuilder $qb
-     * @param string       $alias
-     *
      * @return array
      */
-    public function getFormOptions(QueryBuilder $qb, $alias)
+    public function getFormOptions()
     {
         $defaultOptions = [
             'label' => $this->getLabel(),
             'required' => false,
         ];
-        $typeOptions = $this->getFilterType()->getFormOptions($this, $qb, $alias);
+        $typeOptions = $this->getFilterType()->getFormOptions($this);
 
         return array_merge($defaultOptions, $typeOptions, $this->formOptions);
     }
 
     /**
      * @param array $formOptions
-     *
-     * @return Filter
      */
     public function setFormOptions(array $formOptions)
     {
         $this->formOptions = $formOptions;
-
-        return $this;
-    }
-
-    /**
-     * @param FormInterface $form
-     * @param QueryBuilder  $qb
-     * @param string        $alias
-     */
-    public function handleForm(FormInterface $form, QueryBuilder $qb, $alias)
-    {
-        $this->getFilterType()->handleForm($this, $form, $qb, $alias);
-    }
-
-    /**
-     * @param string $alias
-     *
-     * @return array
-     */
-    public function getFullAttributeReferences($alias)
-    {
-        $references = [];
-        foreach ($this->getAttributes() as $attribute) {
-            if (false === strpos($attribute, '.')) {
-                $references[] = $alias.'.'.$attribute;
-            } else {
-                $references[] = $attribute;
-            }
-        }
-
-        return $references;
     }
 }

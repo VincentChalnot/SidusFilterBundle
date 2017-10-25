@@ -6,6 +6,11 @@ use Sidus\FilterBundle\DependencyInjection\Compiler\FilterTypeCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
+/**
+ * Class SidusFilterBundle
+ *
+ * @package Sidus\FilterBundle
+ */
 class SidusFilterBundle extends Bundle
 {
     /**

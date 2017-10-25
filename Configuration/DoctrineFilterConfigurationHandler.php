@@ -15,50 +15,33 @@ use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
-use Sidus\FilterBundle\Filter\FilterFactory;
-use Sidus\FilterBundle\Filter\FilterInterface;
+use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterFactory;
+use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterInterface;
 use Sidus\FilterBundle\Form\Type\OrderButtonType;
 use Sidus\FilterBundle\Form\Type\SortConfigType;
-use Symfony\Component\Form\Exception\AlreadySubmittedException;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
-use Symfony\Component\HttpFoundation\Request;
 use UnexpectedValueException;
 
 /**
  * Build the necessary logic around filters based on a configuration
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
+ *
+ * @method DoctrineFilterInterface[] getFilters
  */
-class FilterConfigurationHandler
+class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHandler implements DoctrineFilterConfigurationHandlerInterface
 {
-    const FILTERS_FORM_NAME = 'filters';
-    const SORTABLE_FORM_NAME = 'sortable';
-    const SORT_CONFIG_FORM_NAME = 'config';
-
-    /** @var string */
-    protected $code;
-
     /** @var Registry */
     protected $doctrine;
 
-    /** @var FilterFactory */
+    /** @var DoctrineFilterFactory */
     protected $filterFactory;
 
     /** @var string */
     protected $entityReference;
-
-    /** @var array */
-    protected $sortable;
-
-    /** @var FilterInterface[] */
-    protected $filters = [];
-
-    /** @var Form */
-    protected $form;
 
     /** @var EntityRepository */
     protected $repository;
@@ -69,39 +52,24 @@ class FilterConfigurationHandler
     /** @var QueryBuilder */
     protected $queryBuilder;
 
-    /** @var SortConfig */
-    protected $sortConfig;
-
-    /** @var Pagerfanta */
-    protected $pager;
-
-    /** @var int */
-    protected $resultsPerPage;
-
     /**
-     * @param string        $code
-     * @param Registry      $doctrine
-     * @param FilterFactory $filterFactory
-     * @param array         $configuration
+     * @param string                $code
+     * @param Registry              $doctrine
+     * @param DoctrineFilterFactory $filterFactory
+     * @param array                 $configuration
      *
      * @throws UnexpectedValueException
      */
-    public function __construct($code, Registry $doctrine, FilterFactory $filterFactory, array $configuration = [])
-    {
+    public function __construct(
+        $code,
+        Registry $doctrine,
+        DoctrineFilterFactory $filterFactory,
+        array $configuration = []
+    ) {
         $this->code = $code;
         $this->doctrine = $doctrine;
         $this->filterFactory = $filterFactory;
         $this->parseConfiguration($configuration);
-    }
-
-    /**
-     * @throws InvalidArgumentException
-     *
-     * @return array|\Traversable
-     */
-    public function getResults()
-    {
-        return $this->getPager()->getCurrentPageResults();
     }
 
     /**
@@ -127,139 +95,6 @@ class FilterConfigurationHandler
     }
 
     /**
-     * @param FilterInterface $filter
-     * @param int             $index
-     *
-     * @return FilterConfigurationHandler
-     * @throws UnexpectedValueException
-     */
-    public function addFilter(FilterInterface $filter, $index = null)
-    {
-        if (null === $index) {
-            $this->filters[$filter->getCode()] = $filter;
-        } else {
-            $count = count($this->filters);
-            if (!is_int($index) && !is_numeric($index)) {
-                throw new UnexpectedValueException("Given index should be an integer '{$index}' given");
-            }
-            if (abs($index) > $count) {
-                $index = 0;
-            }
-            if ($index < 0) {
-                $index = $count + $index;
-            }
-            /** @noinspection AdditionOperationOnArraysInspection */
-            $this->filters = array_slice($this->filters, 0, $index, true) +
-                [$filter->getCode() => $filter] +
-                array_slice($this->filters, $index, $count - $index, true);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return FilterInterface[]
-     */
-    public function getFilters()
-    {
-        return $this->filters;
-    }
-
-    /**
-     * @param string $code
-     *
-     * @return FilterInterface
-     * @throws UnexpectedValueException
-     */
-    public function getFilter($code)
-    {
-        if (empty($this->filters[$code])) {
-            throw new UnexpectedValueException("No filter with code : {$code}");
-        }
-
-        return $this->filters[$code];
-    }
-
-    /**
-     * @return array
-     */
-    public function getSortable()
-    {
-        return $this->sortable;
-    }
-
-    /**
-     * @param string $sortable
-     *
-     * @return FilterConfigurationHandler
-     */
-    public function addSortable($sortable)
-    {
-        $this->sortable[] = $sortable;
-
-        return $this;
-    }
-
-    /**
-     * @param Request $request
-     *
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
-     * @throws LessThan1MaxPerPageException
-     * @throws NotIntegerMaxPerPageException
-     * @throws LessThan1CurrentPageException
-     * @throws NotIntegerCurrentPageException
-     * @throws OutOfRangeCurrentPageException
-     */
-    public function handleRequest(Request $request)
-    {
-        $this->getForm()->handleRequest($request);
-        $this->handleForm($request->get('page'));
-    }
-
-
-    /**
-     * @param array $data
-     *
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
-     * @throws AlreadySubmittedException
-     * @throws LessThan1MaxPerPageException
-     * @throws NotIntegerMaxPerPageException
-     * @throws LessThan1CurrentPageException
-     * @throws NotIntegerCurrentPageException
-     * @throws OutOfRangeCurrentPageException
-     */
-    public function handleArray(array $data = [])
-    {
-        $this->getForm()->submit($data);
-        $this->handleForm(array_key_exists('page', $data) ? $data['page'] : null);
-    }
-
-    /**
-     * @return Form
-     * @throws \LogicException
-     */
-    public function getForm()
-    {
-        if (!$this->form) {
-            throw new \LogicException(
-                "You must first build the form by calling buildForm(\$builder) with your form builder"
-            );
-        }
-
-        return $this->form;
-    }
-
-    /**
-     * @return SortConfig
-     */
-    public function getSortConfig()
-    {
-        return $this->sortConfig;
-    }
-
-    /**
      * @param string $alias
      *
      * @return QueryBuilder
@@ -277,30 +112,11 @@ class FilterConfigurationHandler
     /**
      * @param QueryBuilder $queryBuilder
      * @param string       $alias
-     *
-     * @return FilterConfigurationHandler
      */
-    public function setQueryBuilder($queryBuilder, $alias)
+    public function setQueryBuilder(QueryBuilder $queryBuilder, $alias)
     {
         $this->alias = $alias;
         $this->queryBuilder = $queryBuilder;
-
-        return $this;
-    }
-
-    /**
-     * @param FormBuilderInterface $builder
-     *
-     * @return Form
-     */
-    public function buildForm(FormBuilderInterface $builder)
-    {
-        $this->buildFilterForm($builder);
-        $this->buildSortableForm($builder);
-
-        $this->form = $builder->getForm();
-
-        return $this->form;
     }
 
     /**
@@ -316,41 +132,10 @@ class FilterConfigurationHandler
             ]
         );
         foreach ($this->getFilters() as $filter) {
-            $options = $filter->getFormOptions($this->getQueryBuilder(), $this->getAlias());
+            $options = $filter->getDoctrineFormOptions($this->getQueryBuilder(), $this->getAlias());
             $filtersBuilder->add($filter->getCode(), $filter->getFormType(), $options);
         }
         $builder->add($filtersBuilder);
-    }
-
-    /**
-     * @param FormBuilderInterface $builder
-     */
-    protected function buildSortableForm(FormBuilderInterface $builder)
-    {
-        $sortableBuilder = $builder->create(
-            self::SORTABLE_FORM_NAME,
-            FormType::class,
-            [
-                'label' => false,
-            ]
-        );
-        $sortableBuilder->add(
-            self::SORT_CONFIG_FORM_NAME,
-            SortConfigType::class,
-            [
-                'data' => $this->sortConfig,
-            ]
-        );
-        foreach ($this->getSortable() as $sortable) {
-            $sortableBuilder->add(
-                $sortable,
-                OrderButtonType::class,
-                [
-                    'sort_config' => $this->sortConfig,
-                ]
-            );
-        }
-        $builder->add($sortableBuilder);
     }
 
     /**
