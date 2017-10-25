@@ -17,8 +17,6 @@ use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
 use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterFactory;
 use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterInterface;
-use Sidus\FilterBundle\Form\Type\OrderButtonType;
-use Sidus\FilterBundle\Form\Type\SortConfigType;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
@@ -66,7 +64,7 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
         DoctrineFilterFactory $filterFactory,
         array $configuration = []
     ) {
-        $this->code = $code;
+        parent::__construct($code, $configuration);
         $this->doctrine = $doctrine;
         $this->filterFactory = $filterFactory;
         $this->parseConfiguration($configuration);
@@ -255,17 +253,6 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
         /** @noinspection ForeachSourceInspection */
         foreach ($configuration['fields'] as $code => $field) {
             $this->addFilter($this->filterFactory->create($code, $field));
-        }
-        $this->sortable = $configuration['sortable'];
-        $this->resultsPerPage = $configuration['results_per_page'];
-        $this->sortConfig = new SortConfig();
-
-        /** @noinspection ForeachSourceInspection */
-        /** @noinspection LoopWhichDoesNotLoopInspection */
-        foreach ($configuration['default_sort'] as $column => $direction) {
-            $this->sortConfig->setDefaultColumn($column);
-            $this->sortConfig->setDefaultDirection($direction === 'DESC');
-            break;
         }
     }
 }

@@ -51,6 +51,27 @@ abstract class AbstractFilterConfigurationHandler implements FilterConfiguration
     protected $resultsPerPage;
 
     /**
+     * @param string $code
+     * @param array  $configuration
+     */
+    public function __construct($code, array $configuration)
+    {
+        $this->code = $code;
+        $this->sortable = $configuration['sortable'];
+        $this->resultsPerPage = $configuration['results_per_page'];
+        $this->sortConfig = new SortConfig();
+
+        /** @noinspection ForeachSourceInspection */
+        /** @noinspection LoopWhichDoesNotLoopInspection */
+        foreach ($configuration['default_sort'] as $column => $direction) {
+            $this->sortConfig->setDefaultColumn($column);
+            $this->sortConfig->setDefaultDirection($direction === 'DESC');
+            break;
+        }
+    }
+
+
+    /**
      * @throws InvalidArgumentException
      *
      * @return array|\Traversable
