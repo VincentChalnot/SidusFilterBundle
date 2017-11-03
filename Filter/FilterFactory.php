@@ -1,13 +1,13 @@
 <?php
 
-namespace Sidus\FilterBundle\Filter\Doctrine;
+namespace Sidus\FilterBundle\Filter;
 
 use Sidus\FilterBundle\Configuration\FilterTypeConfigurationHandler;
 
 /**
  * Factory for doctrine filters
  */
-class DoctrineFilterFactory
+class FilterFactory
 {
     /** @var string */
     protected $filterClass;
@@ -31,7 +31,7 @@ class DoctrineFilterFactory
      *
      * @throws \UnexpectedValueException
      *
-     * @return DoctrineFilterInterface
+     * @return FilterInterface
      */
     public function create($code, array $configuration)
     {
@@ -39,7 +39,7 @@ class DoctrineFilterFactory
         $options = empty($configuration['options']) ? [] : $configuration['options'];
         $attributes = empty($configuration['attributes']) ? [] : $configuration['attributes'];
         $filterClass = $this->filterClass;
-        /** @var DoctrineFilterInterface $filter */
+        /** @var FilterInterface $filter */
         $filter = new $filterClass($code, $filterType, $options, $attributes);
         if (!empty($configuration['label'])) {
             $filter->setLabel($configuration['label']);

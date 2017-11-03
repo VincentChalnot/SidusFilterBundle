@@ -15,28 +15,21 @@ use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
-use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterFactory;
 use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterInterface;
+use Sidus\FilterBundle\Filter\FilterFactory;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
-use Symfony\Component\Form\SubmitButton;
 use UnexpectedValueException;
 
 /**
  * Build the necessary logic around filters based on a configuration
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
- *
- * @method DoctrineFilterInterface[] getFilters
  */
 class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHandler implements DoctrineFilterConfigurationHandlerInterface
 {
     /** @var Registry */
     protected $doctrine;
-
-    /** @var DoctrineFilterFactory */
-    protected $filterFactory;
 
     /** @var string */
     protected $entityReference;
@@ -51,23 +44,21 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
     protected $queryBuilder;
 
     /**
-     * @param string                $code
-     * @param Registry              $doctrine
-     * @param DoctrineFilterFactory $filterFactory
-     * @param array                 $configuration
+     * @param FilterFactory $filterFactory
+     * @param string        $code
+     * @param array         $configuration
+     * @param Registry      $doctrine
      *
      * @throws UnexpectedValueException
      */
     public function __construct(
+        FilterFactory $filterFactory,
         $code,
-        Registry $doctrine,
-        DoctrineFilterFactory $filterFactory,
-        array $configuration = []
+        array $configuration,
+        Registry $doctrine
     ) {
-        parent::__construct($code, $configuration);
         $this->doctrine = $doctrine;
-        $this->filterFactory = $filterFactory;
-        $this->parseConfiguration($configuration);
+        parent::__construct($filterFactory, $code, $configuration);
     }
 
     /**
@@ -119,6 +110,8 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
 
     /**
      * @param FormBuilderInterface $builder
+     *
+     * @throws \UnexpectedValueException
      */
     protected function buildFilterForm(FormBuilderInterface $builder)
     {
@@ -130,6 +123,11 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
             ]
         );
         foreach ($this->getFilters() as $filter) {
+            if (!$filter instanceof DoctrineFilterInterface) {
+                throw new \UnexpectedValueException(
+                    "Filter {$this->code}.{$filter->getCode()} must implement DoctrineFilterInterface"
+                );
+            }
             $options = $filter->getDoctrineFormOptions($this->getQueryBuilder(), $this->getAlias());
             $filtersBuilder->add($filter->getCode(), $filter->getFormType(), $options);
         }
@@ -141,12 +139,18 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
      *
      * @throws \LogicException
      * @throws \OutOfBoundsException
+     * @throws \UnexpectedValueException
      */
     protected function applyFilters(QueryBuilder $qb)
     {
         $form = $this->getForm();
         $filterForm = $form->get(self::FILTERS_FORM_NAME);
         foreach ($this->getFilters() as $filter) {
+            if (!$filter instanceof DoctrineFilterInterface) {
+                throw new \UnexpectedValueException(
+                    "Filter {$this->code}.{$filter->getCode()} must implement DoctrineFilterInterface"
+                );
+            }
             $filter->handleForm($filterForm->get($filter->getCode()), $qb, $this->alias);
         }
     }
@@ -166,36 +170,6 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
             $direction = $sortConfig->getDirection() ? 'DESC' : 'ASC'; // null or false both default to ASC
             $qb->addOrderBy($fullColumnReference, $direction);
         }
-    }
-
-    /**
-     * @todo : Put in form event ?
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
-     */
-    protected function applySortForm()
-    {
-        $form = $this->getForm();
-        $sortableForm = $form->get(self::SORTABLE_FORM_NAME);
-        /** @var FormInterface $sortConfigForm */
-        $sortConfigForm = $sortableForm->get(self::SORT_CONFIG_FORM_NAME);
-        /** @var SortConfig $sortConfig */
-        $sortConfig = $sortConfigForm->getData();
-
-        foreach ($this->getSortable() as $sortable) {
-            /** @var SubmitButton $button */
-            $button = $sortableForm->get($sortable);
-            if ($button->isClicked()) {
-                if ($sortConfig->getColumn() === $sortable) {
-                    $sortConfig->switchDirection();
-                } else {
-                    $sortConfig->setColumn($sortable);
-                    $sortConfig->setDirection(false);
-                }
-            }
-        }
-
-        return $sortConfig;
     }
 
     /**
@@ -232,6 +206,7 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
      * @throws LessThan1CurrentPageException
      * @throws NotIntegerCurrentPageException
      * @throws OutOfRangeCurrentPageException
+     * @throws \UnexpectedValueException
      */
     protected function handleForm($selectedPage = null)
     {
@@ -250,9 +225,6 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
     {
         $this->entityReference = $configuration['entity'];
         $this->repository = $this->doctrine->getRepository($this->entityReference);
-        /** @noinspection ForeachSourceInspection */
-        foreach ($configuration['fields'] as $code => $field) {
-            $this->addFilter($this->filterFactory->create($code, $field));
-        }
+        parent::parseConfiguration($configuration);
     }
 }

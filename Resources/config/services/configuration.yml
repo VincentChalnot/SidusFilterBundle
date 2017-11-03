@@ -8,7 +8,7 @@ services:
         class: Sidus\FilterBundle\Configuration\FilterTypeConfigurationHandler
 
     sidus_filter.filter.factory:
-        class: Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterFactory
+        class: Sidus\FilterBundle\Filter\FilterFactory
         arguments:
             - '%sidus_filter.filter.class%'
             - '@sidus_filter.filter_type_configuration.handler'
