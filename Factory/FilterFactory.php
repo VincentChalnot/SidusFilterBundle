@@ -1,28 +1,40 @@
 <?php
 
-namespace Sidus\FilterBundle\Filter;
+namespace Sidus\FilterBundle\Factory;
 
-use Sidus\FilterBundle\Configuration\FilterTypeConfigurationHandler;
+use Sidus\FilterBundle\Registry\FilterTypeRegistry;
+use Sidus\FilterBundle\Filter\FilterInterface;
 
 /**
  * Factory for doctrine filters
  */
-class FilterFactory
+class FilterFactory implements FilterFactoryInterface
 {
+    /** @var string */
+    protected $provider;
+
     /** @var string */
     protected $filterClass;
 
-    /** @var FilterTypeConfigurationHandler */
+    /** @var FilterTypeRegistry */
     protected $filterTypeConfigurationHandler;
 
     /**
-     * @param string                         $filterClass
-     * @param FilterTypeConfigurationHandler $filterTypeConfigurationHandler
+     * @param string             $filterClass
+     * @param FilterTypeRegistry $filterTypeConfigurationHandler
      */
-    public function __construct($filterClass, FilterTypeConfigurationHandler $filterTypeConfigurationHandler)
+    public function __construct($filterClass, FilterTypeRegistry $filterTypeConfigurationHandler)
     {
         $this->filterClass = $filterClass;
         $this->filterTypeConfigurationHandler = $filterTypeConfigurationHandler;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProvider(): string
+    {
+        return $this->provider;
     }
 
     /**
@@ -33,7 +45,7 @@ class FilterFactory
      *
      * @return FilterInterface
      */
-    public function create($code, array $configuration)
+    public function createFilter(string $code, array $configuration) : FilterInterface
     {
         $filterType = $this->filterTypeConfigurationHandler->getFilterType($configuration['type']);
         $options = empty($configuration['options']) ? [] : $configuration['options'];

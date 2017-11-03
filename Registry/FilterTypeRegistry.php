@@ -1,16 +1,16 @@
 <?php
 
-namespace Sidus\FilterBundle\Configuration;
+namespace Sidus\FilterBundle\Registry;
 
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
 
 /**
  * Registry for filter types
  */
-class FilterTypeConfigurationHandler
+class FilterTypeRegistry
 {
     /** @var FilterTypeInterface[] */
-    protected $filterTypes;
+    protected $filterTypes = [];
 
     /**
      * @param FilterTypeInterface $filterType
@@ -23,7 +23,7 @@ class FilterTypeConfigurationHandler
     /**
      * @return FilterTypeInterface[]
      */
-    public function getFilterTypes()
+    public function getFilterTypes(): array
     {
         return $this->filterTypes;
     }
@@ -35,7 +35,7 @@ class FilterTypeConfigurationHandler
      *
      * @return FilterTypeInterface
      */
-    public function getFilterType($code)
+    public function getFilterType($code): FilterTypeInterface
     {
         if (empty($this->filterTypes[$code])) {
             throw new \UnexpectedValueException("No type with code : {$code}");

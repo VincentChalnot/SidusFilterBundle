@@ -2,8 +2,7 @@
 
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
-use Doctrine\ORM\QueryBuilder;
-use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterInterface;
+use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Filter\Type\AbstractFilterType;
 
 /**
@@ -12,10 +11,22 @@ use Sidus\FilterBundle\Filter\Type\AbstractFilterType;
 abstract class AbstractDoctrineFilterType extends AbstractFilterType implements DoctrineFilterTypeInterface
 {
     /**
-     * {@inheritdoc}
+     * @param FilterInterface $filter
+     * @param string          $alias
+     *
+     * @return array
      */
-    public function getDoctrineFormOptions(DoctrineFilterInterface $filter, QueryBuilder $qb, $alias)
+    public function getFullAttributeReferences(FilterInterface $filter, string $alias): array
     {
-        return $this->formOptions;
+        $references = [];
+        foreach ($filter->getAttributes() as $attribute) {
+            if (false === strpos($attribute, '.')) {
+                $references[] = $alias.'.'.$attribute;
+            } else {
+                $references[] = $attribute;
+            }
+        }
+
+        return $references;
     }
 }

@@ -27,6 +27,7 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritdoc}
      * @throws \RuntimeException
+     * @throws \InvalidArgumentException
      */
     public function getConfigTreeBuilder()
     {
@@ -35,15 +36,15 @@ class Configuration implements ConfigurationInterface
 
         $filterDefinition = $rootNode
             ->children()
-            ->arrayNode('configurations')
-            ->prototype('array')
-            ->children();
+                ->arrayNode('configurations')
+                    ->prototype('array')
+                        ->children();
 
         $this->appendFilterDefinition($filterDefinition);
 
         $filterDefinition->end()
-            ->end()
-            ->end()
+                    ->end()
+                ->end()
             ->end();
 
         return $treeBuilder;
@@ -51,42 +52,73 @@ class Configuration implements ConfigurationInterface
 
     /**
      * @param NodeBuilder $filterDefinition
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
     protected function appendFilterDefinition(NodeBuilder $filterDefinition)
     {
         $fieldDefinition = $filterDefinition
-            ->scalarNode('entity')->isRequired()->end()
+            ->scalarNode('provider')->defaultValue('doctrine')->end()
             ->integerNode('results_per_page')->defaultValue(15)->end()
             ->arrayNode('sortable')
-            ->prototype('scalar')->end()
+                ->prototype('scalar')->end()
             ->end()
             ->arrayNode('default_sort')
-            ->prototype('scalar')->defaultValue([])->end()
+                ->prototype('scalar')->defaultValue([])->end()
             ->end()
-            ->arrayNode('fields')
-            ->prototype('array')
-            ->children();
+            ->variableNode('options')
+                ->defaultValue([])
+                ->validate()
+                    ->ifTrue(function ($value) {
+                        return !is_array($value) && null !== $value;
+                    })
+                    ->thenInvalid('"options" configuration must be an array or left empty')
+                ->end()
+            ->end()
+            ->arrayNode('filters')
+                ->prototype('array')
+                    ->children();
 
         $this->appendFieldDefinition($fieldDefinition);
 
         $fieldDefinition->end()
-            ->end()
+                ->end()
             ->end();
     }
 
     /**
      * @param NodeBuilder $fieldDefinition
+     *
+     * @throws \InvalidArgumentException
+     * @throws \RuntimeException
      */
     protected function appendFieldDefinition(NodeBuilder $fieldDefinition)
     {
         $fieldDefinition
             ->scalarNode('type')->defaultValue('text')->end()
             ->scalarNode('label')->defaultNull()->end()
-            ->arrayNode('attributes')
-            ->prototype('scalar')->end()
-            ->end()
-            ->variableNode('options')->defaultNull()->end()
             ->scalarNode('form_type')->defaultNull()->end()
-            ->variableNode('form_options')->defaultNull()->end();
+            ->arrayNode('attributes')
+                ->prototype('scalar')->defaultValue([])->end()
+            ->end()
+            ->variableNode('options')
+                ->defaultValue([])
+                ->validate()
+                ->ifTrue(function ($value) {
+                    return !is_array($value) && null !== $value;
+                })
+                ->thenInvalid('"options" configuration must be an array or left empty')
+                ->end()
+            ->end()
+            ->variableNode('form_options')
+                ->defaultValue([])
+                ->validate()
+                ->ifTrue(function ($value) {
+                    return !is_array($value) && null !== $value;
+                })
+                ->thenInvalid('"form_options" configuration must be an array or left empty')
+                ->end()
+            ->end();
     }
 }

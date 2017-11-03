@@ -1,15 +1,14 @@
 <?php
 
-namespace Sidus\FilterBundle\Configuration;
+namespace Sidus\FilterBundle\Query\Handler;
 
 use Pagerfanta\Exception\InvalidArgumentException;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
-use Sidus\FilterBundle\Filter\FilterFactory;
-use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Form\Type\OrderButtonType;
 use Sidus\FilterBundle\Form\Type\SortConfigType;
+use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 use Symfony\Component\Form\Exception\AlreadySubmittedException;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Form;
@@ -17,30 +16,20 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
-use UnexpectedValueException;
 
 /**
  * Build the necessary logic around filters based on a configuration
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
  */
-abstract class AbstractFilterConfigurationHandler implements FilterConfigurationHandlerInterface
+abstract class AbstractQueryHandler implements QueryHandlerInterface
 {
     const FILTERS_FORM_NAME = 'filters';
     const SORTABLE_FORM_NAME = 'sortable';
     const SORT_CONFIG_FORM_NAME = 'config';
 
-    /** @var string */
-    protected $code;
-
-    /** @var FilterFactory */
-    protected $filterFactory;
-
-    /** @var array */
-    protected $sortable = [];
-
-    /** @var FilterInterface[] */
-    protected $filters = [];
+    /** @var QueryHandlerConfigurationInterface */
+    protected $configuration;
 
     /** @var Form */
     protected $form;
@@ -51,102 +40,21 @@ abstract class AbstractFilterConfigurationHandler implements FilterConfiguration
     /** @var Pagerfanta */
     protected $pager;
 
-    /** @var int */
-    protected $resultsPerPage;
-
     /**
-     * @param FilterFactory $filterFactory
-     * @param string        $code
-     * @param array         $configuration
-     *
-     * @throws \UnexpectedValueException
+     * @param QueryHandlerConfigurationInterface $configuration
      */
-    public function __construct(FilterFactory $filterFactory, $code, array $configuration)
+    public function __construct(QueryHandlerConfigurationInterface $configuration)
     {
-        $this->filterFactory = $filterFactory;
-        $this->code = $code;
-        $this->sortable = $configuration['sortable'];
-        $this->resultsPerPage = $configuration['results_per_page'];
+        $this->configuration = $configuration;
         $this->sortConfig = new SortConfig();
-        $this->parseConfiguration($configuration);
-    }
-
-
-    /**
-     * @throws InvalidArgumentException
-     *
-     * @return array|\Traversable
-     */
-    public function getResults()
-    {
-        return $this->getPager()->getCurrentPageResults();
     }
 
     /**
-     * @param FilterInterface $filter
-     * @param int             $index
-     *
-     * @throws UnexpectedValueException
+     * @return QueryHandlerConfigurationInterface
      */
-    public function addFilter(FilterInterface $filter, $index = null)
+    public function getConfiguration(): QueryHandlerConfigurationInterface
     {
-        if (null === $index) {
-            $this->filters[$filter->getCode()] = $filter;
-        } else {
-            $count = count($this->filters);
-            if (!is_int($index) && !is_numeric($index)) {
-                throw new UnexpectedValueException("Given index should be an integer '{$index}' given");
-            }
-            if (abs($index) > $count) {
-                $index = 0;
-            }
-            if ($index < 0) {
-                $index += $count;
-            }
-            /** @noinspection AdditionOperationOnArraysInspection */
-            $this->filters = array_slice($this->filters, 0, $index, true) +
-                [$filter->getCode() => $filter] +
-                array_slice($this->filters, $index, $count - $index, true);
-        }
-    }
-
-    /**
-     * @return FilterInterface[]
-     */
-    public function getFilters()
-    {
-        return $this->filters;
-    }
-
-    /**
-     * @param string $code
-     *
-     * @return FilterInterface
-     * @throws UnexpectedValueException
-     */
-    public function getFilter($code)
-    {
-        if (empty($this->filters[$code])) {
-            throw new UnexpectedValueException("No filter with code : {$code}");
-        }
-
-        return $this->filters[$code];
-    }
-
-    /**
-     * @return array
-     */
-    public function getSortable()
-    {
-        return $this->sortable;
-    }
-
-    /**
-     * @param string $sortable
-     */
-    public function addSortable($sortable)
-    {
-        $this->sortable[] = $sortable;
+        return $this->configuration;
     }
 
     /**
@@ -177,10 +85,10 @@ abstract class AbstractFilterConfigurationHandler implements FilterConfiguration
     }
 
     /**
-     * @return Form
+     * @return FormInterface
      * @throws \LogicException
      */
-    public function getForm()
+    public function getForm(): FormInterface
     {
         if (!$this->form) {
             throw new \LogicException(
@@ -194,7 +102,7 @@ abstract class AbstractFilterConfigurationHandler implements FilterConfiguration
     /**
      * @return SortConfig
      */
-    public function getSortConfig()
+    public function getSortConfig(): SortConfig
     {
         return $this->sortConfig;
     }
@@ -202,9 +110,9 @@ abstract class AbstractFilterConfigurationHandler implements FilterConfiguration
     /**
      * @param FormBuilderInterface $builder
      *
-     * @return Form
+     * @return FormInterface
      */
-    public function buildForm(FormBuilderInterface $builder)
+    public function buildForm(FormBuilderInterface $builder): FormInterface
     {
         $this->buildFilterForm($builder);
         $this->buildSortableForm($builder);
@@ -219,7 +127,7 @@ abstract class AbstractFilterConfigurationHandler implements FilterConfiguration
      *
      * @return Pagerfanta
      */
-    abstract public function getPager();
+    abstract public function getPager(): Pagerfanta;
 
     /**
      * @param FormBuilderInterface $builder
@@ -240,7 +148,7 @@ abstract class AbstractFilterConfigurationHandler implements FilterConfiguration
                 'data' => $this->sortConfig,
             ]
         );
-        foreach ($this->getSortable() as $sortable) {
+        foreach ($this->getConfiguration()->getSortable() as $sortable) {
             $sortableBuilder->add(
                 $sortable,
                 OrderButtonType::class,
@@ -266,7 +174,7 @@ abstract class AbstractFilterConfigurationHandler implements FilterConfiguration
         /** @var SortConfig $sortConfig */
         $sortConfig = $sortConfigForm->getData();
 
-        foreach ($this->getSortable() as $sortable) {
+        foreach ($this->getConfiguration()->getSortable() as $sortable) {
             /** @var SubmitButton $button */
             $button = $sortableForm->get($sortable);
             if ($button->isClicked()) {
@@ -294,28 +202,10 @@ abstract class AbstractFilterConfigurationHandler implements FilterConfiguration
                 'label' => false,
             ]
         );
-        foreach ($this->getFilters() as $filter) {
+        foreach ($this->getConfiguration()->getFilters() as $filter) {
             $filtersBuilder->add($filter->getCode(), $filter->getFormType(), $filter->getFormOptions());
         }
         $builder->add($filtersBuilder);
-    }
-
-    /**
-     * @param array $configuration
-     *
-     * @throws UnexpectedValueException
-     */
-    protected function parseConfiguration(array $configuration)
-    {
-        /** @noinspection LoopWhichDoesNotLoopInspection */
-        foreach ((array) $configuration['default_sort'] as $column => $direction) {
-            $this->sortConfig->setDefaultColumn($column);
-            $this->sortConfig->setDefaultDirection($direction === 'DESC');
-            break;
-        }
-        foreach ((array) $configuration['fields'] as $code => $field) {
-            $this->addFilter($this->filterFactory->create($code, $field));
-        }
     }
 
     /**

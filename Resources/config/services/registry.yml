@@ -1,0 +1,8 @@
+services:
+    sidus_filter.registry.query_handler:
+        class: Sidus\FilterBundle\Registry\QueryHandlerRegistry
+        arguments:
+            - '@sidus_filter.factory.query_handler_configuration'
+
+    sidus_filter.registry.filter_type:
+        class: Sidus\FilterBundle\Registry\FilterTypeRegistry

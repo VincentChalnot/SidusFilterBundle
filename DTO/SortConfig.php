@@ -25,76 +25,42 @@ class SortConfig
     protected $page = 1;
 
     /**
-     * @return string
-     */
-    public function getDefaultColumn()
-    {
-        return $this->defaultColumn;
-    }
-
-    /**
      * @param string $defaultColumn
-     *
-     * @return SortConfig
+     * @param bool   $defaultDirection
      */
-    public function setDefaultColumn($defaultColumn)
+    public function __construct(string $defaultColumn = null, bool $defaultDirection = false)
     {
         $this->defaultColumn = $defaultColumn;
-
-        return $this;
-    }
-
-    /**
-     * @return boolean
-     */
-    public function getDefaultDirection()
-    {
-        return $this->defaultDirection;
-    }
-
-    /**
-     * @param boolean $defaultDirection
-     *
-     * @return SortConfig
-     */
-    public function setDefaultDirection($defaultDirection)
-    {
         $this->defaultDirection = $defaultDirection;
-
-        return $this;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getColumn()
     {
         if (null === $this->column) {
-            return $this->getDefaultColumn();
+            return $this->defaultColumn;
         }
 
         return $this->column;
     }
 
     /**
-     * @param string $column
-     *
-     * @return SortConfig
+     * @param string|null $column
      */
-    public function setColumn($column)
+    public function setColumn(string $column = null)
     {
         $this->column = $column;
-
-        return $this;
     }
 
     /**
      * @return boolean
      */
-    public function getDirection()
+    public function getDirection(): bool
     {
         if (null === $this->direction) {
-            return $this->getDefaultDirection();
+            return $this->defaultDirection;
         }
 
         return $this->direction;
@@ -102,46 +68,33 @@ class SortConfig
 
     /**
      * @param boolean $direction
-     *
-     * @return SortConfig
      */
-    public function setDirection($direction)
+    public function setDirection(bool $direction)
     {
         $this->direction = $direction;
-
-        return $this;
     }
 
     /**
      * Reverse search direction
-     *
-     * @return SortConfig
      */
     public function switchDirection()
     {
         $this->direction = !$this->direction;
-
-        return $this;
     }
 
     /**
      * @return int
      */
-    public function getPage()
+    public function getPage(): int
     {
         return $this->page;
     }
 
     /**
      * @param int $page
-     *
-     * @return SortConfig
      */
-    public function setPage($page)
+    public function setPage(int $page)
     {
-        $page = (int) $page;
-        $this->page = $page ?: 1;
-
-        return $this;
+        $this->page = $page;
     }
 }

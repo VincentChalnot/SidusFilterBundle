@@ -7,13 +7,19 @@ use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
 /**
  * Base filter logic
  */
-abstract class AbstractFilter implements FilterInterface
+class Filter implements FilterInterface
 {
     /** @var string */
     protected $code;
 
+    /** @var string */
+    protected $provider;
+
+    /** @var FilterTypeInterface */
+    protected $filterType;
+
     /** @var array */
-    protected $attributes;
+    protected $attributes = [];
 
     /** @var string */
     protected $formType;
@@ -22,7 +28,7 @@ abstract class AbstractFilter implements FilterInterface
     protected $label;
 
     /** @var array */
-    protected $options;
+    protected $options = [];
 
     /** @var array */
     protected $formOptions = [];
@@ -30,15 +36,31 @@ abstract class AbstractFilter implements FilterInterface
     /**
      * @return string
      */
-    public function getCode()
+    public function getCode(): string
     {
         return $this->code;
     }
 
     /**
+     * @return string
+     */
+    public function getProvider(): string
+    {
+        return $this->provider;
+    }
+
+    /**
+     * @return FilterTypeInterface
+     */
+    public function getFilterType(): FilterTypeInterface
+    {
+        return $this->filterType;
+    }
+
+    /**
      * @return array
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->attributes;
     }
@@ -52,12 +74,7 @@ abstract class AbstractFilter implements FilterInterface
     }
 
     /**
-     * @return FilterTypeInterface
-     */
-    abstract public function getFilterType();
-
-    /**
-     * @return string
+     * @return string|null
      */
     public function getLabel()
     {
@@ -67,7 +84,7 @@ abstract class AbstractFilter implements FilterInterface
     /**
      * @param string $label
      */
-    public function setLabel($label)
+    public function setLabel(string $label)
     {
         $this->label = $label;
     }
@@ -75,7 +92,7 @@ abstract class AbstractFilter implements FilterInterface
     /**
      * @return array
      */
-    public function getOptions()
+    public function getOptions(): array
     {
         return $this->options;
     }
@@ -83,7 +100,7 @@ abstract class AbstractFilter implements FilterInterface
     /**
      * {@inheritDoc}
      */
-    public function getFormType()
+    public function getFormType(): string
     {
         if (null !== $this->formType) {
             return $this->formType;
@@ -95,7 +112,7 @@ abstract class AbstractFilter implements FilterInterface
     /**
      * @param string $formType
      */
-    public function setFormType($formType)
+    public function setFormType(string $formType)
     {
         $this->formType = $formType;
     }
@@ -103,7 +120,7 @@ abstract class AbstractFilter implements FilterInterface
     /**
      * @return array
      */
-    public function getFormOptions()
+    public function getFormOptions(): array
     {
         $defaultOptions = [
             'label' => $this->getLabel(),

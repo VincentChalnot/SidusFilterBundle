@@ -1,6 +1,6 @@
 <?php
 
-namespace Sidus\FilterBundle\Configuration;
+namespace Sidus\FilterBundle\Query\Handler\Doctrine;
 
 use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityRepository;
@@ -15,10 +15,9 @@ use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
-use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterInterface;
-use Sidus\FilterBundle\Filter\FilterFactory;
-use Symfony\Component\Form\Extension\Core\Type\FormType;
-use Symfony\Component\Form\FormBuilderInterface;
+use Sidus\FilterBundle\Filter\Type\Doctrine\DoctrineFilterTypeInterface;
+use Sidus\FilterBundle\Query\Handler\AbstractQueryHandler;
+use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 use UnexpectedValueException;
 
 /**
@@ -26,7 +25,7 @@ use UnexpectedValueException;
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
  */
-class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHandler implements DoctrineFilterConfigurationHandlerInterface
+class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQueryHandlerInterface
 {
     /** @var Registry */
     protected $doctrine;
@@ -38,33 +37,25 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
     protected $repository;
 
     /** @var string */
-    protected $alias;
+    protected $alias = 'e';
 
     /** @var QueryBuilder */
     protected $queryBuilder;
 
     /**
-     * @param FilterFactory $filterFactory
-     * @param string        $code
-     * @param array         $configuration
-     * @param Registry      $doctrine
-     *
-     * @throws UnexpectedValueException
+     * @param QueryHandlerConfigurationInterface $configuration
+     * @param Registry                           $doctrine
      */
-    public function __construct(
-        FilterFactory $filterFactory,
-        $code,
-        array $configuration,
-        Registry $doctrine
-    ) {
+    public function __construct(QueryHandlerConfigurationInterface $configuration, Registry $doctrine)
+    {
         $this->doctrine = $doctrine;
-        parent::__construct($filterFactory, $code, $configuration);
+        parent::__construct($configuration);
     }
 
     /**
      * @return string
      */
-    public function getAlias()
+    public function getAlias(): string
     {
         return $this->alias;
     }
@@ -74,7 +65,7 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
      *
      * @return Pagerfanta
      */
-    public function getPager()
+    public function getPager(): Pagerfanta
     {
         if (null === $this->pager) {
             $this->applyPager($this->getQueryBuilder());
@@ -84,15 +75,12 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
     }
 
     /**
-     * @param string $alias
-     *
      * @return QueryBuilder
      */
-    public function getQueryBuilder($alias = 'e')
+    public function getQueryBuilder(): QueryBuilder
     {
         if (!$this->queryBuilder) {
-            $this->alias = $alias;
-            $this->queryBuilder = $this->repository->createQueryBuilder($alias);
+            $this->queryBuilder = $this->repository->createQueryBuilder($this->alias);
         }
 
         return $this->queryBuilder;
@@ -109,32 +97,6 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
     }
 
     /**
-     * @param FormBuilderInterface $builder
-     *
-     * @throws \UnexpectedValueException
-     */
-    protected function buildFilterForm(FormBuilderInterface $builder)
-    {
-        $filtersBuilder = $builder->create(
-            self::FILTERS_FORM_NAME,
-            FormType::class,
-            [
-                'label' => false,
-            ]
-        );
-        foreach ($this->getFilters() as $filter) {
-            if (!$filter instanceof DoctrineFilterInterface) {
-                throw new \UnexpectedValueException(
-                    "Filter {$this->code}.{$filter->getCode()} must implement DoctrineFilterInterface"
-                );
-            }
-            $options = $filter->getDoctrineFormOptions($this->getQueryBuilder(), $this->getAlias());
-            $filtersBuilder->add($filter->getCode(), $filter->getFormType(), $options);
-        }
-        $builder->add($filtersBuilder);
-    }
-
-    /**
      * @param QueryBuilder $qb
      *
      * @throws \LogicException
@@ -145,13 +107,14 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
     {
         $form = $this->getForm();
         $filterForm = $form->get(self::FILTERS_FORM_NAME);
-        foreach ($this->getFilters() as $filter) {
-            if (!$filter instanceof DoctrineFilterInterface) {
-                throw new \UnexpectedValueException(
-                    "Filter {$this->code}.{$filter->getCode()} must implement DoctrineFilterInterface"
+        foreach ($this->getConfiguration()->getFilters() as $filter) {
+            $filterType = $filter->getFilterType();
+            if (!$filterType instanceof DoctrineFilterTypeInterface) {
+                throw new UnexpectedValueException(
+                    "Filter {$this->getConfiguration()->getCode()}.{$filter->getCode()} has wrong filter type"
                 );
             }
-            $filter->handleForm($filterForm->get($filter->getCode()), $qb, $this->alias);
+            $filterType->handleForm($filter, $filterForm->get($filter->getCode()), $qb, $this->alias);
         }
     }
 
@@ -188,7 +151,7 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
             $this->sortConfig->setPage($selectedPage);
         }
         $this->pager = new Pagerfanta(new DoctrineORMAdapter($qb));
-        $this->pager->setMaxPerPage($this->resultsPerPage);
+        $this->pager->setMaxPerPage($this->getConfiguration()->getResultsPerPage());
         try {
             $this->pager->setCurrentPage($this->sortConfig->getPage());
         } catch (NotValidCurrentPageException $e) {
@@ -214,17 +177,5 @@ class DoctrineFilterConfigurationHandler extends AbstractFilterConfigurationHand
         $this->applyFilters($qb); // maybe do it in a form event ?
         $this->applySort($qb, $this->applySortForm());
         $this->applyPager($qb, $selectedPage); // merge with filters ?
-    }
-
-    /**
-     * @param array $configuration
-     *
-     * @throws UnexpectedValueException
-     */
-    protected function parseConfiguration(array $configuration)
-    {
-        $this->entityReference = $configuration['entity'];
-        $this->repository = $this->doctrine->getRepository($this->entityReference);
-        parent::parseConfiguration($configuration);
     }
 }

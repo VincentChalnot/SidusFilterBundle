@@ -50,7 +50,7 @@ abstract class AbstractFilterType implements FilterTypeInterface
     /**
      * {@inheritdoc}
      */
-    public function getFormOptions(FilterInterface $filter)
+    public function getFormOptions(FilterInterface $filter): array
     {
         return $this->formOptions;
     }

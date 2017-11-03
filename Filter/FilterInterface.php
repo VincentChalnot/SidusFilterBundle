@@ -3,7 +3,6 @@
 namespace Sidus\FilterBundle\Filter;
 
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
-use Symfony\Component\Form\FormTypeInterface;
 
 /**
  * Base logic common to all filter systems
@@ -13,44 +12,44 @@ interface FilterInterface
     /**
      * @return string
      */
-    public function getCode();
+    public function getCode(): string;
 
     /**
      * @return array
      */
-    public function getAttributes();
+    public function getAttributes(): array;
 
     /**
      * @return FilterTypeInterface
      */
-    public function getFilterType();
+    public function getFilterType(): FilterTypeInterface;
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getLabel();
 
     /**
      * @param string $label
      */
-    public function setLabel($label);
+    public function setLabel(string $label);
 
     /**
      * @return array
      */
-    public function getOptions();
+    public function getOptions(): array;
 
     /**
      * Override form type from default filter type
      *
-     * @return FormTypeInterface|string
+     * @return string
      */
-    public function getFormType();
+    public function getFormType(): string;
 
     /**
      * @param string $formType
      */
-    public function setFormType($formType);
+    public function setFormType(string $formType);
 
     /**
      * @param array $formOptions
@@ -60,5 +59,10 @@ interface FilterInterface
     /**
      * @return array
      */
-    public function getFormOptions();
+    public function getFormOptions(): array;
+
+    /**
+     * @return string
+     */
+    public function getProvider(): string;
 }

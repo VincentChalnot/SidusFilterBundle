@@ -3,7 +3,7 @@
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
-use Sidus\FilterBundle\Filter\Doctrine\DoctrineFilterInterface;
+use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
 use Symfony\Component\Form\FormInterface;
 
@@ -13,19 +13,10 @@ use Symfony\Component\Form\FormInterface;
 interface DoctrineFilterTypeInterface extends FilterTypeInterface
 {
     /**
-     * @param DoctrineFilterInterface $filter
-     * @param FormInterface           $form
-     * @param QueryBuilder            $qb
-     * @param string                  $alias
+     * @param FilterInterface $filter
+     * @param FormInterface   $form
+     * @param QueryBuilder    $qb
+     * @param string          $alias
      */
-    public function handleForm(DoctrineFilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias);
-
-    /**
-     * @param DoctrineFilterInterface $filter
-     * @param QueryBuilder            $qb
-     * @param string                  $alias
-     *
-     * @return array
-     */
-    public function getDoctrineFormOptions(DoctrineFilterInterface $filter, QueryBuilder $qb, $alias);
+    public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias);
 }
