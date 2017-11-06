@@ -10,15 +10,15 @@ use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInte
  */
 class QueryHandlerConfigurationFactory implements QueryHandlerConfigurationFactoryInterface
 {
-    /** @var FilterFactoryInterface[] */
-    protected $filterFactories;
+    /** @var FilterFactoryInterface */
+    protected $filterFactory;
 
     /**
-     * @param FilterFactoryInterface $factory
+     * @param FilterFactoryInterface $filterFactory
      */
-    public function addFilterFactory(FilterFactoryInterface $factory)
+    public function __construct(FilterFactoryInterface $filterFactory)
     {
-        $this->filterFactories[$factory->getProvider()] = $factory;
+        $this->filterFactory = $filterFactory;
     }
 
     /**
@@ -26,6 +26,7 @@ class QueryHandlerConfigurationFactory implements QueryHandlerConfigurationFacto
      * @param array  $configuration
      *
      * @throws \UnexpectedValueException
+     * @throws \Symfony\Component\PropertyAccess\Exception\ExceptionInterface
      *
      * @return QueryHandlerConfigurationInterface
      */
@@ -33,34 +34,21 @@ class QueryHandlerConfigurationFactory implements QueryHandlerConfigurationFacto
         string $code,
         array $configuration
     ): QueryHandlerConfigurationInterface {
-        $filters = [];
-        $filterFactory = $this->getFilterFactory($configuration['provider']);
-        foreach ((array) $configuration['filters'] as $filterCode => $filterConfiguration) {
-            $filters[$filterCode] = $filterFactory->createFilter($filterCode, $configuration);
-        }
+        /** @var array[] $filters */
+        $filters = $configuration['filters'];
+        unset($configuration['filters']);
 
-        return new QueryHandlerConfiguration(
+        $queryHandlerConfiguration = new QueryHandlerConfiguration(
             $code,
-            $configuration['provider'],
-            $filters,
-            $configuration['sortable'],
-            $configuration['default_sort'],
-            $configuration['results_per_page']
+            $configuration
         );
-    }
 
-    /**
-     * @param string $provider
-     *
-     * @return FilterFactoryInterface
-     * @throws \UnexpectedValueException
-     */
-    protected function getFilterFactory(string $provider): FilterFactoryInterface
-    {
-        if (!array_key_exists($provider, $this->filterFactories)) {
-            throw new \UnexpectedValueException("No matching factory for unknown filter provider {$provider}");
+        foreach ($filters as $filterCode => $filterConfiguration) {
+            $queryHandlerConfiguration->addFilter(
+                $this->filterFactory->createFilter($queryHandlerConfiguration, $filterCode, $filterConfiguration)
+            );
         }
 
-        return $this->filterFactories[$provider];
+        return $queryHandlerConfiguration;
     }
 }

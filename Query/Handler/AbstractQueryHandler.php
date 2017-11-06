@@ -9,6 +9,7 @@ use Sidus\FilterBundle\DTO\SortConfig;
 use Sidus\FilterBundle\Form\Type\OrderButtonType;
 use Sidus\FilterBundle\Form\Type\SortConfigType;
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
+use Sidus\FilterBundle\Registry\FilterTypeRegistry;
 use Symfony\Component\Form\Exception\AlreadySubmittedException;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Form;
@@ -28,6 +29,9 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     const SORTABLE_FORM_NAME = 'sortable';
     const SORT_CONFIG_FORM_NAME = 'config';
 
+    /** @var FilterTypeRegistry */
+    protected $filterTypeRegistry;
+
     /** @var QueryHandlerConfigurationInterface */
     protected $configuration;
 
@@ -41,10 +45,14 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     protected $pager;
 
     /**
+     * @param FilterTypeRegistry                 $filterTypeRegistry
      * @param QueryHandlerConfigurationInterface $configuration
      */
-    public function __construct(QueryHandlerConfigurationInterface $configuration)
-    {
+    public function __construct(
+        FilterTypeRegistry $filterTypeRegistry,
+        QueryHandlerConfigurationInterface $configuration
+    ) {
+        $this->filterTypeRegistry = $filterTypeRegistry;
         $this->configuration = $configuration;
         $this->sortConfig = new SortConfig();
     }
@@ -63,6 +71,8 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
      * @throws \LogicException
      * @throws \OutOfBoundsException
      * @throws NotValidCurrentPageException
+     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
+     * @throws \UnexpectedValueException
      */
     public function handleRequest(Request $request)
     {
@@ -77,6 +87,8 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
      * @throws \OutOfBoundsException
      * @throws AlreadySubmittedException
      * @throws NotValidCurrentPageException
+     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
+     * @throws \UnexpectedValueException
      */
     public function handleArray(array $data = [])
     {
@@ -127,7 +139,14 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
      *
      * @return Pagerfanta
      */
-    abstract public function getPager(): Pagerfanta;
+    public function getPager(): Pagerfanta
+    {
+        if (null === $this->pager) {
+            $this->applyPager();
+        }
+
+        return $this->pager;
+    }
 
     /**
      * @param FormBuilderInterface $builder
@@ -210,6 +229,45 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
 
     /**
      * @param int $selectedPage
+     *
+     * @throws \LogicException
+     * @throws \OutOfBoundsException
+     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
+     * @throws \UnexpectedValueException
      */
-    abstract protected function handleForm($selectedPage = null);
+    protected function handleForm($selectedPage = null)
+    {
+        $this->applyFilters(); // maybe do it in a form event ?
+        $this->applySort($this->applySortForm());
+        $this->applyPager($selectedPage); // merge with filters ?
+    }
+
+    /**
+     * @throws \LogicException
+     * @throws \OutOfBoundsException
+     * @throws \UnexpectedValueException
+     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
+     */
+    protected function applyFilters()
+    {
+        $form = $this->getForm();
+        $filterForm = $form->get(self::FILTERS_FORM_NAME);
+        foreach ($this->getConfiguration()->getFilters() as $filter) {
+            $filterType = $this->filterTypeRegistry->getFilterType(
+                $this->getConfiguration()->getProvider(),
+                $filter->getFilterType()
+            );
+            $filterType->handleForm($this, $filter, $filterForm->get($filter->getCode()));
+        }
+    }
+
+    /**
+     * @param SortConfig $sortConfig
+     */
+    abstract protected function applySort(SortConfig $sortConfig);
+
+    /**
+     * @param int $selectedPage
+     */
+    abstract protected function applyPager($selectedPage = null);
 }

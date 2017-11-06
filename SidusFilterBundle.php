@@ -30,9 +30,9 @@ class SidusFilterBundle extends Bundle
         );
         $container->addCompilerPass(
             new GenericCompilerPass(
-                'sidus_filter.factory.query_handler_configuration',
-                'sidus.filter_factory',
-                'addFilterFactory'
+                'sidus_filter.registry.query_handler',
+                'sidus.query_handler_factory',
+                'addQueryHandlerFactory'
             )
         );
     }

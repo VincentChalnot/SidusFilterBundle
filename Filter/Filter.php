@@ -2,20 +2,20 @@
 
 namespace Sidus\FilterBundle\Filter;
 
-use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
+use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 
 /**
  * Base filter logic
  */
 class Filter implements FilterInterface
 {
+    /** @var QueryHandlerConfigurationInterface */
+    protected $queryHandlerConfiguration;
+
     /** @var string */
     protected $code;
 
     /** @var string */
-    protected $provider;
-
-    /** @var FilterTypeInterface */
     protected $filterType;
 
     /** @var array */
@@ -34,6 +34,44 @@ class Filter implements FilterInterface
     protected $formOptions = [];
 
     /**
+     * @param QueryHandlerConfigurationInterface $queryHandlerConfiguration
+     * @param string                             $code
+     * @param string                             $filterType
+     * @param array                              $attributes
+     * @param string                             $formType
+     * @param string                             $label
+     * @param array                              $options
+     * @param array                              $formOptions
+     */
+    public function __construct(
+        QueryHandlerConfigurationInterface $queryHandlerConfiguration,
+        string $code,
+        string $filterType,
+        array $attributes,
+        string $formType = null,
+        string $label = null,
+        array $options = [],
+        array $formOptions = []
+    ) {
+        $this->queryHandlerConfiguration = $queryHandlerConfiguration;
+        $this->code = $code;
+        $this->filterType = $filterType;
+        $this->attributes = $attributes;
+        $this->formType = $formType;
+        $this->label = $label;
+        $this->options = $options;
+        $this->formOptions = $formOptions;
+    }
+
+    /**
+     * @return QueryHandlerConfigurationInterface
+     */
+    public function getQueryHandlerConfiguration(): QueryHandlerConfigurationInterface
+    {
+        return $this->queryHandlerConfiguration;
+    }
+
+    /**
      * @return string
      */
     public function getCode(): string
@@ -44,15 +82,7 @@ class Filter implements FilterInterface
     /**
      * @return string
      */
-    public function getProvider(): string
-    {
-        return $this->provider;
-    }
-
-    /**
-     * @return FilterTypeInterface
-     */
-    public function getFilterType(): FilterTypeInterface
+    public function getFilterType(): string
     {
         return $this->filterType;
     }
@@ -66,27 +96,11 @@ class Filter implements FilterInterface
     }
 
     /**
-     * @param array $attributes
-     */
-    public function setAttributes(array $attributes = null)
-    {
-        $this->attributes = $attributes;
-    }
-
-    /**
      * @return string|null
      */
     public function getLabel()
     {
         return $this->label;
-    }
-
-    /**
-     * @param string $label
-     */
-    public function setLabel(string $label)
-    {
-        $this->label = $label;
     }
 
     /**
@@ -100,21 +114,9 @@ class Filter implements FilterInterface
     /**
      * {@inheritDoc}
      */
-    public function getFormType(): string
+    public function getFormType()
     {
-        if (null !== $this->formType) {
-            return $this->formType;
-        }
-
-        return $this->getFilterType()->getFormType();
-    }
-
-    /**
-     * @param string $formType
-     */
-    public function setFormType(string $formType)
-    {
-        $this->formType = $formType;
+        return $this->formType;
     }
 
     /**
@@ -122,20 +124,6 @@ class Filter implements FilterInterface
      */
     public function getFormOptions(): array
     {
-        $defaultOptions = [
-            'label' => $this->getLabel(),
-            'required' => false,
-        ];
-        $typeOptions = $this->getFilterType()->getFormOptions($this);
-
-        return array_merge($defaultOptions, $typeOptions, $this->formOptions);
-    }
-
-    /**
-     * @param array $formOptions
-     */
-    public function setFormOptions(array $formOptions)
-    {
-        $this->formOptions = $formOptions;
+        return $this->formOptions;
     }
 }

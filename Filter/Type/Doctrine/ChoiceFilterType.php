@@ -3,7 +3,10 @@
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
+use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
+use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
+use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 use Symfony\Component\Form\FormInterface;
 
 /**
@@ -12,24 +15,23 @@ use Symfony\Component\Form\FormInterface;
 class ChoiceFilterType extends AbstractDoctrineFilterType
 {
     /**
-     * @param FilterInterface $filter
-     * @param FormInterface   $form
-     * @param QueryBuilder    $qb
-     * @param string          $alias
-     *
-     * @throws \LogicException
+     * {@inheritdoc}
      */
-    public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
+    public function handleForm(QueryHandlerInterface $queryHandler, FilterInterface $filter, FormInterface $form)
     {
-        $data = $form->getData();
-        if (null === $data || !$form->isSubmitted()) {
+        if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
+            throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
+        }
+        if (!$form->isSubmitted()) {
             return;
         }
-        if (is_array($data) && 0 === count($data)) {
+        $data = $form->getData();
+        if (null === $data || (is_array($data) && 0 === count($data))) {
             return;
         }
         $dql = [];
-        foreach ($this->getFullAttributeReferences($filter, $alias) as $column) {
+        $qb = $queryHandler->getQueryBuilder();
+        foreach ($this->getFullAttributeReferences($filter, $queryHandler->getAlias()) as $column) {
             $uid = uniqid('choices', false);
             if (is_array($data)) {
                 $dql[] = "{$column} IN (:{$uid})";
@@ -46,25 +48,26 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
 
     /**
      * {@inheritdoc}
-     *
-     * @throws \LogicException
      */
-    public function getFormOptions(FilterInterface $filter): array
+    public function getFormOptions(QueryHandlerInterface $queryHandler, FilterInterface $filter): array
     {
+        if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
+            throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
+        }
         if (isset($this->formOptions['choices'])) {
             return $this->formOptions;
         }
         $choices = [];
-//        $alias = 'e';
-//        foreach ($this->getFullAttributeReferences($filter, $alias) as $column) {
-//            $qb = clone $qb;
-//            $qb->select("{$column} AS __value")
-//                ->groupBy($column);
-//            foreach ($qb->getQuery()->getArrayResult() as $result) {
-//                $value = $result['__value'];
-//                $choices[$value] = $value;
-//            }
-//        }
+        $alias = $queryHandler->getAlias();
+        foreach ($this->getFullAttributeReferences($filter, $alias) as $column) {
+            $qb = clone $queryHandler->getQueryBuilder();
+            $qb->select("{$column} AS __value")
+                ->groupBy($column);
+            foreach ($qb->getQuery()->getArrayResult() as $result) {
+                $value = $result['__value'];
+                $choices[$value] = $value;
+            }
+        }
 
         return array_merge($this->formOptions, ['choices' => $choices]);
     }

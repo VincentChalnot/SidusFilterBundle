@@ -3,6 +3,7 @@
 namespace Sidus\FilterBundle\Query\Handler\Configuration;
 
 use Sidus\FilterBundle\Filter\FilterInterface;
+use Symfony\Component\PropertyAccess\PropertyAccess;
 use UnexpectedValueException;
 
 /**
@@ -17,7 +18,7 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     protected $code;
 
     /** @var array */
-    protected $sortable = [];
+    protected $sortable;
 
     /** @var FilterInterface[] */
     protected $filters = [];
@@ -28,32 +29,24 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     /** @var int */
     protected $resultsPerPage;
 
+    /** @var array */
+    protected $options;
+
     /**
-     * @param string  $code
-     * @param string  $provider
-     * @param array   $filters
-     * @param array   $sortable
-     * @param array[] $defaultSort
-     * @param int     $resultsPerPage
+     * @param string $code
+     * @param array  $configuration
      *
-     * @throws \UnexpectedValueException
+     * @throws \Symfony\Component\PropertyAccess\Exception\ExceptionInterface
      */
     public function __construct(
         string $code,
-        string $provider,
-        array $filters,
-        array $sortable,
-        array $defaultSort,
-        int $resultsPerPage = 15
+        array $configuration
     ) {
-        $this->provider = $provider;
         $this->code = $code;
-        $this->sortable = $sortable;
-        $this->resultsPerPage = $resultsPerPage;
-        $this->defaultSort = $defaultSort;
 
-        foreach ($filters as $filter) {
-            $this->addFilter($filter);
+        $accessor = PropertyAccess::createPropertyAccessor();
+        foreach ($configuration as $key => $option) {
+            $accessor->setValue($this, $key, $option);
         }
     }
 
@@ -154,5 +147,76 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     public function getProvider(): string
     {
         return $this->provider;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions(): array
+    {
+        return $this->options;
+    }
+
+    /**
+     * @param string $code
+     * @param mixed  $fallback
+     *
+     * @return mixed
+     */
+    public function getOption(string $code, $fallback = null)
+    {
+        if (!array_key_exists($code, $this->options)) {
+            return $fallback;
+        }
+
+        return $this->options[$code];
+    }
+
+    /**
+     * @param string $provider
+     */
+    public function setProvider(string $provider)
+    {
+        $this->provider = $provider;
+    }
+
+    /**
+     * @param array $sortable
+     */
+    public function setSortable(array $sortable)
+    {
+        $this->sortable = $sortable;
+    }
+
+    /**
+     * @param FilterInterface[] $filters
+     */
+    public function setFilters(array $filters)
+    {
+        $this->filters = $filters;
+    }
+
+    /**
+     * @param array[] $defaultSort
+     */
+    public function setDefaultSort(array $defaultSort)
+    {
+        $this->defaultSort = $defaultSort;
+    }
+
+    /**
+     * @param int $resultsPerPage
+     */
+    public function setResultsPerPage(int $resultsPerPage)
+    {
+        $this->resultsPerPage = $resultsPerPage;
+    }
+
+    /**
+     * @param array $options
+     */
+    public function setOptions(array $options)
+    {
+        $this->options = $options;
     }
 }

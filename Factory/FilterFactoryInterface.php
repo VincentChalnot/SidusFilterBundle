@@ -3,6 +3,7 @@
 namespace Sidus\FilterBundle\Factory;
 
 use Sidus\FilterBundle\Filter\FilterInterface;
+use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 
 /**
  * Base logic for all filter factories
@@ -10,15 +11,15 @@ use Sidus\FilterBundle\Filter\FilterInterface;
 interface FilterFactoryInterface
 {
     /**
-     * @param string $code
-     * @param array  $configuration
+     * @param QueryHandlerConfigurationInterface $queryHandlerConfiguration
+     * @param string                             $code
+     * @param array                              $configuration
      *
      * @return FilterInterface
      */
-    public function createFilter(string $code, array $configuration): FilterInterface;
-
-    /**
-     * @return string
-     */
-    public function getProvider(): string;
+    public function createFilter(
+        QueryHandlerConfigurationInterface $queryHandlerConfiguration,
+        string $code,
+        array $configuration
+    ): FilterInterface;
 }

@@ -10,8 +10,8 @@ class MissingFilterException extends \UnexpectedValueException
     /**
      * @param string $code
      */
-    public function __construct($code)
+    public function __construct(string $code)
     {
-        parent::__construct("No filter with code : {$code}");
+        parent::__construct("No filter with code: {$code}");
     }
 }

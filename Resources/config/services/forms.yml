@@ -16,6 +16,6 @@ services:
 
     sidus_filter.form.type.sort_config:
         class: '%sidus_filter.form.type.sort_config.class%'
-        arguments: ['%sidus_filter.filter.dto.sort_config%']
+        arguments: [Sidus\FilterBundle\DTO\SortConfig]
         tags:
             - { name: form.type }

@@ -8,7 +8,7 @@ use Sidus\FilterBundle\Filter\Type\AbstractFilterType;
 /**
  * Generic filter type
  */
-abstract class AbstractDoctrineFilterType extends AbstractFilterType implements DoctrineFilterTypeInterface
+abstract class AbstractDoctrineFilterType extends AbstractFilterType
 {
     /**
      * @param FilterInterface $filter
@@ -28,5 +28,13 @@ abstract class AbstractDoctrineFilterType extends AbstractFilterType implements 
         }
 
         return $references;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProvider(): string
+    {
+        return 'doctrine';
     }
 }

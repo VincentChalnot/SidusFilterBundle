@@ -60,4 +60,17 @@ interface QueryHandlerConfigurationInterface
      * @return int
      */
     public function getResultsPerPage(): int;
+
+    /**
+     * @return array
+     */
+    public function getOptions(): array;
+
+    /**
+     * @param string $code
+     * @param null   $fallback
+     *
+     * @return mixed
+     */
+    public function getOption(string $code, $fallback = null);
 }

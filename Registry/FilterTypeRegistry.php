@@ -17,7 +17,7 @@ class FilterTypeRegistry
      */
     public function addFilterType(FilterTypeInterface $filterType)
     {
-        $this->filterTypes[$filterType->getName()] = $filterType;
+        $this->filterTypes[$filterType->getProvider()][$filterType->getName()] = $filterType;
     }
 
     /**
@@ -29,18 +29,19 @@ class FilterTypeRegistry
     }
 
     /**
+     * @param string $provider
      * @param string $code
      *
      * @throws \UnexpectedValueException
      *
      * @return FilterTypeInterface
      */
-    public function getFilterType($code): FilterTypeInterface
+    public function getFilterType(string $provider, string $code): FilterTypeInterface
     {
-        if (empty($this->filterTypes[$code])) {
-            throw new \UnexpectedValueException("No type with code : {$code}");
+        if (empty($this->filterTypes[$provider][$code])) {
+            throw new \UnexpectedValueException("No type for provider {$provider} with code : {$code}");
         }
 
-        return $this->filterTypes[$code];
+        return $this->filterTypes[$provider][$code];
     }
 }

@@ -6,7 +6,6 @@ use Doctrine\Bundle\DoctrineBundle\Registry;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Pagerfanta\Adapter\DoctrineORMAdapter;
-use Pagerfanta\Exception\InvalidArgumentException;
 use Pagerfanta\Exception\LessThan1CurrentPageException;
 use Pagerfanta\Exception\LessThan1MaxPerPageException;
 use Pagerfanta\Exception\NotIntegerCurrentPageException;
@@ -15,9 +14,9 @@ use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
-use Sidus\FilterBundle\Filter\Type\Doctrine\DoctrineFilterTypeInterface;
 use Sidus\FilterBundle\Query\Handler\AbstractQueryHandler;
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
+use Sidus\FilterBundle\Registry\FilterTypeRegistry;
 use UnexpectedValueException;
 
 /**
@@ -43,13 +42,26 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     protected $queryBuilder;
 
     /**
+     * @param FilterTypeRegistry                 $filterTypeRegistry
      * @param QueryHandlerConfigurationInterface $configuration
      * @param Registry                           $doctrine
+     *
+     * @throws \UnexpectedValueException
      */
-    public function __construct(QueryHandlerConfigurationInterface $configuration, Registry $doctrine)
-    {
+    public function __construct(
+        FilterTypeRegistry $filterTypeRegistry,
+        QueryHandlerConfigurationInterface $configuration,
+        Registry $doctrine
+    ) {
+        parent::__construct($filterTypeRegistry, $configuration);
         $this->doctrine = $doctrine;
-        parent::__construct($configuration);
+        $this->entityReference = $configuration->getOption('entity');
+        if (null === $this->entityReference) {
+            throw new UnexpectedValueException(
+                "Missing 'entity' option for filter configuration {$configuration->getCode()}"
+            );
+        }
+        $this->repository = $doctrine->getRepository($this->entityReference);
     }
 
     /**
@@ -58,20 +70,6 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     public function getAlias(): string
     {
         return $this->alias;
-    }
-
-    /**
-     * @throws InvalidArgumentException
-     *
-     * @return Pagerfanta
-     */
-    public function getPager(): Pagerfanta
-    {
-        if (null === $this->pager) {
-            $this->applyPager($this->getQueryBuilder());
-        }
-
-        return $this->pager;
     }
 
     /**
@@ -97,47 +95,7 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     }
 
     /**
-     * @param QueryBuilder $qb
-     *
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
-     * @throws \UnexpectedValueException
-     */
-    protected function applyFilters(QueryBuilder $qb)
-    {
-        $form = $this->getForm();
-        $filterForm = $form->get(self::FILTERS_FORM_NAME);
-        foreach ($this->getConfiguration()->getFilters() as $filter) {
-            $filterType = $filter->getFilterType();
-            if (!$filterType instanceof DoctrineFilterTypeInterface) {
-                throw new UnexpectedValueException(
-                    "Filter {$this->getConfiguration()->getCode()}.{$filter->getCode()} has wrong filter type"
-                );
-            }
-            $filterType->handleForm($filter, $filterForm->get($filter->getCode()), $qb, $this->alias);
-        }
-    }
-
-    /**
-     * @param QueryBuilder $qb
-     * @param SortConfig   $sortConfig
-     */
-    protected function applySort(QueryBuilder $qb, SortConfig $sortConfig)
-    {
-        $column = $sortConfig->getColumn();
-        if ($column) {
-            $fullColumnReference = $column;
-            if (false === strpos($column, '.')) {
-                $fullColumnReference = $this->alias.'.'.$column;
-            }
-            $direction = $sortConfig->getDirection() ? 'DESC' : 'ASC'; // null or false both default to ASC
-            $qb->addOrderBy($fullColumnReference, $direction);
-        }
-    }
-
-    /**
-     * @param QueryBuilder $qb
-     * @param int          $selectedPage
+     * @param int $selectedPage
      *
      * @throws LessThan1MaxPerPageException
      * @throws NotIntegerMaxPerPageException
@@ -145,12 +103,12 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
      * @throws NotIntegerCurrentPageException
      * @throws OutOfRangeCurrentPageException
      */
-    protected function applyPager(QueryBuilder $qb, $selectedPage = null)
+    protected function applyPager($selectedPage = null)
     {
         if ($selectedPage) {
             $this->sortConfig->setPage($selectedPage);
         }
-        $this->pager = new Pagerfanta(new DoctrineORMAdapter($qb));
+        $this->pager = new Pagerfanta(new DoctrineORMAdapter($this->getQueryBuilder()));
         $this->pager->setMaxPerPage($this->getConfiguration()->getResultsPerPage());
         try {
             $this->pager->setCurrentPage($this->sortConfig->getPage());
@@ -160,22 +118,18 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     }
 
     /**
-     * @param int $selectedPage
-     *
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
-     * @throws LessThan1MaxPerPageException
-     * @throws NotIntegerMaxPerPageException
-     * @throws LessThan1CurrentPageException
-     * @throws NotIntegerCurrentPageException
-     * @throws OutOfRangeCurrentPageException
-     * @throws \UnexpectedValueException
+     * @param SortConfig $sortConfig
      */
-    protected function handleForm($selectedPage = null)
+    protected function applySort(SortConfig $sortConfig)
     {
-        $qb = $this->getQueryBuilder();
-        $this->applyFilters($qb); // maybe do it in a form event ?
-        $this->applySort($qb, $this->applySortForm());
-        $this->applyPager($qb, $selectedPage); // merge with filters ?
+        $column = $sortConfig->getColumn();
+        if ($column) {
+            $fullColumnReference = $column;
+            if (false === strpos($column, '.')) {
+                $fullColumnReference = $this->alias.'.'.$column;
+            }
+            $direction = $sortConfig->getDirection() ? 'DESC' : 'ASC'; // null or false both default to ASC
+            $this->getQueryBuilder()->addOrderBy($fullColumnReference, $direction);
+        }
     }
 }

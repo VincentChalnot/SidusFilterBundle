@@ -2,13 +2,18 @@
 
 namespace Sidus\FilterBundle\Filter;
 
-use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
+use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 
 /**
  * Base logic common to all filter systems
  */
 interface FilterInterface
 {
+    /**
+     * @return QueryHandlerConfigurationInterface
+     */
+    public function getQueryHandlerConfiguration(): QueryHandlerConfigurationInterface;
+
     /**
      * @return string
      */
@@ -20,19 +25,14 @@ interface FilterInterface
     public function getAttributes(): array;
 
     /**
-     * @return FilterTypeInterface
+     * @return string
      */
-    public function getFilterType(): FilterTypeInterface;
+    public function getFilterType(): string;
 
     /**
      * @return string|null
      */
     public function getLabel();
-
-    /**
-     * @param string $label
-     */
-    public function setLabel(string $label);
 
     /**
      * @return array
@@ -42,27 +42,12 @@ interface FilterInterface
     /**
      * Override form type from default filter type
      *
-     * @return string
+     * @return string|null
      */
-    public function getFormType(): string;
-
-    /**
-     * @param string $formType
-     */
-    public function setFormType(string $formType);
-
-    /**
-     * @param array $formOptions
-     */
-    public function setFormOptions(array $formOptions);
+    public function getFormType();
 
     /**
      * @return array
      */
     public function getFormOptions(): array;
-
-    /**
-     * @return string
-     */
-    public function getProvider(): string;
 }

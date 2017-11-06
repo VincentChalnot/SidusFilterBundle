@@ -20,6 +20,14 @@ class SidusFilterExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
+        $loader = new ServiceLoader(__DIR__.'/../Resources/config/services');
+        $loader->loadFiles($container);
+
+        if (array_key_exists('DoctrineBundle', $container->getParameter('kernel.bundles'))) {
+            $doctrineLoader = new ServiceLoader(__DIR__.'/../Resources/config/doctrine');
+            $doctrineLoader->loadFiles($container);
+        }
+
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
@@ -29,8 +37,5 @@ class SidusFilterExtension extends Extension
         foreach ($configurations as $code => $configuration) {
             $registry->addMethodCall('addRawQueryHandlerConfiguration', [$code, $configuration]);
         }
-
-        $loader = new ServiceLoader(__DIR__.'/../Resources/config/services');
-        $loader->loadFiles($container);
     }
 }

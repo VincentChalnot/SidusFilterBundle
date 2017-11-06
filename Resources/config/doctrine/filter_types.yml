@@ -1,5 +1,5 @@
 services:
-    sidus_filter.filter.type.date_range:
+    sidus_filter.doctrine.filter.type.date_range:
         class: Sidus\FilterBundle\Filter\Type\Doctrine\DateRangeFilterType
         arguments:
             - date_range
@@ -7,7 +7,7 @@ services:
         tags:
             - { name: sidus.filter_type }
 
-    sidus_filter.filter.type.text:
+    sidus_filter.doctrine.filter.type.text:
         class: Sidus\FilterBundle\Filter\Type\Doctrine\TextFilterType
         arguments:
             - text
@@ -15,7 +15,7 @@ services:
         tags:
             - { name: sidus.filter_type }
 
-    sidus_filter.filter.type.choice:
+    sidus_filter.doctrine.filter.type.choice:
         class: Sidus\FilterBundle\Filter\Type\Doctrine\ChoiceFilterType
         arguments:
             - choice

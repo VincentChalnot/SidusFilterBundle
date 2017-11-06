@@ -3,7 +3,10 @@
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
+use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
+use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
+use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 use Symfony\Component\Form\FormInterface;
 
 /**
@@ -12,19 +15,24 @@ use Symfony\Component\Form\FormInterface;
 class TextFilterType extends AbstractDoctrineFilterType
 {
     /**
-     * @param FilterInterface $filter
-     * @param FormInterface   $form
-     * @param QueryBuilder    $qb
-     * @param string          $alias
+     * {@inheritdoc}
      */
-    public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
+    public function handleForm(QueryHandlerInterface $queryHandler, FilterInterface $filter, FormInterface $form)
     {
-        $data = $form->getData();
-        if (null === $data || !$form->isSubmitted()) {
+        if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
+            throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
+        }
+        if (!$form->isSubmitted()) {
             return;
         }
+        $data = $form->getData();
+        if (null === $data) {
+            return;
+        }
+
+        $qb = $queryHandler->getQueryBuilder();
         $dql = [];
-        foreach ($this->getFullAttributeReferences($filter, $alias) as $column) {
+        foreach ($this->getFullAttributeReferences($filter, $queryHandler->getAlias()) as $column) {
             $uid = uniqid('text', false);
             $dql[] = "{$column} LIKE :{$uid}";
             $qb->setParameter($uid, '%'.$data.'%');

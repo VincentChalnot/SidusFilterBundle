@@ -1,3 +1,8 @@
 services:
+    sidus_filter.factory.filter:
+        class: Sidus\FilterBundle\Factory\FilterFactory
+
     sidus_filter.factory.query_handler_configuration:
         class: Sidus\FilterBundle\Factory\QueryHandlerConfigurationFactory
+        arguments:
+            - '@sidus_filter.factory.filter'

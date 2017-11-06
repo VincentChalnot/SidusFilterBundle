@@ -89,11 +89,11 @@ class GenericCompilerPass implements CompilerPassInterface
      *
      * @return int
      */
-    protected function resolvePriority(array $tags)
+    protected function resolvePriority(array $tags): int
     {
         foreach ($tags as $tag) {
             if (array_key_exists('priority', $tag)) {
-                return $tag['priority'];
+                return (int) $tag['priority'];
             }
         }
 

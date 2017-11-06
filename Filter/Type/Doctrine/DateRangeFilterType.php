@@ -3,8 +3,11 @@
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
+use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Form\Type\DateRangeType;
+use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
+use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 use Symfony\Component\Form\FormInterface;
 
 /**
@@ -13,18 +16,23 @@ use Symfony\Component\Form\FormInterface;
 class DateRangeFilterType extends AbstractDoctrineFilterType
 {
     /**
-     * @param FilterInterface $filter
-     * @param FormInterface   $form
-     * @param QueryBuilder    $qb
-     * @param string          $alias
+     * {@inheritdoc}
      */
-    public function handleForm(FilterInterface $filter, FormInterface $form, QueryBuilder $qb, $alias)
+    public function handleForm(QueryHandlerInterface $queryHandler, FilterInterface $filter, FormInterface $form)
     {
-        $data = $form->getData();
-        if (null === $data || !$form->isSubmitted()) {
+        if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
+            throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
+        }
+        if (!$form->isSubmitted()) {
             return;
         }
-        $columns = $this->getFullAttributeReferences($filter, $alias);
+        $data = $form->getData();
+        if (null === $data || (is_array($data) && 0 === count($data))) {
+            return;
+        }
+
+        $qb = $queryHandler->getQueryBuilder();
+        $columns = $this->getFullAttributeReferences($filter, $queryHandler->getAlias());
         if (!empty($data[DateRangeType::START_NAME])) {
             $startDate = $data[DateRangeType::START_NAME];
             $dql = [];

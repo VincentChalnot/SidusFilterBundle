@@ -4,6 +4,7 @@ namespace Sidus\FilterBundle\Registry;
 
 use Sidus\FilterBundle\Exception\MissingFilterException;
 use Sidus\FilterBundle\Exception\MissingQueryHandlerException;
+use Sidus\FilterBundle\Exception\MissingQueryHandlerFactoryException;
 use Sidus\FilterBundle\Factory\QueryHandlerConfigurationFactoryInterface;
 use Sidus\FilterBundle\Factory\QueryHandlerFactoryInterface;
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
@@ -17,8 +18,8 @@ class QueryHandlerRegistry
     /** @var QueryHandlerConfigurationFactoryInterface */
     protected $queryHandlerConfigurationFactory;
 
-    /** @var QueryHandlerFactoryInterface */
-    protected $queryHandlerFactory;
+    /** @var QueryHandlerFactoryInterface[] */
+    protected $queryHandlerFactories = [];
 
     /** @var array[] */
     protected $rawQueryHandlerConfigurations;
@@ -31,11 +32,9 @@ class QueryHandlerRegistry
 
     /**
      * @param QueryHandlerConfigurationFactoryInterface $queryHandlerConfigurationFactory
-     * @param QueryHandlerFactoryInterface              $queryHandlerFactory
      */
     public function __construct(
-        QueryHandlerConfigurationFactoryInterface $queryHandlerConfigurationFactory,
-        QueryHandlerFactoryInterface $queryHandlerFactory
+        QueryHandlerConfigurationFactoryInterface $queryHandlerConfigurationFactory
     ) {
         $this->queryHandlerConfigurationFactory = $queryHandlerConfigurationFactory;
     }
@@ -70,33 +69,25 @@ class QueryHandlerRegistry
     }
 
     /**
-     * @param string $code
-     *
-     * @throws \Sidus\FilterBundle\Exception\MissingQueryHandlerException
-     *
-     * @return QueryHandlerConfigurationInterface
+     * @param QueryHandlerFactoryInterface $queryHandlerFactory
      */
-    public function getQueryHandlerConfiguration(string $code): QueryHandlerConfigurationInterface
+    public function addQueryHandlerFactory(QueryHandlerFactoryInterface $queryHandlerFactory)
     {
-        if (!array_key_exists($code, $this->queryHandlerConfigurations)) {
-            return $this->buildQueryHandlerConfiguration($code);
-        }
-
-        return $this->queryHandlerConfigurations[$code];
+        $this->queryHandlerFactories[$queryHandlerFactory->getProvider()] = $queryHandlerFactory;
     }
 
     /**
      * @param string $code
      *
-     * @throws \UnexpectedValueException
      * @throws MissingFilterException
-     * @throws \Sidus\FilterBundle\Exception\MissingQueryHandlerException
+     * @throws MissingQueryHandlerException
+     * @throws MissingQueryHandlerFactoryException
      *
      * @return QueryHandlerInterface
      */
     public function getQueryHandler(string $code): QueryHandlerInterface
     {
-        if (!$this->hasQueryHandler($code)) {
+        if (!array_key_exists($code, $this->queryHandlers)) {
             return $this->buildQueryHandler($code);
         }
 
@@ -110,31 +101,51 @@ class QueryHandlerRegistry
      */
     public function hasQueryHandler(string $code): bool
     {
-        return array_key_exists($code, $this->queryHandlers);
+        return array_key_exists($code, $this->queryHandlers)
+            || array_key_exists($code, $this->queryHandlerConfigurations)
+            || array_key_exists($code, $this->rawQueryHandlerConfigurations);
     }
 
     /**
      * @param string $code
      *
-     * @throws \Sidus\FilterBundle\Exception\MissingFilterException
-     * @throws \UnexpectedValueException
-     * @throws \Sidus\FilterBundle\Exception\MissingQueryHandlerException
+     * @throws MissingQueryHandlerException
+     *
+     * @return QueryHandlerConfigurationInterface
+     */
+    protected function getQueryHandlerConfiguration(string $code): QueryHandlerConfigurationInterface
+    {
+        if (!array_key_exists($code, $this->queryHandlerConfigurations)) {
+            return $this->buildQueryHandlerConfiguration($code);
+        }
+
+        return $this->queryHandlerConfigurations[$code];
+    }
+
+    /**
+     * @param string $code
+     *
+     * @throws MissingFilterException
+     * @throws MissingQueryHandlerException
+     * @throws MissingQueryHandlerFactoryException
      *
      * @return QueryHandlerInterface
      */
     protected function buildQueryHandler(string $code): QueryHandlerInterface
     {
         $configuration = $this->getQueryHandlerConfiguration($code);
-        $queryHandlder = $this->queryHandlerFactory->createQueryHandler($configuration);
-        $this->queryHandlers[$code] = $queryHandlder;
+        $queryHandlerFactory = $this->getQueryHandlerFactory($configuration->getProvider());
+        $queryHandler = $queryHandlerFactory->createQueryHandler($configuration);
+        $this->queryHandlers[$code] = $queryHandler;
+        unset($this->queryHandlerConfigurations[$code]);
 
-        return $queryHandlder;
+        return $queryHandler;
     }
 
     /**
      * @param string $code
      *
-     * @throws \Sidus\FilterBundle\Exception\MissingQueryHandlerException
+     * @throws MissingQueryHandlerException
      *
      * @return QueryHandlerConfigurationInterface
      */
@@ -148,7 +159,24 @@ class QueryHandlerRegistry
             $this->rawQueryHandlerConfigurations[$code]
         );
         $this->queryHandlerConfigurations[$code] = $queryHandlerConfiguration;
+        unset($this->rawQueryHandlerConfigurations[$code]);
 
         return $queryHandlerConfiguration;
+    }
+
+    /**
+     * @param string $provider
+     *
+     * @throws MissingQueryHandlerFactoryException
+     *
+     * @return QueryHandlerFactoryInterface
+     */
+    protected function getQueryHandlerFactory(string $provider): QueryHandlerFactoryInterface
+    {
+        if (!array_key_exists($provider, $this->queryHandlerFactories)) {
+            throw new MissingQueryHandlerFactoryException($provider);
+        }
+
+        return $this->queryHandlerFactories[$provider];
     }
 }
