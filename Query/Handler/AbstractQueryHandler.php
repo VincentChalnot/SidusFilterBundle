@@ -211,6 +211,9 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
 
     /**
      * @param FormBuilderInterface $builder
+     *
+     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
+     * @throws \UnexpectedValueException
      */
     protected function buildFilterForm(FormBuilderInterface $builder)
     {
@@ -222,7 +225,15 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
             ]
         );
         foreach ($this->getConfiguration()->getFilters() as $filter) {
-            $filtersBuilder->add($filter->getCode(), $filter->getFormType(), $filter->getFormOptions());
+            $filterType = $this->filterTypeRegistry->getFilterType(
+                $this->getConfiguration()->getProvider(),
+                $filter->getFilterType()
+            );
+            $filtersBuilder->add(
+                $filter->getCode(),
+                $filter->getFormType() ?? $filterType->getFormType(),
+                $filterType->getFormOptions($this, $filter)
+            );
         }
         $builder->add($filtersBuilder);
     }

@@ -47,7 +47,7 @@ class Filter implements FilterInterface
         QueryHandlerConfigurationInterface $queryHandlerConfiguration,
         string $code,
         string $filterType,
-        array $attributes,
+        array $attributes = [],
         string $formType = null,
         string $label = null,
         array $options = [],
@@ -61,6 +61,10 @@ class Filter implements FilterInterface
         $this->label = $label;
         $this->options = $options;
         $this->formOptions = $formOptions;
+
+        if (empty($attributes)) {
+            $this->attributes = [$code];
+        }
     }
 
     /**

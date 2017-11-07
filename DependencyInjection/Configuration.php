@@ -100,7 +100,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('label')->defaultNull()->end()
             ->scalarNode('form_type')->defaultNull()->end()
             ->arrayNode('attributes')
-                ->prototype('scalar')->defaultValue([])->end()
+                ->prototype('scalar')->defaultNull()->end()
             ->end()
             ->variableNode('options')
                 ->defaultValue([])
