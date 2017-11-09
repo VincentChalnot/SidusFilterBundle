@@ -59,7 +59,7 @@ class Configuration implements ConfigurationInterface
     protected function appendFilterDefinition(NodeBuilder $filterDefinition)
     {
         $fieldDefinition = $filterDefinition
-            ->scalarNode('provider')->defaultValue('doctrine')->end()
+            ->scalarNode('provider')->isRequired()->end()
             ->integerNode('results_per_page')->defaultValue(15)->end()
             ->arrayNode('sortable')
                 ->prototype('scalar')->end()
