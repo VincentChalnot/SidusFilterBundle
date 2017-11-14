@@ -53,9 +53,6 @@ abstract class AbstractFilterType implements FilterTypeInterface
     public function getFormOptions(QueryHandlerInterface $queryHandler, FilterInterface $filter): array
     {
         return array_merge(
-            [
-                'required' => false,
-            ],
             $this->formOptions,
             $filter->getFormOptions()
         );

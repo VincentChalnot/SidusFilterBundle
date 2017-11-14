@@ -26,14 +26,14 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
             return;
         }
         $data = $form->getData();
-        if (null === $data || (is_array($data) && 0 === count($data))) {
+        if (null === $data || (\is_array($data) && 0 === \count($data))) {
             return;
         }
         $dql = [];
         $qb = $queryHandler->getQueryBuilder();
         foreach ($this->getFullAttributeReferences($filter, $queryHandler->getAlias()) as $column) {
             $uid = uniqid('choices', false);
-            if (is_array($data)) {
+            if (\is_array($data)) {
                 $dql[] = "{$column} IN (:{$uid})";
                 $qb->setParameter($uid, $data);
             } else {
@@ -41,7 +41,7 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
                 $qb->setParameter($uid, $data);
             }
         }
-        if (0 < count($dql)) {
+        if (0 < \count($dql)) {
             $qb->andWhere(implode(' OR ', $dql));
         }
     }
@@ -51,11 +51,12 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
      */
     public function getFormOptions(QueryHandlerInterface $queryHandler, FilterInterface $filter): array
     {
+        if (isset($filter->getFormOptions()['choices'])) {
+            return parent::getFormOptions($queryHandler, $filter);
+        }
+
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
-        }
-        if (isset($this->formOptions['choices'])) {
-            return $this->formOptions;
         }
         $choices = [];
         $alias = $queryHandler->getAlias();
@@ -69,6 +70,10 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
             }
         }
 
-        return array_merge($this->formOptions, ['choices' => $choices]);
+        return array_merge(
+            $this->formOptions,
+            ['choices' => $choices],
+            $filter->getFormOptions()
+        );
     }
 }
