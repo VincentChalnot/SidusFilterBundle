@@ -2,7 +2,6 @@
 
 namespace Sidus\FilterBundle;
 
-use Sidus\FilterBundle\DependencyInjection\Compiler\FilterTypeCompilerPass;
 use Sidus\FilterBundle\DependencyInjection\Compiler\GenericCompilerPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;

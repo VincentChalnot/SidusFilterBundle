@@ -25,9 +25,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 abstract class AbstractQueryHandler implements QueryHandlerInterface
 {
-    const FILTERS_FORM_NAME = 'filters';
-    const SORTABLE_FORM_NAME = 'sortable';
-    const SORT_CONFIG_FORM_NAME = 'config';
+    public const FILTERS_FORM_NAME = 'filters';
+    public const SORTABLE_FORM_NAME = 'sortable';
+    public const SORT_CONFIG_FORM_NAME = 'config';
 
     /** @var FilterTypeRegistry */
     protected $filterTypeRegistry;

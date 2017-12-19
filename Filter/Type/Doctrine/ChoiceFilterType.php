@@ -2,7 +2,6 @@
 
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
-use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
@@ -32,7 +31,7 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
         $dql = [];
         $qb = $queryHandler->getQueryBuilder();
         foreach ($this->getFullAttributeReferences($filter, $queryHandler->getAlias()) as $column) {
-            $uid = uniqid('choices', false);
+            $uid = uniqid('choices');
             if (\is_array($data)) {
                 $dql[] = "{$column} IN (:{$uid})";
                 $qb->setParameter($uid, $data);

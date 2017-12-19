@@ -14,9 +14,9 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class SortConfigType extends AbstractType
 {
-    const COLUMN_NAME = 'column';
-    const DIRECTION_NAME = 'direction';
-    const PAGE_NAME = 'page';
+    public const COLUMN_NAME = 'column';
+    public const DIRECTION_NAME = 'direction';
+    public const PAGE_NAME = 'page';
 
     /** @var string */
     protected $sortConfigClass;

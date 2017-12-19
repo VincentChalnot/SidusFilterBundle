@@ -2,7 +2,6 @@
 
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
-use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Form\Type\DateRangeType;
@@ -27,7 +26,7 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
             return;
         }
         $data = $form->getData();
-        if (null === $data || (is_array($data) && 0 === count($data))) {
+        if (null === $data || (\is_array($data) && 0 === \count($data))) {
             return;
         }
 
@@ -37,11 +36,11 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
             $startDate = $data[DateRangeType::START_NAME];
             $dql = [];
             foreach ($columns as $column) {
-                $uid = uniqid('fromDate', false);
+                $uid = uniqid('fromDate');
                 $dql[] = "{$column} >= :{$uid}";
                 $qb->setParameter($uid, $startDate);
             }
-            if (0 < count($dql)) {
+            if (0 < \count($dql)) {
                 $qb->andWhere(implode(' OR ', $dql));
             }
         }
@@ -49,11 +48,11 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
             $endDate = $data[DateRangeType::END_NAME];
             $dql = [];
             foreach ($columns as $column) {
-                $uid = uniqid('endDate', false);
+                $uid = uniqid('endDate');
                 $dql[] = "{$column} <= :{$uid}";
                 $qb->setParameter($uid, $endDate);
             }
-            if (0 < count($dql)) {
+            if (0 < \count($dql)) {
                 $qb->andWhere(implode(' OR ', $dql));
             }
         }

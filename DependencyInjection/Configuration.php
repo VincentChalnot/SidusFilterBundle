@@ -71,7 +71,7 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue([])
                 ->validate()
                     ->ifTrue(function ($value) {
-                        return !is_array($value) && null !== $value;
+                        return !\is_array($value) && null !== $value;
                     })
                     ->thenInvalid('"options" configuration must be an array or left empty')
                 ->end()
@@ -106,7 +106,7 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue([])
                 ->validate()
                 ->ifTrue(function ($value) {
-                    return !is_array($value) && null !== $value;
+                    return !\is_array($value) && null !== $value;
                 })
                 ->thenInvalid('"options" configuration must be an array or left empty')
                 ->end()
@@ -115,7 +115,7 @@ class Configuration implements ConfigurationInterface
                 ->defaultValue([])
                 ->validate()
                 ->ifTrue(function ($value) {
-                    return !is_array($value) && null !== $value;
+                    return !\is_array($value) && null !== $value;
                 })
                 ->thenInvalid('"form_options" configuration must be an array or left empty')
                 ->end()

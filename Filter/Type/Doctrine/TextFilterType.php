@@ -2,7 +2,6 @@
 
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
-use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
@@ -33,11 +32,11 @@ class TextFilterType extends AbstractDoctrineFilterType
         $qb = $queryHandler->getQueryBuilder();
         $dql = [];
         foreach ($this->getFullAttributeReferences($filter, $queryHandler->getAlias()) as $column) {
-            $uid = uniqid('text', false);
+            $uid = uniqid('text');
             $dql[] = "{$column} LIKE :{$uid}";
             $qb->setParameter($uid, '%'.$data.'%');
         }
-        if (0 < count($dql)) {
+        if (0 < \count($dql)) {
             $qb->andWhere(implode(' OR ', $dql));
         }
     }

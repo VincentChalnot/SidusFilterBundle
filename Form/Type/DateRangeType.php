@@ -11,8 +11,8 @@ use Symfony\Component\Form\FormBuilderInterface;
  */
 class DateRangeType extends AbstractType
 {
-    const START_NAME = 'startDate';
-    const END_NAME = 'endDate';
+    public const START_NAME = 'startDate';
+    public const END_NAME = 'endDate';
 
     /**
      * @todo : FIXME : Inject date/time format from configuration and move bootstrap specific elements to different
