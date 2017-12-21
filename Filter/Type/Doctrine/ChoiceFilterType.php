@@ -71,8 +71,8 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
 
         return array_merge(
             $this->formOptions,
-            ['choices' => $choices],
-            $filter->getFormOptions()
+            $filter->getFormOptions(),
+            ['choices' => $choices]
         );
     }
 }
