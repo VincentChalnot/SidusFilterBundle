@@ -54,7 +54,11 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     ) {
         $this->filterTypeRegistry = $filterTypeRegistry;
         $this->configuration = $configuration;
-        $this->sortConfig = new SortConfig();
+        /** @noinspection LoopWhichDoesNotLoopInspection */
+        foreach ($configuration->getDefaultSort() as $column => $direction) {
+            $this->sortConfig = new SortConfig($column, strtolower($direction) === 'desc');
+            break;
+        }
     }
 
     /**
