@@ -130,4 +130,19 @@ class Filter implements FilterInterface
     {
         return $this->formOptions;
     }
+
+    /**
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function getOption(string $key, $default = null)
+    {
+        if (!array_key_exists($key, $this->options)) {
+            return $default;
+        }
+
+        return $this->options[$key];
+    }
 }

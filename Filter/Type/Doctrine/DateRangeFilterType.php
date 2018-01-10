@@ -22,9 +22,6 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
-        if (!$form->isSubmitted()) {
-            return;
-        }
         $data = $form->getData();
         if (null === $data || (\is_array($data) && 0 === \count($data))) {
             return;

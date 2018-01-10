@@ -50,4 +50,12 @@ interface FilterInterface
      * @return array
      */
     public function getFormOptions(): array;
+
+    /**
+     * @param string $key
+     * @param mixed  $default
+     *
+     * @return mixed
+     */
+    public function getOption(string $key, $default = null);
 }

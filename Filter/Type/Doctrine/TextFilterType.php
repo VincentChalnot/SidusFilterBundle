@@ -21,9 +21,6 @@ class TextFilterType extends AbstractDoctrineFilterType
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
-        if (!$form->isSubmitted()) {
-            return;
-        }
         $data = $form->getData();
         if (null === $data) {
             return;
