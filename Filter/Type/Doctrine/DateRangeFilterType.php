@@ -2,6 +2,7 @@
 
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
+use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Form\Type\DateRangeType;
@@ -23,35 +24,42 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
         $data = $form->getData();
-        if (null === $data || (\is_array($data) && 0 === \count($data))) {
+        if (null === $data || !\is_array($data)) {
+            return;
+        }
+
+        $startDate = $data[DateRangeType::START_NAME] ?? null;
+        $endDate = $data[DateRangeType::END_NAME] ?? null;
+        if (null === $startDate && null === $endDate) {
             return;
         }
 
         $qb = $queryHandler->getQueryBuilder();
         $columns = $this->getFullAttributeReferences($filter, $queryHandler->getAlias());
-        if (!empty($data[DateRangeType::START_NAME])) {
-            $startDate = $data[DateRangeType::START_NAME];
-            $dql = [];
-            foreach ($columns as $column) {
-                $uid = uniqid('fromDate');
-                $dql[] = "{$column} >= :{$uid}";
-                $qb->setParameter($uid, $startDate);
-            }
-            if (0 < \count($dql)) {
-                $qb->andWhere(implode(' OR ', $dql));
-            }
+        if ($startDate instanceof \DateTimeInterface) {
+            $this->buildQb($columns, $qb, $startDate, '>=');
         }
-        if (!empty($data[DateRangeType::END_NAME])) {
-            $endDate = $data[DateRangeType::END_NAME];
-            $dql = [];
-            foreach ($columns as $column) {
-                $uid = uniqid('endDate');
-                $dql[] = "{$column} <= :{$uid}";
-                $qb->setParameter($uid, $endDate);
-            }
-            if (0 < \count($dql)) {
-                $qb->andWhere(implode(' OR ', $dql));
-            }
+        if ($endDate instanceof \DateTimeInterface) {
+            $this->buildQb($columns, $qb, $endDate, '<=');
+        }
+    }
+
+    /**
+     * @param array        $columns
+     * @param QueryBuilder $qb
+     * @param \DateTime    $value
+     * @param string       $operator
+     */
+    protected function buildQb(array $columns, QueryBuilder $qb, \DateTime $value, string $operator)
+    {
+        $dql = [];
+        foreach ($columns as $column) {
+            $uid = uniqid('date');
+            $dql[] = "{$column} {$operator} :{$uid}";
+            $qb->setParameter($uid, $value);
+        }
+        if (0 < \count($dql)) {
+            $qb->andWhere(implode(' OR ', $dql));
         }
     }
 }
