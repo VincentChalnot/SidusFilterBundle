@@ -47,13 +47,14 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
      */
     public function getFormOptions(QueryHandlerInterface $queryHandler, FilterInterface $filter): array
     {
+        if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
+            throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
+        }
+
         if (isset($filter->getFormOptions()['choices'])) {
             return parent::getFormOptions($queryHandler, $filter);
         }
 
-        if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
-            throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
-        }
         $choices = [];
         $alias = $queryHandler->getAlias();
         foreach ($this->getFullAttributeReferences($filter, $alias) as $column) {
