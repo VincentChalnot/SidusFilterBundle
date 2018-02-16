@@ -69,9 +69,11 @@ class SortConfig
     /**
      * @param boolean $direction
      */
-    public function setDirection(bool $direction)
+    public function setDirection(bool $direction = null)
     {
-        $this->direction = $direction;
+        if (null !== $direction) {
+            $this->direction = $direction;
+        }
     }
 
     /**
@@ -93,8 +95,10 @@ class SortConfig
     /**
      * @param int $page
      */
-    public function setPage(int $page)
+    public function setPage(int $page = null)
     {
-        $this->page = $page;
+        if (null !== $page) {
+            $this->page = $page;
+        }
     }
 }
