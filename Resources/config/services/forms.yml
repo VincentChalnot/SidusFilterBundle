@@ -6,6 +6,8 @@ parameters:
 services:
     sidus_filter.form.type.date_range:
         class: '%sidus_filter.form.type.date_range.class%'
+        arguments:
+            - '@translator'
         tags:
             - { name: form.type }
 
