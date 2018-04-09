@@ -24,7 +24,8 @@
         }
     },
     "require": {
-        "php": ">=5.6",
-        "white-october/pagerfanta-bundle": "~1.0"
+        "php": ">=7.1",
+        "white-october/pagerfanta-bundle": "~1.0",
+        "sidus/base-bundle": "~1.0"
     }
 }

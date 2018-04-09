@@ -2,16 +2,16 @@
 
 namespace Sidus\FilterBundle\DependencyInjection;
 
-use Sidus\FilterBundle\DependencyInjection\Loader\ServiceLoader;
+use Sidus\BaseBundle\DependencyInjection\Loader\ServiceLoader;
+use Sidus\BaseBundle\DependencyInjection\SidusBaseExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
  * This is the class that loads and manages your bundle configuration
  *
  * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
  */
-class SidusFilterExtension extends Extension
+class SidusFilterExtension extends SidusBaseExtension
 {
     /**
      * {@inheritdoc}
@@ -20,12 +20,11 @@ class SidusFilterExtension extends Extension
      */
     public function load(array $configs, ContainerBuilder $container)
     {
-        $loader = new ServiceLoader(__DIR__.'/../Resources/config/services');
-        $loader->loadFiles($container);
+        parent::load($configs, $container);
 
         if (array_key_exists('DoctrineBundle', $container->getParameter('kernel.bundles'))) {
-            $doctrineLoader = new ServiceLoader(__DIR__.'/../Resources/config/doctrine');
-            $doctrineLoader->loadFiles($container);
+            $doctrineLoader = new ServiceLoader($container);
+            $doctrineLoader->loadFiles(__DIR__.'/../Resources/config/doctrine');
         }
 
         $configuration = new Configuration();
