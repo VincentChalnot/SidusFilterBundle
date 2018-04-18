@@ -7,41 +7,31 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Tools\Pagination\CountWalker;
 use Doctrine\ORM\Tools\Pagination\LimitSubqueryOutputWalker;
 use Doctrine\ORM\Tools\Pagination\LimitSubqueryWalker;
 use Doctrine\ORM\Tools\Pagination\WhereInWalker;
 
 /**
- * Class DoctrinePaginator
+ * Better paginator with simpler count query
  *
- * @package Sidus\FilterBundle\Pagination
- * @author  Madeline Veyrenc <mveyrenc@clever-age.com>
+ * @author Madeline Veyrenc <mveyrenc@clever-age.com>
  */
 class DoctrineORMPaginator implements \Countable, \IteratorAggregate
 {
-    /**
-     * @var Query
-     */
-    private $query;
+    /** @var Query */
+    protected $query;
+
+    /** @var bool */
+    protected $fetchJoinCollection;
+
+    /** @var bool|null */
+    protected $useOutputWalkers;
+
+    /** @var int */
+    protected $count;
 
     /**
-     * @var bool
-     */
-    private $fetchJoinCollection;
-
-    /**
-     * @var bool|null
-     */
-    private $useOutputWalkers;
-
-    /**
-     * @var int
-     */
-    private $count;
-
-    /**
-     * Constructor.
-     *
      * @param Query|QueryBuilder $query               A Doctrine ORM query or query builder.
      * @param boolean            $fetchJoinCollection Whether the query joins a collection (true by default).
      */
@@ -101,10 +91,12 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
 
     /**
      * {@inheritdoc}
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function count()
     {
-        if ($this->count === null) {
+        if (null === $this->count) {
             try {
                 $this->count = array_sum(array_map('current', $this->getCountQuery()->getScalarResult()));
             } catch (NoResultException $e) {
@@ -138,12 +130,12 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
 
             $whereInQuery = $this->cloneQuery($this->query);
             // don't do this for an empty id array
-            if (count($ids) === 0) {
+            if (0 === \count($ids)) {
                 return new \ArrayIterator([]);
             }
 
             $this->appendTreeWalker($whereInQuery, WhereInWalker::class);
-            $whereInQuery->setHint(WhereInWalker::HINT_PAGINATOR_ID_COUNT, count($ids));
+            $whereInQuery->setHint(WhereInWalker::HINT_PAGINATOR_ID_COUNT, \count($ids));
             $whereInQuery->setFirstResult(null)->setMaxResults(null);
             $whereInQuery->setParameter(WhereInWalker::PAGINATOR_ID_ALIAS, $ids);
             $whereInQuery->setCacheable($this->query->isCacheable());
@@ -151,11 +143,10 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
             $result = $whereInQuery->getResult($this->query->getHydrationMode());
         } else {
             $result = $this->cloneQuery($this->query)
-                           ->setMaxResults($length)
-                           ->setFirstResult($offset)
-                           ->setCacheable($this->query->isCacheable())
-                           ->getResult($this->query->getHydrationMode())
-            ;
+                ->setMaxResults($length)
+                ->setFirstResult($offset)
+                ->setCacheable($this->query->isCacheable())
+                ->getResult($this->query->getHydrationMode());
         }
 
         return new \ArrayIterator($result);
@@ -168,7 +159,7 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
      *
      * @return Query The cloned query.
      */
-    private function cloneQuery(Query $query)
+    protected function cloneQuery(Query $query)
     {
         /* @var $cloneQuery Query */
         $cloneQuery = clone $query;
@@ -190,10 +181,10 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
      *
      * @return bool
      */
-    private function useOutputWalker(Query $query)
+    protected function useOutputWalker(Query $query)
     {
-        if ($this->useOutputWalkers === null) {
-            return (bool) $query->getHint(Query::HINT_CUSTOM_OUTPUT_WALKER) === false;
+        if (null === $this->useOutputWalkers) {
+            return false === (bool) $query->getHint(Query::HINT_CUSTOM_OUTPUT_WALKER);
         }
 
         return $this->useOutputWalkers;
@@ -205,11 +196,11 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
      * @param Query  $query
      * @param string $walkerClass
      */
-    private function appendTreeWalker(Query $query, $walkerClass)
+    protected function appendTreeWalker(Query $query, $walkerClass)
     {
         $hints = $query->getHint(Query::HINT_CUSTOM_TREE_WALKERS);
 
-        if ($hints === false) {
+        if (false === $hints) {
             $hints = [];
         }
 
@@ -220,9 +211,11 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
     /**
      * Returns Query prepared to count.
      *
+     * @throws \Doctrine\DBAL\DBALException
+     *
      * @return Query
      */
-    private function getCountQuery()
+    protected function getCountQuery()
     {
         /* @var $countQuery Query */
         $countQuery = $this->cloneQuery($this->query);
@@ -241,21 +234,21 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
 
         $countQuery->setFirstResult(null)->setMaxResults(null);
 
-        $parser            = new Parser($countQuery);
+        $parser = new Parser($countQuery);
         $parameterMappings = $parser->parse()->getParameterMappings();
         /* @var $parameters \Doctrine\Common\Collections\Collection|\Doctrine\ORM\Query\Parameter[] */
-        $parameters        = $countQuery->getParameters();
+        $parameters = $countQuery->getParameters();
 
         foreach ($parameters as $key => $parameter) {
             $parameterName = $parameter->getName();
 
-            if ( ! (isset($parameterMappings[$parameterName]) || array_key_exists($parameterName, $parameterMappings))) {
+            if (!(isset($parameterMappings[$parameterName]) || array_key_exists($parameterName, $parameterMappings))) {
                 unset($parameters[$key]);
             }
         }
 
         $countQuery->setParameters($parameters);
-//dump($countQuery); die();
+
         return $countQuery;
     }
 }
