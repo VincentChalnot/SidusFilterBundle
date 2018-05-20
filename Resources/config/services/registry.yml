@@ -1,8 +1,7 @@
 services:
-    sidus_filter.registry.query_handler:
-        class: Sidus\FilterBundle\Registry\QueryHandlerRegistry
-        arguments:
-            - '@sidus_filter.factory.query_handler_configuration'
+    Sidus\FilterBundle\Registry\QueryHandlerRegistry:
+        public: false
+        autowire: true
 
-    sidus_filter.registry.filter_type:
-        class: Sidus\FilterBundle\Registry\FilterTypeRegistry
+    Sidus\FilterBundle\Registry\FilterTypeRegistry:
+        public: false

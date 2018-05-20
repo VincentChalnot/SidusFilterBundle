@@ -2,7 +2,7 @@
 
 namespace Sidus\FilterBundle\Query\Handler\Doctrine;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Pagination\DoctrineORMAdapter;
@@ -26,7 +26,7 @@ use UnexpectedValueException;
  */
 class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQueryHandlerInterface
 {
-    /** @var Registry */
+    /** @var ManagerRegistry */
     protected $doctrine;
 
     /** @var string */
@@ -44,14 +44,14 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     /**
      * @param FilterTypeRegistry                 $filterTypeRegistry
      * @param QueryHandlerConfigurationInterface $configuration
-     * @param Registry                           $doctrine
+     * @param ManagerRegistry                    $doctrine
      *
      * @throws \UnexpectedValueException
      */
     public function __construct(
         FilterTypeRegistry $filterTypeRegistry,
         QueryHandlerConfigurationInterface $configuration,
-        Registry $doctrine
+        ManagerRegistry $doctrine
     ) {
         parent::__construct($filterTypeRegistry, $configuration);
         $this->doctrine = $doctrine;

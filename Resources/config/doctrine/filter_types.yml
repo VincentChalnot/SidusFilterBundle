@@ -1,22 +1,22 @@
 services:
-    sidus_filter.doctrine.filter.type.date_range:
-        class: Sidus\FilterBundle\Filter\Type\Doctrine\DateRangeFilterType
+    Sidus\FilterBundle\Filter\Type\Doctrine\DateRangeFilterType:
+        public: false
         arguments:
             - date_range
             - 'Sidus\FilterBundle\Form\Type\DateRangeType'
         tags:
             - { name: sidus.filter_type }
 
-    sidus_filter.doctrine.filter.type.text:
-        class: Sidus\FilterBundle\Filter\Type\Doctrine\TextFilterType
+    Sidus\FilterBundle\Filter\Type\Doctrine\TextFilterType:
+        public: false
         arguments:
             - text
             - 'Symfony\Component\Form\Extension\Core\Type\TextType'
         tags:
             - { name: sidus.filter_type }
 
-    sidus_filter.doctrine.filter.type.choice:
-        class: Sidus\FilterBundle\Filter\Type\Doctrine\ChoiceFilterType
+    Sidus\FilterBundle\Filter\Type\Doctrine\ChoiceFilterType:
+        public: false
         arguments:
             - choice
             - 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'

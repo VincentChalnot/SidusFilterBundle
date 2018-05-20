@@ -2,7 +2,7 @@
 
 namespace Sidus\FilterBundle\Factory\Doctrine;
 
-use Doctrine\Bundle\DoctrineBundle\Registry;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Sidus\FilterBundle\Factory\QueryHandlerFactoryInterface;
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandler;
@@ -17,14 +17,14 @@ class DoctrineQueryHandlerFactory implements QueryHandlerFactoryInterface
     /** @var FilterTypeRegistry */
     protected $filterTypeRegistry;
 
-    /** @var Registry */
+    /** @var ManagerRegistry */
     protected $doctrine;
 
     /**
      * @param FilterTypeRegistry $filterTypeRegistry
-     * @param Registry           $doctrine
+     * @param ManagerRegistry    $doctrine
      */
-    public function __construct(FilterTypeRegistry $filterTypeRegistry, Registry $doctrine)
+    public function __construct(FilterTypeRegistry $filterTypeRegistry, ManagerRegistry $doctrine)
     {
         $this->filterTypeRegistry = $filterTypeRegistry;
         $this->doctrine = $doctrine;

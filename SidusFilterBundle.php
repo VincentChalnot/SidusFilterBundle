@@ -3,6 +3,8 @@
 namespace Sidus\FilterBundle;
 
 use Sidus\BaseBundle\DependencyInjection\Compiler\GenericCompilerPass;
+use Sidus\FilterBundle\Registry\FilterTypeRegistry;
+use Sidus\FilterBundle\Registry\QueryHandlerRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
@@ -22,14 +24,14 @@ class SidusFilterBundle extends Bundle
     {
         $container->addCompilerPass(
             new GenericCompilerPass(
-                'sidus_filter.registry.filter_type',
+                FilterTypeRegistry::class,
                 'sidus.filter_type',
                 'addFilterType'
             )
         );
         $container->addCompilerPass(
             new GenericCompilerPass(
-                'sidus_filter.registry.query_handler',
+                QueryHandlerRegistry::class,
                 'sidus.query_handler_factory',
                 'addQueryHandlerFactory'
             )

@@ -1,8 +1,6 @@
 services:
-    sidus_filter.doctrine.factory.query_handler:
-        class: Sidus\FilterBundle\Factory\Doctrine\DoctrineQueryHandlerFactory
-        arguments:
-            - '@sidus_filter.registry.filter_type'
-            - '@doctrine'
+    Sidus\FilterBundle\Factory\Doctrine\DoctrineQueryHandlerFactory:
+        public: false
+        autowire: true
         tags:
             - { name: sidus.query_handler_factory }

@@ -4,6 +4,7 @@ namespace Sidus\FilterBundle\DependencyInjection;
 
 use Sidus\BaseBundle\DependencyInjection\Loader\ServiceLoader;
 use Sidus\BaseBundle\DependencyInjection\SidusBaseExtension;
+use Sidus\FilterBundle\Registry\QueryHandlerRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
@@ -30,7 +31,7 @@ class SidusFilterExtension extends SidusBaseExtension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
-        $registry = $container->getDefinition('sidus_filter.registry.query_handler');
+        $registry = $container->getDefinition(QueryHandlerRegistry::class);
         /** @var array $configurations */
         $configurations = $config['configurations'];
         foreach ($configurations as $code => $configuration) {

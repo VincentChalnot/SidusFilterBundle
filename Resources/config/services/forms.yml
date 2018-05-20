@@ -1,23 +1,18 @@
-parameters:
-    sidus_filter.form.type.date_range.class: Sidus\FilterBundle\Form\Type\DateRangeType
-    sidus_filter.form.type.order_button.class: Sidus\FilterBundle\Form\Type\OrderButtonType
-    sidus_filter.form.type.sort_config.class: Sidus\FilterBundle\Form\Type\SortConfigType
-
 services:
-    sidus_filter.form.type.date_range:
-        class: '%sidus_filter.form.type.date_range.class%'
+    Sidus\FilterBundle\Form\Type\DateRangeType:
+        public: false
+        autowire: true
+        tags:
+            - { name: form.type }
+
+    Sidus\FilterBundle\Form\Type\OrderButtonType:
+        public: false
+        tags:
+            - { name: form.type }
+
+    Sidus\FilterBundle\Form\Type\SortConfigType:
+        public: false
         arguments:
-            - '@translator'
-        tags:
-            - { name: form.type }
-
-    sidus_filter.form.type.order_button:
-        class: '%sidus_filter.form.type.order_button.class%'
-        tags:
-            - { name: form.type }
-
-    sidus_filter.form.type.sort_config:
-        class: '%sidus_filter.form.type.sort_config.class%'
-        arguments: [Sidus\FilterBundle\DTO\SortConfig]
+            - Sidus\FilterBundle\DTO\SortConfig
         tags:
             - { name: form.type }
