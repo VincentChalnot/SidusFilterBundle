@@ -57,7 +57,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
         $this->sortConfig = new SortConfig();
         /** @noinspection LoopWhichDoesNotLoopInspection */
         foreach ($configuration->getDefaultSort() as $column => $direction) {
-            $this->sortConfig = new SortConfig($column, strtolower($direction) === 'desc');
+            $this->sortConfig = new SortConfig($column, 'desc' === strtolower($direction));
             break;
         }
     }
@@ -102,8 +102,9 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     }
 
     /**
-     * @return FormInterface
      * @throws \LogicException
+     *
+     * @return FormInterface
      */
     public function getForm(): FormInterface
     {

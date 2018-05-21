@@ -15,17 +15,6 @@ class DateRangeType extends AbstractType
     public const START_NAME = 'startDate';
     public const END_NAME = 'endDate';
 
-    /** @var TranslatorInterface */
-    protected $translator;
-
-    /**
-     * @param TranslatorInterface $translator
-     */
-    public function __construct(TranslatorInterface $translator)
-    {
-        $this->translator = $translator;
-    }
-
     /**
      * @todo : FIXME : Inject date/time format from configuration and move bootstrap specific elements to different
      *       bundle !!!
@@ -47,7 +36,7 @@ class DateRangeType extends AbstractType
                     'attr' => [
                         'class' => 'input-sm form-control',
                         'data-provider' => 'datepicker',
-                        'placeholder' => $this->translator->trans('sidus.filter.date_range.start_date'),
+                        'placeholder' => 'sidus.filter.date_range.start_date',
                     ],
                 ]
             )
@@ -60,7 +49,7 @@ class DateRangeType extends AbstractType
                     'attr' => [
                         'class' => 'input-sm form-control',
                         'data-provider' => 'datepicker',
-                        'placeholder' => $this->translator->trans('sidus.filter.date_range.end_date'),
+                        'placeholder' => 'sidus.filter.date_range.end_date',
                     ],
                 ]
             );
