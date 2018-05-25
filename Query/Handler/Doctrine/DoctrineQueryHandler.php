@@ -3,6 +3,7 @@
 namespace Sidus\FilterBundle\Query\Handler\Doctrine;
 
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Pagination\DoctrineORMAdapter;
@@ -26,8 +27,8 @@ use UnexpectedValueException;
  */
 class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQueryHandlerInterface
 {
-    /** @var ManagerRegistry */
-    protected $doctrine;
+    /** @var EntityManagerInterface */
+    protected $entityManager;
 
     /** @var string */
     protected $entityReference;
@@ -54,14 +55,17 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
         ManagerRegistry $doctrine
     ) {
         parent::__construct($filterTypeRegistry, $configuration);
-        $this->doctrine = $doctrine;
         $this->entityReference = $configuration->getOption('entity');
         if (null === $this->entityReference) {
             throw new UnexpectedValueException(
                 "Missing 'entity' option for filter configuration {$configuration->getCode()}"
             );
         }
-        $this->repository = $doctrine->getRepository($this->entityReference);
+        $this->entityManager = $doctrine->getManagerForClass($this->entityReference);
+        if (!$this->entityManager) {
+            throw new UnexpectedValueException("No manager found for class {$this->entityReference}");
+        }
+        $this->repository = $this->entityManager->getRepository($this->entityReference);
     }
 
     /**
