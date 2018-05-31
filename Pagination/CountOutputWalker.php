@@ -2,6 +2,7 @@
 
 namespace Sidus\FilterBundle\Pagination;
 
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\AST\AggregateExpression;
 use Doctrine\ORM\Query\AST\PathExpression;
 use Doctrine\ORM\Query\AST\SelectExpression;
@@ -9,9 +10,8 @@ use Doctrine\ORM\Query\AST\SelectStatement;
 use Doctrine\ORM\Query\SqlWalker;
 
 /**
- * Class CountOutputWalker
+ * Custom CountOutputWalker copied from Doctrine with huge performance improvements and fix for Oracle
  *
- * @package Sidus\FilterBundle\Pagination
  * @author  Madeline Veyrenc <mveyrenc@clever-age.com>
  */
 class CountOutputWalker extends SqlWalker
@@ -41,6 +41,8 @@ class CountOutputWalker extends SqlWalker
      * @param \Doctrine\ORM\Query              $query
      * @param \Doctrine\ORM\Query\ParserResult $parserResult
      * @param array                            $queryComponents
+     *
+     * @throws \Doctrine\DBAL\DBALException
      */
     public function __construct($query, $parserResult, array $queryComponents)
     {
@@ -60,24 +62,24 @@ class CountOutputWalker extends SqlWalker
      *
      * @param SelectStatement $AST
      *
-     * @return string
-     *
      * @throws \RuntimeException
+     * @throws \Doctrine\ORM\Mapping\MappingException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\Query\QueryException
+     *
+     * @return string
      */
     public function walkSelectStatement(SelectStatement $AST)
     {
-        if ($this->platform->getName() === "mssql") {
+        if ('mssql' === $this->platform->getName()) {
             $AST->orderByClause = null;
         }
 
         if ($AST->groupByClause) {
+            $countExpr = $this->platform->getCountExpression('*');
             $sql = parent::walkSelectStatement($AST);
 
-            return sprintf(
-                'SELECT %s AS dctrn_count FROM (%s) dctrn_table',
-                $this->platform->getCountExpression('*'),
-                $sql
-            );
+            return "SELECT {$countExpr} AS dctrn_count FROM ({$sql}) dctrn_table";
         }
 
         $this->getQuery()->setHint(self::HINT_DISTINCT, true);
@@ -91,14 +93,15 @@ class CountOutputWalker extends SqlWalker
         // Get the root entity and alias from the AST fromClause
         $from = $AST->fromClause->identificationVariableDeclarations;
 
-        if (count($from) > 1) {
+        if (\count($from) > 1) {
             throw new \RuntimeException(
-                "Cannot count query which selects two FROM components, cannot make distinction"
+                'Cannot count query which selects two FROM components, cannot make distinction'
             );
         }
 
         $fromRoot = reset($from);
         $rootAlias = $fromRoot->rangeVariableDeclaration->aliasIdentificationVariable;
+        /** @var ClassMetadata $rootClass */
         $rootClass = $this->getQueryComponent($rootAlias)['metadata'];
         $identifierFieldName = $rootClass->getSingleIdentifierFieldName();
 
@@ -108,7 +111,8 @@ class CountOutputWalker extends SqlWalker
         }
 
         $pathExpression = new PathExpression(
-            PathExpression::TYPE_STATE_FIELD | PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION, $rootAlias,
+            PathExpression::TYPE_STATE_FIELD | PathExpression::TYPE_SINGLE_VALUED_ASSOCIATION,
+            $rootAlias,
             $identifierFieldName
         );
         $pathExpression->type = $pathType;
@@ -126,6 +130,10 @@ class CountOutputWalker extends SqlWalker
 
         $sql = parent::walkSelectStatement($AST);
 
-        return str_replace('AS sclr_0 FROM', 'AS dctrn_count FROM', $sql);
+        return str_replace(
+            "AS {$this->platform->getSQLResultCasing('sclr_0')} FROM",
+            "AS {$this->platform->getSQLResultCasing('dctrn_count')} FROM",
+            $sql
+        );
     }
 }
