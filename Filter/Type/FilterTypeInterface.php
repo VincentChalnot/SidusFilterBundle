@@ -24,11 +24,11 @@ interface FilterTypeInterface
     /**
      * @param QueryHandlerInterface $queryHandler
      * @param FilterInterface       $filter
-     * @param FormInterface         $form
+     * @param mixed                 $data
      *
      * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
      */
-    public function handleForm(QueryHandlerInterface $queryHandler, FilterInterface $filter, FormInterface $form);
+    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data);
 
     /**
      * @param QueryHandlerInterface $queryHandler

@@ -8,7 +8,6 @@ use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Form\Type\DateRangeType;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
-use Symfony\Component\Form\FormInterface;
 
 /**
  * Filtering on dates with Doctrine entities
@@ -18,12 +17,11 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
     /**
      * {@inheritdoc}
      */
-    public function handleForm(QueryHandlerInterface $queryHandler, FilterInterface $filter, FormInterface $form)
+    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data)
     {
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
-        $data = $form->getData();
         if (null === $data || !\is_array($data)) {
             return;
         }

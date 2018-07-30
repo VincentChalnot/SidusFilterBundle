@@ -14,6 +14,7 @@ use Symfony\Component\Form\Exception\AlreadySubmittedException;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Form\FormConfigBuilder;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
@@ -234,6 +235,9 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
             ]
         );
         foreach ($this->getConfiguration()->getFilters() as $filter) {
+            if ($filter->getOption('hidden', false)) {
+                continue;
+            }
             $filterType = $this->filterTypeRegistry->getFilterType(
                 $this->getConfiguration()->getProvider(),
                 $filter->getFilterType()
@@ -281,7 +285,16 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
                 $this->getConfiguration()->getProvider(),
                 $filter->getFilterType()
             );
-            $filterType->handleForm($this, $filter, $filterForm->get($filter->getCode()));
+            if ($filter->getOption('hidden', false)) {
+                $formData = null;
+                if (array_key_exists('data', $filter->getFormOptions())) {
+                    $formData = $filter->getFormOptions()['data'];
+                }
+                $data = $filter->getOption('default', $formData);
+            } else {
+                $data = $filterForm->get($filter->getCode())->getData();
+            }
+            $filterType->handleData($this, $filter, $data);
         }
     }
 
