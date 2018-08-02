@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\DependencyInjection;
 
@@ -11,6 +19,8 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  *
  * To learn more see {@link
  * http://symfony.com/doc/current/cookbook/bundles/extension.html#cookbook-bundles-extension-config-class}
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class Configuration implements ConfigurationInterface
 {
@@ -56,7 +66,7 @@ class Configuration implements ConfigurationInterface
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    protected function appendFilterDefinition(NodeBuilder $filterDefinition)
+    protected function appendFilterDefinition(NodeBuilder $filterDefinition): void
     {
         $fieldDefinition = $filterDefinition
             ->scalarNode('provider')->isRequired()->end()
@@ -93,7 +103,7 @@ class Configuration implements ConfigurationInterface
      * @throws \InvalidArgumentException
      * @throws \RuntimeException
      */
-    protected function appendFieldDefinition(NodeBuilder $fieldDefinition)
+    protected function appendFieldDefinition(NodeBuilder $fieldDefinition): void
     {
         $fieldDefinition
             ->scalarNode('type')->defaultValue('text')->end()
@@ -102,6 +112,7 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('attributes')
                 ->prototype('scalar')->defaultNull()->end()
             ->end()
+            ->variableNode('default')->defaultNull()->end()
             ->variableNode('options')
                 ->defaultValue([])
                 ->validate()

@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Query\Handler\Configuration;
 
@@ -7,6 +15,8 @@ use UnexpectedValueException;
 
 /**
  * Holds the configuration of a query handler
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 interface QueryHandlerConfigurationInterface
 {
@@ -36,8 +46,9 @@ interface QueryHandlerConfigurationInterface
     /**
      * @param string $code
      *
-     * @return FilterInterface
      * @throws UnexpectedValueException
+     *
+     * @return FilterInterface
      */
     public function getFilter(string $code): FilterInterface;
 

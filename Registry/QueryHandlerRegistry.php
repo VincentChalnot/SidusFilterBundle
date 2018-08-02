@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Registry;
 
@@ -12,6 +20,8 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 
 /**
  * Holds all query handler configurations and how to build them
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class QueryHandlerRegistry
 {
@@ -47,7 +57,7 @@ class QueryHandlerRegistry
      *
      * @internal Warning this method does not validate the given configuration
      */
-    public function addRawQueryHandlerConfiguration(string $code, array $configuration)
+    public function addRawQueryHandlerConfiguration(string $code, array $configuration): void
     {
         $this->rawQueryHandlerConfigurations[$code] = $configuration;
     }
@@ -55,7 +65,7 @@ class QueryHandlerRegistry
     /**
      * @param QueryHandlerConfigurationInterface $queryHandlerConfiguration
      */
-    public function addQueryHandlerConfiguration(QueryHandlerConfigurationInterface $queryHandlerConfiguration)
+    public function addQueryHandlerConfiguration(QueryHandlerConfigurationInterface $queryHandlerConfiguration): void
     {
         $this->queryHandlerConfigurations[$queryHandlerConfiguration->getCode()][$queryHandlerConfiguration];
     }
@@ -63,7 +73,7 @@ class QueryHandlerRegistry
     /**
      * @param QueryHandlerInterface $queryHandler
      */
-    public function addQueryHandler(QueryHandlerInterface $queryHandler)
+    public function addQueryHandler(QueryHandlerInterface $queryHandler): void
     {
         $this->queryHandlers[$queryHandler->getConfiguration()->getCode()] = $queryHandler;
     }
@@ -71,7 +81,7 @@ class QueryHandlerRegistry
     /**
      * @param QueryHandlerFactoryInterface $queryHandlerFactory
      */
-    public function addQueryHandlerFactory(QueryHandlerFactoryInterface $queryHandlerFactory)
+    public function addQueryHandlerFactory(QueryHandlerFactoryInterface $queryHandlerFactory): void
     {
         $this->queryHandlerFactories[$queryHandlerFactory->getProvider()] = $queryHandlerFactory;
     }

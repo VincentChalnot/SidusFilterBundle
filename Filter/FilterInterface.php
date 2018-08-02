@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Filter;
 
@@ -6,6 +14,8 @@ use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInte
 
 /**
  * Base logic common to all filter systems
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 interface FilterInterface
 {
@@ -38,6 +48,11 @@ interface FilterInterface
      * @return array
      */
     public function getOptions(): array;
+
+    /**
+     * @return mixed
+     */
+    public function getDefault();
 
     /**
      * Override form type from default filter type

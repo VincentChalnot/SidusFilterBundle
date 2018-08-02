@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
@@ -9,20 +17,23 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 
 /**
  * Filter logic for choice with Doctrine entities
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class ChoiceFilterType extends AbstractDoctrineFilterType
 {
     /**
      * {@inheritdoc}
      */
-    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data)
+    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data): void
     {
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
-        if (null === $data || (\is_array($data) && 0 === \count($data))) {
+        if (\is_array($data) && 0 === \count($data)) {
             return;
         }
+
         $dql = [];
         $qb = $queryHandler->getQueryBuilder();
         foreach ($this->getFullAttributeReferences($filter, $queryHandler->getAlias()) as $column) {

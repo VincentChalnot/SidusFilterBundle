@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
@@ -11,18 +19,20 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 
 /**
  * Filtering on dates with Doctrine entities
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class DateRangeFilterType extends AbstractDoctrineFilterType
 {
     /**
      * {@inheritdoc}
      */
-    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data)
+    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data): void
     {
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
-        if (null === $data || !\is_array($data)) {
+        if (!\is_array($data)) {
             return;
         }
 
@@ -48,7 +58,7 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
      * @param \DateTime    $value
      * @param string       $operator
      */
-    protected function buildQb(array $columns, QueryBuilder $qb, \DateTime $value, string $operator)
+    protected function buildQb(array $columns, QueryBuilder $qb, \DateTime $value, string $operator): void
     {
         $dql = [];
         foreach ($columns as $column) {

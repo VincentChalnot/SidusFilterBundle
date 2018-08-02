@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\DTO;
 
@@ -49,7 +57,7 @@ class SortConfig
     /**
      * @param string|null $column
      */
-    public function setColumn(string $column = null)
+    public function setColumn(string $column = null): void
     {
         $this->column = $column;
     }
@@ -69,7 +77,7 @@ class SortConfig
     /**
      * @param boolean $direction
      */
-    public function setDirection(bool $direction = null)
+    public function setDirection(bool $direction = null): void
     {
         if (null !== $direction) {
             $this->direction = $direction;
@@ -79,7 +87,7 @@ class SortConfig
     /**
      * Reverse search direction
      */
-    public function switchDirection()
+    public function switchDirection(): void
     {
         $this->direction = !$this->direction;
     }
@@ -95,7 +103,7 @@ class SortConfig
     /**
      * @param int $page
      */
-    public function setPage(int $page = null)
+    public function setPage(int $page = null): void
     {
         if (null !== $page) {
             $this->page = $page;

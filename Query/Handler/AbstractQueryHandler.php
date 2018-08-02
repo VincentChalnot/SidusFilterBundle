@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Query\Handler;
 
@@ -14,7 +22,7 @@ use Symfony\Component\Form\Exception\AlreadySubmittedException;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormConfigBuilder;
+
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
@@ -191,10 +199,13 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
 
     /**
      * @todo : Put in form event ?
+     *
      * @throws \LogicException
      * @throws \OutOfBoundsException
+     *
+     * @return SortConfig
      */
-    protected function applySortForm()
+    protected function applySortForm(): SortConfig
     {
         $form = $this->getForm();
         $sortableForm = $form->get(self::SORTABLE_FORM_NAME);
@@ -285,16 +296,13 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
                 $this->getConfiguration()->getProvider(),
                 $filter->getFilterType()
             );
-            if ($filter->getOption('hidden', false)) {
-                $formData = null;
-                if (array_key_exists('data', $filter->getFormOptions())) {
-                    $formData = $filter->getFormOptions()['data'];
-                }
-                $data = $filter->getOption('default', $formData);
-            } else {
+            $data = $filter->getDefault();
+            if (!$filter->getOption('hidden', false)) {
                 $data = $filterForm->get($filter->getCode())->getData();
             }
-            $filterType->handleData($this, $filter, $data);
+            if (null !== $data) {
+                $filterType->handleData($this, $filter, $data);
+            }
         }
     }
 

@@ -1,11 +1,21 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Filter;
 
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 
 /**
- * Base filter logic
+ * Default filter implementation, you should not need to customize this class
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class Filter implements FilterInterface
 {
@@ -33,6 +43,9 @@ class Filter implements FilterInterface
     /** @var array */
     protected $formOptions = [];
 
+    /** @var mixed */
+    protected $default;
+
     /**
      * @param QueryHandlerConfigurationInterface $queryHandlerConfiguration
      * @param string                             $code
@@ -42,6 +55,7 @@ class Filter implements FilterInterface
      * @param string                             $label
      * @param array                              $options
      * @param array                              $formOptions
+     * @param null                               $default
      */
     public function __construct(
         QueryHandlerConfigurationInterface $queryHandlerConfiguration,
@@ -51,7 +65,8 @@ class Filter implements FilterInterface
         string $formType = null,
         string $label = null,
         array $options = [],
-        array $formOptions = []
+        array $formOptions = [],
+        $default = null
     ) {
         $this->queryHandlerConfiguration = $queryHandlerConfiguration;
         $this->code = $code;
@@ -61,6 +76,7 @@ class Filter implements FilterInterface
         $this->label = $label;
         $this->options = $options;
         $this->formOptions = $formOptions;
+        $this->default = $default;
 
         if (empty($attributes)) {
             $this->attributes = [$code];
@@ -144,5 +160,13 @@ class Filter implements FilterInterface
         }
 
         return $this->options[$key];
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefault()
+    {
+        return $this->default;
     }
 }

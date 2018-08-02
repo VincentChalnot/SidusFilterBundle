@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Factory;
 
@@ -8,6 +16,8 @@ use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInte
 
 /**
  * Factory for doctrine filters
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class FilterFactory implements FilterFactoryInterface
 {
@@ -33,7 +43,8 @@ class FilterFactory implements FilterFactoryInterface
             $configuration['form_type'],
             $configuration['label'],
             $configuration['options'],
-            $configuration['form_options']
+            $configuration['form_options'],
+            $configuration['default']
         );
     }
 }

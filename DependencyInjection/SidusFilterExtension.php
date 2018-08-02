@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\DependencyInjection;
 
@@ -8,9 +16,9 @@ use Sidus\FilterBundle\Registry\QueryHandlerRegistry;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 
 /**
- * This is the class that loads and manages your bundle configuration
+ * Loading configuration
  *
- * To learn more see {@link http://symfony.com/doc/current/cookbook/bundles/extension.html}
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class SidusFilterExtension extends SidusBaseExtension
 {
@@ -23,6 +31,7 @@ class SidusFilterExtension extends SidusBaseExtension
     {
         parent::load($configs, $container);
 
+        // Only load doctrine configuration if bundle is enabled
         if (array_key_exists('DoctrineBundle', $container->getParameter('kernel.bundles'))) {
             $doctrineLoader = new ServiceLoader($container);
             $doctrineLoader->loadFiles(__DIR__.'/../Resources/config/doctrine');

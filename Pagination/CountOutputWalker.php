@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Pagination;
 
@@ -22,16 +30,6 @@ class CountOutputWalker extends SqlWalker
     private $platform;
 
     /**
-     * @var \Doctrine\ORM\Query\ResultSetMapping
-     */
-    private $rsm;
-
-    /**
-     * @var array
-     */
-    private $queryComponents;
-
-    /**
      * Constructor.
      *
      * Stores various parameters that are otherwise unavailable
@@ -47,8 +45,6 @@ class CountOutputWalker extends SqlWalker
     public function __construct($query, $parserResult, array $queryComponents)
     {
         $this->platform = $query->getEntityManager()->getConnection()->getDatabasePlatform();
-        $this->rsm = $parserResult->getResultSetMapping();
-        $this->queryComponents = $queryComponents;
 
         parent::__construct($query, $parserResult, $queryComponents);
     }

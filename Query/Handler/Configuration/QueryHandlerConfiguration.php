@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Query\Handler\Configuration;
 
@@ -8,6 +16,8 @@ use UnexpectedValueException;
 
 /**
  * Holds the configuration of a query handler
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
 {
@@ -37,7 +47,6 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
      * @param array  $configuration
      *
      * @throws \Symfony\Component\PropertyAccess\Exception\ExceptionInterface
-     * @throws \TypeError
      */
     public function __construct(
         string $code,
@@ -65,7 +74,7 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
      *
      * @throws UnexpectedValueException
      */
-    public function addFilter(FilterInterface $filter, int $index = null)
+    public function addFilter(FilterInterface $filter, int $index = null): void
     {
         if (null === $index) {
             $this->filters[$filter->getCode()] = $filter;
@@ -98,8 +107,9 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     /**
      * @param string $code
      *
-     * @return FilterInterface
      * @throws UnexpectedValueException
+     *
+     * @return FilterInterface
      */
     public function getFilter(string $code): FilterInterface
     {
@@ -121,7 +131,7 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     /**
      * @param string $sortable
      */
-    public function addSortable(string $sortable)
+    public function addSortable(string $sortable): void
     {
         $this->sortable[] = $sortable;
     }
@@ -176,7 +186,7 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     /**
      * @param string $provider
      */
-    public function setProvider(string $provider)
+    public function setProvider(string $provider): void
     {
         $this->provider = $provider;
     }
@@ -184,7 +194,7 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     /**
      * @param array $sortable
      */
-    public function setSortable(array $sortable)
+    public function setSortable(array $sortable): void
     {
         $this->sortable = $sortable;
     }
@@ -192,7 +202,7 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     /**
      * @param FilterInterface[] $filters
      */
-    public function setFilters(array $filters)
+    public function setFilters(array $filters): void
     {
         $this->filters = $filters;
     }
@@ -200,7 +210,7 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     /**
      * @param array[] $defaultSort
      */
-    public function setDefaultSort(array $defaultSort)
+    public function setDefaultSort(array $defaultSort): void
     {
         $this->defaultSort = $defaultSort;
     }
@@ -208,7 +218,7 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     /**
      * @param int $resultsPerPage
      */
-    public function setResultsPerPage(int $resultsPerPage)
+    public function setResultsPerPage(int $resultsPerPage): void
     {
         $this->resultsPerPage = $resultsPerPage;
     }
@@ -216,7 +226,7 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     /**
      * @param array $options
      */
-    public function setOptions(array $options)
+    public function setOptions(array $options): void
     {
         $this->options = $options;
     }

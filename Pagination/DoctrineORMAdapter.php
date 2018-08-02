@@ -1,13 +1,20 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Pagination;
 
 use Pagerfanta\Adapter\AdapterInterface;
 
 /**
- * Class Paginator
+ * Better adapter for Doctrine pager count
  *
- * @package Sidus\FilterBundle\Pagination
  * @author  Madeline Veyrenc <mveyrenc@clever-age.com>
  */
 class DoctrineORMAdapter implements AdapterInterface
@@ -58,7 +65,7 @@ class DoctrineORMAdapter implements AdapterInterface
      */
     public function getNbResults()
     {
-        return count($this->paginator);
+        return \count($this->paginator);
     }
 
     /**

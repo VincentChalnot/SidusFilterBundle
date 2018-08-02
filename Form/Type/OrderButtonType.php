@@ -1,4 +1,12 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Form\Type;
 
@@ -9,9 +17,9 @@ use Symfony\Component\Form\FormView;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * Class OrderButtonType
+ * This widget is used to create sorting buttons
  *
- * @package Sidus\FilterBundle\Form\Type
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class OrderButtonType extends SubmitType
 {
@@ -49,6 +57,7 @@ class OrderButtonType extends SubmitType
                 'type' => SubmitType::class,
                 'label' => false,
                 'attr' => [
+                    // @todo remove any bootstrap specific styles
                     'class' => 'btn btn-xs btn-link pull-right',
                 ],
                 'icon' => 'sort',

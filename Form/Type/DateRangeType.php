@@ -1,14 +1,23 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Translation\TranslatorInterface;
 
 /**
  * Form type to allow picking of a date range
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 class DateRangeType extends AbstractType
 {
@@ -16,26 +25,20 @@ class DateRangeType extends AbstractType
     public const END_NAME = 'endDate';
 
     /**
-     * @todo : FIXME : Inject date/time format from configuration and move bootstrap specific elements to different
-     *       bundle !!!
-     *
      * @param FormBuilderInterface $builder
      * @param array                $options
      *
      * @throws \Symfony\Component\Translation\Exception\InvalidArgumentException
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add(
                 self::START_NAME,
                 DateType::class,
                 [
-                    'format' => 'dd/MM/yyyy',
                     'widget' => 'single_text',
                     'attr' => [
-                        'class' => 'input-sm form-control',
-                        'data-provider' => 'datepicker',
                         'placeholder' => 'sidus.filter.date_range.start_date',
                     ],
                 ]
@@ -44,11 +47,8 @@ class DateRangeType extends AbstractType
                 self::END_NAME,
                 DateType::class,
                 [
-                    'format' => 'dd/MM/yyyy',
                     'widget' => 'single_text',
                     'attr' => [
-                        'class' => 'input-sm form-control',
-                        'data-provider' => 'datepicker',
                         'placeholder' => 'sidus.filter.date_range.end_date',
                     ],
                 ]

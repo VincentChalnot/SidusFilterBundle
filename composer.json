@@ -9,12 +9,18 @@
     ],
     "homepage": "https://github.com/VincentChalnot/SidusFilterBundle",
     "type": "library",
-    "license": "GPL-2.0",
+    "license": "MIT",
     "authors": [
         {
             "name": "Vincent Chalnot",
             "email": "vincent@sidus.fr",
             "homepage": "http://chalnot.fr",
+            "role": "Developer"
+        },
+        {
+            "name": "Madeline Veyrenc",
+            "email": "mveyrenc@clever-age.com",
+            "homepage": "https://github.com/mveyrenc",
             "role": "Developer"
         }
     ],

@@ -1,13 +1,22 @@
 <?php
+/*
+ * This file is part of the Sidus/FilterBundle package.
+ *
+ * Copyright (c) 2015-2018 Vincent Chalnot
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 namespace Sidus\FilterBundle\Filter\Type;
 
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
-use Symfony\Component\Form\FormInterface;
 
 /**
  * Base logic common to all filter types
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
  */
 interface FilterTypeInterface
 {
