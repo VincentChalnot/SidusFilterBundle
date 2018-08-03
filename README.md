@@ -49,7 +49,7 @@ provider.
 ````yaml
 sidus_filter:
     configurations:
-        my_configuration:
+        news:
             # Tells the system to use the Doctrine filter engine
             provider: doctrine
 
@@ -57,15 +57,15 @@ sidus_filter:
             # will require specific options to work
             options:
                 # Required by the doctrine provider to select the proper data source
-                entity: App\Entity\News
-                
+                entity: AppBundle\Entity\News
+
             # Optional, default to 15
             results_per_page: 10
 
             # Optional, list any field you want to enable sort on
-            sortable: 
+            sortable:
                 - id
-                - label
+                - title
                 - publicationDate
                 - publicationStatus
                 - updatedAt
@@ -76,21 +76,21 @@ sidus_filter:
 
             # Optional, define all the filters you need
             filters:
-                label: ~ # Default type is text, you can leave the configuration blank
+                title: ~ # Default type is text, you can leave the configuration blank
 
                 author: # This code won't be used when you declare the "attributes" property
                     # Override the default form widget but keep the filter type logic
-                    form_type: App\Form\Type\AuthorType
+                    form_type: AppBundle\Form\Type\AuthorType
 
                     # Search in multiple fields at the same time (using OR)
-                    attributes: [fullAuthorName, author.name, author.surname, author.email]
+                    attributes: [author.fullName, author.email]
 
                 # Date range example
                 publicationDate:
                     type: date_range
 
                 # Choice filter can be used for scalar values
-                publicationStatus: 
+                publicationStatus:
                     type: choice
 
                     # You can define a default value
@@ -106,7 +106,7 @@ sidus_filter:
                             # ....
 
                 # Here we filter a relationship to the Category entity
-                category: 
+                categories:
                     type: choice
                     form_options:
                         # Allows multiple choices (Standard ChoiceType option)
@@ -115,7 +115,7 @@ sidus_filter:
                 # Default filters can be hidden from the form to force filtering
                 deleted:
                     default: 0
-                    
+
                     # This is a variable node, you can use it for you own custom needs
                     options:
                         # Hide completely this filter in the form,

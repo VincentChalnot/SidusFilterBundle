@@ -12,6 +12,7 @@ namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Filter\Type\AbstractFilterType;
+use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
 
 /**
  * Generic filter type
@@ -21,20 +22,31 @@ use Sidus\FilterBundle\Filter\Type\AbstractFilterType;
 abstract class AbstractDoctrineFilterType extends AbstractFilterType
 {
     /**
-     * @param FilterInterface $filter
-     * @param string          $alias
+     * Returns an array of DQL references ready for filtering, handling nested entities through joins
+     *
+     * @param FilterInterface               $filter
+     * @param DoctrineQueryHandlerInterface $queryHandler
      *
      * @return array
      */
-    public function getFullAttributeReferences(FilterInterface $filter, string $alias): array
-    {
+    public function getFullAttributeReferences(
+        FilterInterface $filter,
+        DoctrineQueryHandlerInterface $queryHandler
+    ): array {
         $references = [];
-        foreach ($filter->getAttributes() as $attribute) {
-            if (false === strpos($attribute, '.')) {
-                $references[] = $alias.'.'.$attribute;
-            } else {
-                $references[] = $attribute;
+        foreach ($filter->getAttributes() as $attributePath) {
+            $attributesList = explode('.', $attributePath);
+            $previousAttribute = $queryHandler->getAlias().'.'.array_shift($attributesList);
+            $resolvedAttribute = $previousAttribute;
+
+            // Remaining attributes in attributeList are nested so we need joins
+            foreach ($attributesList as $nestedAttribute) {
+                $qb = $queryHandler->getQueryBuilder();
+                $joinAlias = uniqid('nested');
+                $qb->join($previousAttribute, $joinAlias);
+                $resolvedAttribute = $joinAlias.'.'.$nestedAttribute;
             }
+            $references[] = $resolvedAttribute;
         }
 
         return $references;

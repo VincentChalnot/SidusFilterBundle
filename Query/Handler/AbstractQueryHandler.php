@@ -254,7 +254,10 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
                 $filter->getFilterType()
             );
             $formOptions = array_merge(
-                ['required' => false],
+                [
+                    'required' => false,
+                    'data' => $filter->getDefault(),
+                ],
                 $filterType->getFormOptions($this, $filter)
             );
             $filtersBuilder->add(
@@ -297,7 +300,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
                 $filter->getFilterType()
             );
             $data = $filter->getDefault();
-            if (!$filter->getOption('hidden', false)) {
+            if ($filterForm->isSubmitted() && !$filter->getOption('hidden', false)) {
                 $data = $filterForm->get($filter->getCode())->getData();
             }
             if (null !== $data) {

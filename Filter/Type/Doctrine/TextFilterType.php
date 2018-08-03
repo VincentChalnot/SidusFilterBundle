@@ -36,7 +36,7 @@ class TextFilterType extends AbstractDoctrineFilterType
         $dql = []; // Prepare an array of DQL statements
 
         // Fetch all attributes references (all filters must support multiple attributes)
-        foreach ($this->getFullAttributeReferences($filter, $queryHandler->getAlias()) as $column) {
+        foreach ($this->getFullAttributeReferences($filter, $queryHandler) as $column) {
             $uid = uniqid('text'); // Generate random parameter names to prevent collisions
             $dql[] = "{$column} LIKE :{$uid}"; // Add the dql statement to the list
             $qb->setParameter($uid, '%'.$data.'%'); // Add the parameter

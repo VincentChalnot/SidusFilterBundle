@@ -36,7 +36,7 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
 
         $dql = [];
         $qb = $queryHandler->getQueryBuilder();
-        foreach ($this->getFullAttributeReferences($filter, $queryHandler->getAlias()) as $column) {
+        foreach ($this->getFullAttributeReferences($filter, $queryHandler) as $column) {
             $uid = uniqid('choices');
             if (\is_array($data)) {
                 $dql[] = "{$column} IN (:{$uid})";
@@ -65,8 +65,7 @@ class ChoiceFilterType extends AbstractDoctrineFilterType
         }
 
         $choices = [];
-        $alias = $queryHandler->getAlias();
-        foreach ($this->getFullAttributeReferences($filter, $alias) as $column) {
+        foreach ($this->getFullAttributeReferences($filter, $queryHandler) as $column) {
             $qb = clone $queryHandler->getQueryBuilder();
             $qb->select("{$column} AS __value")
                 ->groupBy($column);

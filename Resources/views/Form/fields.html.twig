@@ -1,24 +1,9 @@
-{% block sidus_date_range_widget %}
-    {% spaceless %}
-        <div {{ block('widget_container_attributes') }}>
-            {% if form.parent is empty %}
-                {{ block('global_form_errors') }}
-            {% endif %}
-            <div class="input-daterange input-group" data-datepicker="range">
-                {{ form_widget(form.startDate) }}
-                <span class="input-group-addon">{{ 'sidus.filter.date_range.to'|trans }}</span>
-                {{ form_widget(form.endDate) }}
-            </div>
-            {{ form_errors(form.startDate) }}
-            {{ form_errors(form.endDate) }}
-            {{ form_rest(form) }}
-        </div>
-    {% endspaceless %}
-{% endblock %}
-
 {% block sidus_order_button_widget %}
-    <button {{ block('widget_container_attributes') }} name="{{ form.vars.full_name }}"><i
-                class="fa fa-{{ form.vars.icon }}"></i></button>
+    {% spaceless %}
+        <button {{ block('widget_container_attributes') }} name="{{ form.vars.full_name }}">
+            {{ arrow|raw }}&nbsp;{{ label }}
+        </button>
+    {% endspaceless %}
 {% endblock %}
 
 {% block sidus_sort_config_widget %}

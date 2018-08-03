@@ -43,7 +43,7 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
         }
 
         $qb = $queryHandler->getQueryBuilder();
-        $columns = $this->getFullAttributeReferences($filter, $queryHandler->getAlias());
+        $columns = $this->getFullAttributeReferences($filter, $queryHandler);
         if ($startDate instanceof \DateTimeInterface) {
             $this->buildQb($columns, $qb, $startDate, '>=');
         }
