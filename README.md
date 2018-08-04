@@ -2,7 +2,7 @@ Sidus/FilterBundle
 =====================
 
 The configuration example of this documentation can be seen on the [live demo website](http://filter-demo.sidus.fr). 
-Source of the demo is available [here](https://github.com/VincentChalnot/SidusEAVFilterDemo).
+Source of the demo is available [here](https://github.com/VincentChalnot/SidusFilterDemo).
 
 This bundle allows you to create filters using Symfony's Form component to alter result sets of any kind:
 - Doctrine QueryBuilder (Natively in this bundle)
@@ -204,7 +204,7 @@ $viewParameters = [
 ````
 
 In real life, this is how it goes:
-[https://github.com/VincentChalnot/SidusEAVFilterDemo/blob/master/src/AppBundle/Action/SearchAction.php](https://github.com/VincentChalnot/SidusEAVFilterDemo/blob/master/src/AppBundle/Action/SearchAction.php)
+[https://github.com/VincentChalnot/SidusFilterDemo/blob/master/src/AppBundle/Action/SearchAction.php](https://github.com/VincentChalnot/SidusFilterDemo/blob/master/src/AppBundle/Action/SearchAction.php)
 
 ### Rendering side
 
@@ -223,7 +223,7 @@ In real life, this is how it goes:
 
 Note that if you declare sortable fields, all the sort buttons will be displayed after the filters, if you want to
 customize the rendering of the form, checkout this more complex rendering example:
-[https://github.com/VincentChalnot/SidusEAVFilterDemo/blob/master/app/Resources/views/Search/action.html.twig](https://github.com/VincentChalnot/SidusEAVFilterDemo/blob/master/app/Resources/views/Search/action.html.twig)
+[https://github.com/VincentChalnot/SidusFilterDemo/blob/master/app/Resources/views/Search/action.html.twig](https://github.com/VincentChalnot/SidusFilterDemo/blob/master/app/Resources/views/Search/action.html.twig)
 
 ## How does it work?
 
