@@ -22,7 +22,6 @@ use Symfony\Component\Form\Exception\AlreadySubmittedException;
 use Symfony\Component\Form\Extension\Core\Type\FormType;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormBuilderInterface;
-
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
@@ -88,7 +87,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
      * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
      * @throws \UnexpectedValueException
      */
-    public function handleRequest(Request $request)
+    public function handleRequest(Request $request): void
     {
         $this->getForm()->handleRequest($request);
         $this->handleForm($request->get('page'));
@@ -104,7 +103,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
      * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
      * @throws \UnexpectedValueException
      */
-    public function handleArray(array $data = [])
+    public function handleArray(array $data = []): void
     {
         $this->getForm()->submit($data);
         $this->handleForm($data['page'] ?? null);
@@ -169,7 +168,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     /**
      * @param FormBuilderInterface $builder
      */
-    protected function buildSortableForm(FormBuilderInterface $builder)
+    protected function buildSortableForm(FormBuilderInterface $builder): void
     {
         $sortableBuilder = $builder->create(
             self::SORTABLE_FORM_NAME,
@@ -236,7 +235,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
      * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
      * @throws \UnexpectedValueException
      */
-    protected function buildFilterForm(FormBuilderInterface $builder)
+    protected function buildFilterForm(FormBuilderInterface $builder): void
     {
         $filtersBuilder = $builder->create(
             self::FILTERS_FORM_NAME,
@@ -277,7 +276,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
      * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
      * @throws \UnexpectedValueException
      */
-    protected function handleForm($selectedPage = null)
+    protected function handleForm($selectedPage = null): void
     {
         $this->applyFilters(); // maybe do it in a form event ?
         $this->applySort($this->applySortForm());
@@ -290,7 +289,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
      * @throws \UnexpectedValueException
      * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
      */
-    protected function applyFilters()
+    protected function applyFilters(): void
     {
         $form = $this->getForm();
         $filterForm = $form->get(self::FILTERS_FORM_NAME);
@@ -310,12 +309,29 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     }
 
     /**
+     * @param null $selectedPage
+     */
+    protected function applyPager($selectedPage = null): void
+    {
+        if ($selectedPage) {
+            $this->sortConfig->setPage($selectedPage);
+        }
+        $this->pager = $this->createPager();
+        $this->pager->setMaxPerPage($this->getConfiguration()->getResultsPerPage());
+        try {
+            $this->pager->setCurrentPage($this->sortConfig->getPage());
+        } catch (NotValidCurrentPageException $e) {
+            $this->sortConfig->setPage($this->pager->getCurrentPage());
+        }
+    }
+
+    /**
      * @param SortConfig $sortConfig
      */
     abstract protected function applySort(SortConfig $sortConfig);
 
     /**
-     * @param int $selectedPage
+     * @return Pagerfanta
      */
-    abstract protected function applyPager($selectedPage = null);
+    abstract protected function createPager(): Pagerfanta;
 }

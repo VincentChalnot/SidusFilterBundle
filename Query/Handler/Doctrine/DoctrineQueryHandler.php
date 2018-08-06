@@ -15,12 +15,6 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Pagination\DoctrineORMAdapter;
-use Pagerfanta\Exception\LessThan1CurrentPageException;
-use Pagerfanta\Exception\LessThan1MaxPerPageException;
-use Pagerfanta\Exception\NotIntegerCurrentPageException;
-use Pagerfanta\Exception\NotIntegerMaxPerPageException;
-use Pagerfanta\Exception\NotValidCurrentPageException;
-use Pagerfanta\Exception\OutOfRangeCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
 use Sidus\FilterBundle\Query\Handler\AbstractQueryHandler;
@@ -107,29 +101,6 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     }
 
     /**
-     * @param int $selectedPage
-     *
-     * @throws LessThan1MaxPerPageException
-     * @throws NotIntegerMaxPerPageException
-     * @throws LessThan1CurrentPageException
-     * @throws NotIntegerCurrentPageException
-     * @throws OutOfRangeCurrentPageException
-     */
-    protected function applyPager($selectedPage = null)
-    {
-        if ($selectedPage) {
-            $this->sortConfig->setPage($selectedPage);
-        }
-        $this->pager = new Pagerfanta(new DoctrineORMAdapter($this->getQueryBuilder()));
-        $this->pager->setMaxPerPage($this->getConfiguration()->getResultsPerPage());
-        try {
-            $this->pager->setCurrentPage($this->sortConfig->getPage());
-        } catch (NotValidCurrentPageException $e) {
-            $this->sortConfig->setPage($this->pager->getCurrentPage());
-        }
-    }
-
-    /**
      * @param SortConfig $sortConfig
      */
     protected function applySort(SortConfig $sortConfig)
@@ -143,5 +114,13 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
             $direction = $sortConfig->getDirection() ? 'DESC' : 'ASC'; // null or false both default to ASC
             $this->getQueryBuilder()->addOrderBy($fullColumnReference, $direction);
         }
+    }
+
+    /**
+     * @return Pagerfanta
+     */
+    protected function createPager(): Pagerfanta
+    {
+        return new Pagerfanta(new DoctrineORMAdapter($this->getQueryBuilder()));
     }
 }

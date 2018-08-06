@@ -37,7 +37,7 @@ interface FilterTypeInterface
      *
      * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
      */
-    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data);
+    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data): void;
 
     /**
      * @param QueryHandlerInterface $queryHandler
