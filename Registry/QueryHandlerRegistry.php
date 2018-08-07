@@ -32,7 +32,7 @@ class QueryHandlerRegistry
     protected $queryHandlerFactories = [];
 
     /** @var array[] */
-    protected $rawQueryHandlerConfigurations;
+    protected $rawQueryHandlerConfigurations = [];
 
     /** @var QueryHandlerConfigurationInterface[] */
     protected $queryHandlerConfigurations = [];
