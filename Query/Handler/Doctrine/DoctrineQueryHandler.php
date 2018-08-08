@@ -101,18 +101,36 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     }
 
     /**
+     * @param string $attributePath
+     *
+     * @return string
+     */
+    public function resolveAttributeAlias(string $attributePath): string
+    {
+        $attributesList = explode('.', $attributePath);
+        $previousAttribute = $this->getAlias().'.'.array_shift($attributesList);
+        $resolvedAttribute = $previousAttribute;
+
+        // Remaining attributes in attributeList are nested so we need joins
+        foreach ($attributesList as $nestedAttribute) {
+            $qb = $this->getQueryBuilder();
+            $joinAlias = uniqid('nested');
+            $qb->join($previousAttribute, $joinAlias);
+            $resolvedAttribute = $joinAlias.'.'.$nestedAttribute;
+        }
+
+        return $resolvedAttribute;
+    }
+
+    /**
      * @param SortConfig $sortConfig
      */
     protected function applySort(SortConfig $sortConfig)
     {
         $column = $sortConfig->getColumn();
         if ($column) {
-            $fullColumnReference = $column;
-            if (false === strpos($column, '.')) {
-                $fullColumnReference = $this->alias.'.'.$column;
-            }
             $direction = $sortConfig->getDirection() ? 'DESC' : 'ASC'; // null or false both default to ASC
-            $this->getQueryBuilder()->addOrderBy($fullColumnReference, $direction);
+            $this->getQueryBuilder()->addOrderBy($this->resolveAttributeAlias($column), $direction);
         }
     }
 

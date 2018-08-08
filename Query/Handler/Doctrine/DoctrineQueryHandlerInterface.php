@@ -35,4 +35,11 @@ interface DoctrineQueryHandlerInterface extends QueryHandlerInterface
      * @param string       $alias
      */
     public function setQueryBuilder(QueryBuilder $queryBuilder, $alias);
+
+    /**
+     * @param string $attributePath
+     *
+     * @return string
+     */
+    public function resolveAttributeAlias(string $attributePath): string;
 }

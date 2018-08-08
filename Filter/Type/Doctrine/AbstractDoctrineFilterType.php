@@ -35,18 +35,7 @@ abstract class AbstractDoctrineFilterType extends AbstractFilterType
     ): array {
         $references = [];
         foreach ($filter->getAttributes() as $attributePath) {
-            $attributesList = explode('.', $attributePath);
-            $previousAttribute = $queryHandler->getAlias().'.'.array_shift($attributesList);
-            $resolvedAttribute = $previousAttribute;
-
-            // Remaining attributes in attributeList are nested so we need joins
-            foreach ($attributesList as $nestedAttribute) {
-                $qb = $queryHandler->getQueryBuilder();
-                $joinAlias = uniqid('nested');
-                $qb->join($previousAttribute, $joinAlias);
-                $resolvedAttribute = $joinAlias.'.'.$nestedAttribute;
-            }
-            $references[] = $resolvedAttribute;
+            $references[] = $queryHandler->resolveAttributeAlias($attributePath);
         }
 
         return $references;

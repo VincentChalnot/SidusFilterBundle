@@ -82,12 +82,12 @@ sidus_filter:
                         hidden: true
 ````
 
-### Configuration quick reference
+### Configuration full reference
 
 ````yaml
 sidus_filter:
     configurations:
-        <configuration_code>:
+        <query_handler_code>:
             provider: <provider_code> # Required
             options:
                 entity: <class_name> # Required by doctrine provider
