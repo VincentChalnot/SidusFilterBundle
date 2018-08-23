@@ -103,7 +103,9 @@ sidus_filter:
                     type: <filter_type> # text|date_range|choice|...
                     label: <string> # Translation id or label
                     default: <mixed> # Default filter value
-                    options: {} # Variable node
+                    options: # Variable node
+                        hidden: <bool> # Default false, if true no widget will be rendered in the form
+                        # Any custom option
                     form_type: <form_type> # Custom form widget
                     form_options: {} # Standard Symfony form options
                     attributes: # 
