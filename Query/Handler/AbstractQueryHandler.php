@@ -299,7 +299,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
                 $filter->getFilterType()
             );
             $data = $filter->getDefault();
-            if ($filterForm->isSubmitted() && !$filter->getOption('hidden', false)) {
+            if (!$filter->getOption('hidden', false)) {
                 $data = $filterForm->get($filter->getCode())->getData();
             }
             if (null !== $data) {
