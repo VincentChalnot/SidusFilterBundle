@@ -30,8 +30,6 @@ class CountOutputWalker extends SqlWalker
     private $platform;
 
     /**
-     * Constructor.
-     *
      * Stores various parameters that are otherwise unavailable
      * because Doctrine\ORM\Query\SqlWalker keeps everything private without
      * accessors.

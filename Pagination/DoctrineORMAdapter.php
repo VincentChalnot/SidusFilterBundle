@@ -25,8 +25,6 @@ class DoctrineORMAdapter implements AdapterInterface
     private $paginator;
 
     /**
-     * Constructor.
-     *
      * @param \Doctrine\ORM\Query|\Doctrine\ORM\QueryBuilder $query               A Doctrine ORM query or query
      *                                                                            builder.
      * @param Boolean                                        $fetchJoinCollection Whether the query joins a collection
