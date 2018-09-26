@@ -17,16 +17,16 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
  */
-class TextFilterType extends AbstractSimpleFilterType
+class ExactFilterType extends AbstractSimpleFilterType
 {
     /**
      * {@inheritdoc}
      */
     protected function applyDQL(QueryBuilder $qb, string $column, $data): string
     {
-        $uid = uniqid('text', false); // Generate random parameter names to prevent collisions
-        $qb->setParameter($uid, '%'.$data.'%'); // Add the parameter
+        $uid = uniqid('exact', false); // Generate random parameter names to prevent collisions
+        $qb->setParameter($uid, $data); // Add the parameter
 
-        return "{$column} LIKE :{$uid}"; // Add the dql statement to the list
+        return "{$column} = :{$uid}"; // Add the dql statement to the list
     }
 }

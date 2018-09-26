@@ -17,41 +17,37 @@ use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 
 /**
- * Filter logic for choice with Doctrine entities
+ * Base type for simple filters
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
  */
-class ChoiceFilterType extends AbstractSimpleFilterType
+abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
 {
     /**
      * {@inheritdoc}
      */
-    public function getFormOptions(QueryHandlerInterface $queryHandler, FilterInterface $filter): array
+    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data): void
     {
+        // Check that the query handler is of the proper type
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
-
-        if (isset($filter->getFormOptions()['choices'])) {
-            return parent::getFormOptions($queryHandler, $filter);
+        if (\is_array($data) && 0 === \count($data)) {
+            return;
         }
 
-        $choices = [];
+        $qb = $queryHandler->getQueryBuilder();
+        $dql = []; // Prepare an array of DQL statements
+
+        // Fetch all attributes references (all filters must support multiple attributes)
         foreach ($this->getFullAttributeReferences($filter, $queryHandler) as $column) {
-            $qb = clone $queryHandler->getQueryBuilder();
-            $qb->select("{$column} AS __value")
-                ->groupBy($column);
-            foreach ($qb->getQuery()->getArrayResult() as $result) {
-                $value = $result['__value'];
-                $choices[$value] = $value;
-            }
+            $dql[] = $this->applyDQL($qb, $column, $data);
         }
 
-        return array_merge(
-            $this->formOptions,
-            $filter->getFormOptions(),
-            ['choices' => $choices]
-        );
+        // If the array of DQL statements is not empty (it shouldn't), apply it on the query builder with a OR
+        if (0 < \count($dql)) {
+            $qb->andWhere(implode(' OR ', $dql));
+        }
     }
 
     /**
@@ -63,15 +59,5 @@ class ChoiceFilterType extends AbstractSimpleFilterType
      *
      * @return string
      */
-    protected function applyDQL(QueryBuilder $qb, string $column, $data): string
-    {
-        $uid = uniqid('choices', false);
-        $qb->setParameter($uid, $data);
-
-        if (\is_array($data)) {
-            return "{$column} IN (:{$uid})";
-        }
-
-        return "{$column} = :{$uid}";
-    }
+    abstract protected function applyDQL(QueryBuilder $qb, string $column, $data): string;
 }

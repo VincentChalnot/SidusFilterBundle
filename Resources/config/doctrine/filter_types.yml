@@ -22,3 +22,11 @@ services:
             - 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'
         tags:
             - { name: sidus.filter_type }
+
+    Sidus\FilterBundle\Filter\Type\Doctrine\ExactFilterType:
+        public: false
+        arguments:
+            - exact
+            - 'Symfony\Component\Form\Extension\Core\Type\TextType'
+        tags:
+            - { name: sidus.filter_type }
