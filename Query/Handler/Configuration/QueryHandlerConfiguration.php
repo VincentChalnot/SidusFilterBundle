@@ -230,4 +230,13 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
     {
         $this->options = $options;
     }
+
+    /**
+     * @param string $code
+     * @param mixed  $value
+     */
+    public function addOption(string $code, $value): void
+    {
+        $this->options[$code] = $value;
+    }
 }

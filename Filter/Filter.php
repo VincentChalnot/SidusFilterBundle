@@ -169,4 +169,12 @@ class Filter implements FilterInterface
     {
         return $this->default;
     }
+
+    /**
+     * @param mixed $default
+     */
+    public function setDefault($default): void
+    {
+        $this->default = $default;
+    }
 }

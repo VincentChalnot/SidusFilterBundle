@@ -55,6 +55,11 @@ interface FilterInterface
     public function getDefault();
 
     /**
+     * @param mixed $value
+     */
+    public function setDefault($value);
+
+    /**
      * Override form type from default filter type
      *
      * @return string|null
