@@ -4,3 +4,24 @@ sidus:
             to: to
             start_date: Start date
             end_date: End date
+        combo:
+            # Common
+            'exact': Exact value
+            'empty': Empty string
+            'notempty': Not an empty string
+            'null': Null value
+            'notnull': Not null
+
+            # Text
+            'like_': Begins with
+            '_like': Ends with
+            '_like_': Contains
+            'notlike_': Does not begins with
+            '_notlike': Does not ends with
+            '_notlike_': Does not contains
+
+            # Numbers
+            'greaterthan': Greater than
+            'lowerthan': Lower than
+            'greaterthanequals': Greater or equals than
+            'lowerthanequals': Lower or equals than

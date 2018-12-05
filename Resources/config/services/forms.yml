@@ -16,3 +16,8 @@ services:
             - Sidus\FilterBundle\DTO\SortConfig
         tags:
             - { name: form.type }
+
+    Sidus\FilterBundle\Form\Type\ComboFilterType:
+        public: false
+        tags:
+              - { name: form.type }

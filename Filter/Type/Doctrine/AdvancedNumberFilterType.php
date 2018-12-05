@@ -1,0 +1,59 @@
+<?php
+
+namespace Sidus\FilterBundle\Filter\Type\Doctrine;
+
+use Doctrine\ORM\QueryBuilder;
+
+/**
+ * Dedicated filter for numbers
+ *
+ * @author Vincent Chalnot <vincent@sidus.fr>
+ */
+class AdvancedNumberFilterType extends AbstractSimpleFilterType
+{
+    /**
+     * Must return the DQL statement and set the proper parameters in the QueryBuilder
+     *
+     * @param QueryBuilder $qb
+     * @param string       $column
+     * @param mixed        $data
+     *
+     * @return string
+     */
+    protected function applyDQL(QueryBuilder $qb, string $column, $data): string
+    {
+        $input = $data['input'];
+        $uid = uniqid('number', false); // Generate random parameter names to prevent collisions
+        switch ($data['option']) {
+            case 'exact':
+                $qb->setParameter($uid, $input);
+
+                return "{$column} = :{$uid}";
+            case 'greaterthan':
+                $qb->setParameter($uid, $input);
+
+                return "{$column} > :{$uid}";
+            case 'lowerthan':
+                $qb->setParameter($uid, $input);
+
+                return "{$column} < :{$uid}";
+            case 'greaterthanequals':
+                $qb->setParameter($uid, $input);
+
+                return "{$column} >= :{$uid}";
+            case 'lowerthanequals':
+                $qb->setParameter($uid, $input);
+
+                return "{$column} <= :{$uid}";
+            case 'empty':
+                return "{$column} = ''";
+            case 'notempty':
+                return "{$column} != ''";
+            case 'null':
+                return "{$column} IS NULL";
+            case 'notnull':
+                return "{$column} IS NOT NULL";
+        }
+        throw new \UnexpectedValueException("Unknown option '{$data['option']}'");
+    }
+}

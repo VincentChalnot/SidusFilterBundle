@@ -1,3 +1,28 @@
+parameters:
+    sidus.filter.advanced_text_choices:
+        'sidus.filter.combo._like_': '_like_'
+        'sidus.filter.combo.exact': 'exact'
+        'sidus.filter.combo.like_': 'like_'
+        'sidus.filter.combo._like': '_like'
+        'sidus.filter.combo.notlike_': 'notlike_'
+        'sidus.filter.combo._notlike': '_notlike'
+        'sidus.filter.combo._notlike_': '_notlike_'
+        'sidus.filter.combo.empty': 'empty'
+        'sidus.filter.combo.notempty': 'notempty'
+        'sidus.filter.combo.null': 'null'
+        'sidus.filter.combo.notnull': 'notnull'
+
+    sidus.filter.advanced_number_choices:
+        'sidus.filter.combo.exact': 'exact'
+        'sidus.filter.combo.greaterthan': 'greaterthan'
+        'sidus.filter.combo.lowerthan': 'lowerthan'
+        'sidus.filter.combo.greaterthanequals': 'greaterthanequals'
+        'sidus.filter.combo.lowerthanequals': 'lowerthanequals'
+        'sidus.filter.combo.empty': 'empty'
+        'sidus.filter.combo.notempty': 'notempty'
+        'sidus.filter.combo.null': 'null'
+        'sidus.filter.combo.notnull': 'notnull'
+
 services:
     Sidus\FilterBundle\Filter\Type\Doctrine\DateRangeFilterType:
         public: false
@@ -28,5 +53,25 @@ services:
         arguments:
             - exact
             - 'Symfony\Component\Form\Extension\Core\Type\TextType'
+        tags:
+            - { name: sidus.filter_type }
+
+    Sidus\FilterBundle\Filter\Type\Doctrine\AdvancedTextFilterType:
+        public: false
+        arguments:
+            - advanced_text
+            - Sidus\FilterBundle\Form\Type\ComboFilterType
+            -   input_type: Symfony\Component\Form\Extension\Core\Type\TextType
+                options_choices: '%sidus.filter.advanced_text_choices%'
+        tags:
+            - { name: sidus.filter_type }
+
+    Sidus\FilterBundle\Filter\Type\Doctrine\AdvancedNumberFilterType:
+        public: false
+        arguments:
+            - advanced_number
+            - Sidus\FilterBundle\Form\Type\ComboFilterType
+            -   input_type: Symfony\Component\Form\Extension\Core\Type\TextType
+                options_choices: '%sidus.filter.advanced_number_choices%'
         tags:
             - { name: sidus.filter_type }

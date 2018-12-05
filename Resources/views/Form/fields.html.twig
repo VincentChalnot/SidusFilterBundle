@@ -23,3 +23,12 @@
 {% block sidus_sort_config_row %}
     {{ block('sidus_sort_config_widget') }}
 {% endblock %}
+
+{% block sidus_combo_filter_widget %}
+    <div class="input-group">
+        {{ form_widget(form.input) }}
+        <span class="input-group-btn">
+        {{ form_widget(form.option) }}
+      </span>
+    </div>
+{% endblock %}

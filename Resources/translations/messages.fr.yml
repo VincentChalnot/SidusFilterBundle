@@ -4,3 +4,24 @@ sidus:
             to: jusqu'à
             start_date: Date de début
             end_date: Date de fin
+        combo:
+            # Common
+            'exact': Valeur exacte
+            'empty': Chaine vide
+            'notempty': Chaine non vide
+            'null': Valeur nulle
+            'notnull': Valeur non nulle
+
+            # Text
+            'like_': Commence par
+            '_like': Se termine par
+            '_like_': Contient
+            'notlike_': Ne commence pas par
+            '_notlike': Ne se termine pas par
+            '_notlike_': Ne contient pas
+
+            # Numbers
+            'greaterthan': Plus grand
+            'lowerthan': Plus petit
+            'greaterthanequals': Plus grand ou égal
+            'lowerthanequals': Plus petit ou égal
