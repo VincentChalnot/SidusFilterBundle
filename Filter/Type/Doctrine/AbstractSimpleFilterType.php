@@ -32,7 +32,7 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
-        if (\is_array($data) && 0 === \count($data)) {
+        if ($this->isEmpty($data)) {
             return;
         }
 
@@ -60,4 +60,14 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
      * @return string
      */
     abstract protected function applyDQL(QueryBuilder $qb, string $column, $data): string;
+
+    /**
+     * @param mixed $data
+     *
+     * @return bool
+     */
+    protected function isEmpty($data): bool
+    {
+        return null === $data || (\is_array($data) && 0 === \count($data));
+    }
 }

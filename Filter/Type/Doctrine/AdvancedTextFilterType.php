@@ -11,6 +11,8 @@ use Doctrine\ORM\QueryBuilder;
  */
 class AdvancedTextFilterType extends AbstractSimpleFilterType
 {
+    protected const EMPTY_OPTIONS = ['empty', 'notempty', 'null', 'notnull'];
+
     /**
      * Must return the DQL statement and set the proper parameters in the QueryBuilder
      *
@@ -63,5 +65,20 @@ class AdvancedTextFilterType extends AbstractSimpleFilterType
                 return "{$column} IS NOT NULL";
         }
         throw new \UnexpectedValueException("Unknown option '{$data['option']}'");
+    }
+
+    /**
+     * @param mixed $data
+     *
+     * @return bool
+     */
+    protected function isEmpty($data): bool
+    {
+        // Handle specific cases where input can be blank
+        if (array_key_exists('option', $data) && in_array($data['option'], static::EMPTY_OPTIONS, true)) {
+            return true;
+        }
+
+        return parent::isEmpty($data) || empty($data['input']);
     }
 }
