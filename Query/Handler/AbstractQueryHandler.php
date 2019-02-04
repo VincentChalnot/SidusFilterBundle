@@ -319,7 +319,9 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
         if ($selectedPage) {
             $this->sortConfig->setPage($selectedPage);
         }
-        $this->pager = $this->createPager();
+        if (null === $this->pager) {
+            $this->pager = $this->createPager();
+        }
         $this->pager->setMaxPerPage($this->getConfiguration()->getResultsPerPage());
         try {
             $this->pager->setCurrentPage($this->sortConfig->getPage());

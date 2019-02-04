@@ -17,12 +17,13 @@ use Pagerfanta\Adapter\AdapterInterface;
  *
  * @author  Madeline Veyrenc <mveyrenc@clever-age.com>
  */
-class DoctrineORMAdapter implements AdapterInterface
+class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterface
 {
-    /**
-     * @var \Sidus\FilterBundle\Pagination\DoctrineORMPaginator
-     */
+    /** @var DoctrineORMPaginator */
     private $paginator;
+
+    /** @var int */
+    protected $nbResults;
 
     /**
      * @param \Doctrine\ORM\Query|\Doctrine\ORM\QueryBuilder $query               A Doctrine ORM query or query
@@ -63,7 +64,19 @@ class DoctrineORMAdapter implements AdapterInterface
      */
     public function getNbResults()
     {
+        if (null !== $this->nbResults) {
+            return $this->nbResults;
+        }
+
         return \count($this->paginator);
+    }
+
+    /**
+     * @param int $nbResults
+     */
+    public function setNbResults(int $nbResults): void
+    {
+        $this->nbResults = $nbResults;
     }
 
     /**
