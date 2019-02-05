@@ -159,7 +159,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     public function getPager(): Pagerfanta
     {
         if (null === $this->pager) {
-            $this->applyPager();
+            throw new \LogicException('Handle filter form before getting pager');
         }
 
         return $this->pager;
@@ -319,9 +319,10 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
         if ($selectedPage) {
             $this->sortConfig->setPage($selectedPage);
         }
-        if (null === $this->pager) {
-            $this->pager = $this->createPager();
+        if (null !== $this->pager) {
+            throw new \LogicException('Pager already applied');
         }
+        $this->pager = $this->createPager();
         $this->pager->setMaxPerPage($this->getConfiguration()->getResultsPerPage());
         try {
             $this->pager->setCurrentPage($this->sortConfig->getPage());
