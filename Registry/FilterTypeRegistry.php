@@ -57,7 +57,10 @@ class FilterTypeRegistry
     public function getFilterType(string $provider, string $code): FilterTypeInterface
     {
         if (!$this->hasFilterType($provider, $code)) {
-            throw new \UnexpectedValueException("No type for provider {$provider} with code : {$code}");
+            $flattenedTypes = implode("', '", array_keys($this->filterTypes[$provider]));
+            $m = "No type for provider {$provider} with code : {$code}, ";
+            $m .= "available types are '{$flattenedTypes}'.";
+            throw new \UnexpectedValueException($m);
         }
 
         return $this->filterTypes[$provider][$code];
