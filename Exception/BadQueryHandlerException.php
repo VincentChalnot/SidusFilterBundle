@@ -10,6 +10,7 @@
 
 namespace Sidus\FilterBundle\Exception;
 
+use LogicException;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 
 /**
@@ -17,7 +18,7 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
  */
-class BadQueryHandlerException extends \LogicException
+class BadQueryHandlerException extends LogicException
 {
     /**
      * @param QueryHandlerInterface $queryHandler

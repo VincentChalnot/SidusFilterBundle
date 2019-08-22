@@ -15,6 +15,8 @@ use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
+use function count;
+use function is_array;
 
 /**
  * Base type for simple filters
@@ -45,7 +47,7 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
         }
 
         // If the array of DQL statements is not empty (it shouldn't), apply it on the query builder with a OR
-        if (0 < \count($dql)) {
+        if (0 < count($dql)) {
             $qb->andWhere(implode(' OR ', $dql));
         }
     }
@@ -68,6 +70,6 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
      */
     protected function isEmpty($data): bool
     {
-        return null === $data || (\is_array($data) && 0 === \count($data));
+        return null === $data || (is_array($data) && 0 === count($data));
     }
 }

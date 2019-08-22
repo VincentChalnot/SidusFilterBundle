@@ -10,7 +10,10 @@
 
 namespace Sidus\FilterBundle\Pagination;
 
+use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 use Pagerfanta\Adapter\AdapterInterface;
+use function count;
 
 /**
  * Better adapter for Doctrine pager count
@@ -26,11 +29,11 @@ class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterfac
     protected $nbResults;
 
     /**
-     * @param \Doctrine\ORM\Query|\Doctrine\ORM\QueryBuilder $query               A Doctrine ORM query or query
+     * @param Query|QueryBuilder $query                                           A Doctrine ORM query or query
      *                                                                            builder.
-     * @param Boolean                                        $fetchJoinCollection Whether the query joins a collection
+     * @param Boolean            $fetchJoinCollection                             Whether the query joins a collection
      *                                                                            (true by default).
-     * @param Boolean|null                                   $useOutputWalkers    Whether to use output walkers
+     * @param Boolean|null       $useOutputWalkers                                Whether to use output walkers
      *                                                                            pagination mode
      */
     public function __construct($query, $fetchJoinCollection = true, $useOutputWalkers = null)
@@ -42,7 +45,7 @@ class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterfac
     /**
      * Returns the query
      *
-     * @return \Doctrine\ORM\Query
+     * @return Query
      */
     public function getQuery()
     {
@@ -68,7 +71,7 @@ class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterfac
             return $this->nbResults;
         }
 
-        return \count($this->paginator);
+        return count($this->paginator);
     }
 
     /**

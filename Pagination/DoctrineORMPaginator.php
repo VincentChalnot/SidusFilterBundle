@@ -10,6 +10,11 @@
 
 namespace Sidus\FilterBundle\Pagination;
 
+use ArrayIterator;
+use Countable;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\DBALException;
+use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Query;
@@ -19,13 +24,15 @@ use Doctrine\ORM\Tools\Pagination\CountWalker;
 use Doctrine\ORM\Tools\Pagination\LimitSubqueryOutputWalker;
 use Doctrine\ORM\Tools\Pagination\LimitSubqueryWalker;
 use Doctrine\ORM\Tools\Pagination\WhereInWalker;
+use IteratorAggregate;
+use function count;
 
 /**
  * Better paginator with simpler count query
  *
  * @author Madeline Veyrenc <mveyrenc@clever-age.com>
  */
-class DoctrineORMPaginator implements \Countable, \IteratorAggregate
+class DoctrineORMPaginator implements Countable, IteratorAggregate
 {
     /** @var Query */
     protected $query;
@@ -100,7 +107,7 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
     /**
      * {@inheritdoc}
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function count()
     {
@@ -138,12 +145,12 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
 
             $whereInQuery = $this->cloneQuery($this->query);
             // don't do this for an empty id array
-            if (0 === \count($ids)) {
-                return new \ArrayIterator([]);
+            if (0 === count($ids)) {
+                return new ArrayIterator([]);
             }
 
             $this->appendTreeWalker($whereInQuery, WhereInWalker::class);
-            $whereInQuery->setHint(WhereInWalker::HINT_PAGINATOR_ID_COUNT, \count($ids));
+            $whereInQuery->setHint(WhereInWalker::HINT_PAGINATOR_ID_COUNT, count($ids));
             $whereInQuery->setFirstResult(null)->setMaxResults(null);
             $whereInQuery->setParameter(WhereInWalker::PAGINATOR_ID_ALIAS, $ids);
             $whereInQuery->setCacheable($this->query->isCacheable());
@@ -157,7 +164,7 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
                 ->getResult($this->query->getHydrationMode());
         }
 
-        return new \ArrayIterator($result);
+        return new ArrayIterator($result);
     }
 
     /**
@@ -219,7 +226,7 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
     /**
      * Returns Query prepared to count.
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      *
      * @return Query
      */
@@ -244,7 +251,7 @@ class DoctrineORMPaginator implements \Countable, \IteratorAggregate
 
         $parser = new Parser($countQuery);
         $parameterMappings = $parser->parse()->getParameterMappings();
-        /* @var $parameters \Doctrine\Common\Collections\Collection|\Doctrine\ORM\Query\Parameter[] */
+        /* @var $parameters Collection|Parameter[] */
         $parameters = $countQuery->getParameters();
 
         foreach ($parameters as $key => $parameter) {

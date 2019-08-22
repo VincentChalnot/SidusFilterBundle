@@ -16,6 +16,7 @@ use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInte
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandler;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 use Sidus\FilterBundle\Registry\FilterTypeRegistry;
+use UnexpectedValueException;
 
 /**
  * Dedicated logic for Doctrine query handler
@@ -43,7 +44,7 @@ class DoctrineQueryHandlerFactory implements QueryHandlerFactoryInterface
     /**
      * @param QueryHandlerConfigurationInterface $queryHandlerConfiguration
      *
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      *
      * @return QueryHandlerInterface
      */

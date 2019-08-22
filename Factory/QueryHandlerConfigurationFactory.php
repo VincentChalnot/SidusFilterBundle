@@ -12,6 +12,8 @@ namespace Sidus\FilterBundle\Factory;
 
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfiguration;
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
+use Symfony\Component\PropertyAccess\Exception\ExceptionInterface;
+use UnexpectedValueException;
 
 /**
  * Converts an array configuration into QueryHandlerConfiguration objects
@@ -35,8 +37,8 @@ class QueryHandlerConfigurationFactory implements QueryHandlerConfigurationFacto
      * @param string $code
      * @param array  $configuration
      *
-     * @throws \UnexpectedValueException
-     * @throws \Symfony\Component\PropertyAccess\Exception\ExceptionInterface
+     * @throws UnexpectedValueException
+     * @throws ExceptionInterface
      *
      * @return QueryHandlerConfigurationInterface
      */

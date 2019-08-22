@@ -3,6 +3,7 @@
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
+use UnexpectedValueException;
 
 /**
  * Replaces the standard TextFilterType with more advance capabilities
@@ -64,7 +65,7 @@ class AdvancedTextFilterType extends AbstractSimpleFilterType
             case 'notnull':
                 return "{$column} IS NOT NULL";
         }
-        throw new \UnexpectedValueException("Unknown option '{$data['option']}'");
+        throw new UnexpectedValueException("Unknown option '{$data['option']}'");
     }
 
     /**

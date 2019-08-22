@@ -24,8 +24,6 @@ class SidusFilterExtension extends SidusBaseExtension
 {
     /**
      * {@inheritdoc}
-     *
-     * @throws \Exception
      */
     public function load(array $configs, ContainerBuilder $container)
     {

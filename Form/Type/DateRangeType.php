@@ -13,6 +13,7 @@ namespace Sidus\FilterBundle\Form\Type;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
+use Symfony\Component\Translation\Exception\InvalidArgumentException;
 
 /**
  * Form type to allow picking of a date range
@@ -28,7 +29,7 @@ class DateRangeType extends AbstractType
      * @param FormBuilderInterface $builder
      * @param array                $options
      *
-     * @throws \Symfony\Component\Translation\Exception\InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

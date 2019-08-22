@@ -15,6 +15,7 @@ use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
+use function is_array;
 
 /**
  * Filter logic for choice with Doctrine entities
@@ -68,7 +69,7 @@ class ChoiceFilterType extends AbstractSimpleFilterType
         $uid = uniqid('choices', false);
         $qb->setParameter($uid, $data);
 
-        if (\is_array($data)) {
+        if (is_array($data)) {
             return "{$column} IN (:{$uid})";
         }
 

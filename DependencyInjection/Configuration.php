@@ -10,9 +10,12 @@
 
 namespace Sidus\FilterBundle\DependencyInjection;
 
+use InvalidArgumentException;
+use RuntimeException;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use function is_array;
 
 /**
  * This is the class that validates and merges configuration from your app/config files
@@ -36,8 +39,8 @@ class Configuration implements ConfigurationInterface
 
     /**
      * {@inheritdoc}
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
+     * @throws RuntimeException
+     * @throws InvalidArgumentException
      */
     public function getConfigTreeBuilder()
     {
@@ -63,8 +66,8 @@ class Configuration implements ConfigurationInterface
     /**
      * @param NodeBuilder $filterDefinition
      *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     protected function appendFilterDefinition(NodeBuilder $filterDefinition): void
     {
@@ -80,9 +83,11 @@ class Configuration implements ConfigurationInterface
             ->variableNode('options')
                 ->defaultValue([])
                 ->validate()
-                    ->ifTrue(function ($value) {
-                        return !\is_array($value) && null !== $value;
-                    })
+                    ->ifTrue(
+                        static function ($value) {
+                            return !is_array($value) && null !== $value;
+                        }
+                    )
                     ->thenInvalid('"options" configuration must be an array or left empty')
                 ->end()
             ->end()
@@ -100,8 +105,8 @@ class Configuration implements ConfigurationInterface
     /**
      * @param NodeBuilder $fieldDefinition
      *
-     * @throws \InvalidArgumentException
-     * @throws \RuntimeException
+     * @throws InvalidArgumentException
+     * @throws RuntimeException
      */
     protected function appendFieldDefinition(NodeBuilder $fieldDefinition): void
     {
@@ -116,18 +121,22 @@ class Configuration implements ConfigurationInterface
             ->variableNode('options')
                 ->defaultValue([])
                 ->validate()
-                ->ifTrue(function ($value) {
-                    return !\is_array($value) && null !== $value;
-                })
+                ->ifTrue(
+                    static function ($value) {
+                        return !is_array($value) && null !== $value;
+                    }
+                )
                 ->thenInvalid('"options" configuration must be an array or left empty')
                 ->end()
             ->end()
             ->variableNode('form_options')
                 ->defaultValue([])
                 ->validate()
-                ->ifTrue(function ($value) {
-                    return !\is_array($value) && null !== $value;
-                })
+                ->ifTrue(
+                    static function ($value) {
+                        return !is_array($value) && null !== $value;
+                    }
+                )
                 ->thenInvalid('"form_options" configuration must be an array or left empty')
                 ->end()
             ->end();

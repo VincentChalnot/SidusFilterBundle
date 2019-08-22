@@ -10,12 +10,16 @@
 
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Form\Type\DateRangeType;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
+use function count;
+use function is_array;
 
 /**
  * Filtering on dates with Doctrine entities
@@ -32,7 +36,7 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
-        if (!\is_array($data)) {
+        if (!is_array($data)) {
             return;
         }
 
@@ -44,10 +48,10 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
 
         $qb = $queryHandler->getQueryBuilder();
         $columns = $this->getFullAttributeReferences($filter, $queryHandler);
-        if ($startDate instanceof \DateTimeInterface) {
+        if ($startDate instanceof DateTimeInterface) {
             $this->buildQb($columns, $qb, $startDate, '>=');
         }
-        if ($endDate instanceof \DateTimeInterface) {
+        if ($endDate instanceof DateTimeInterface) {
             $this->buildQb($columns, $qb, $endDate, '<=');
         }
     }
@@ -55,10 +59,10 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
     /**
      * @param array        $columns
      * @param QueryBuilder $qb
-     * @param \DateTime    $value
+     * @param DateTime    $value
      * @param string       $operator
      */
-    protected function buildQb(array $columns, QueryBuilder $qb, \DateTime $value, string $operator): void
+    protected function buildQb(array $columns, QueryBuilder $qb, DateTime $value, string $operator): void
     {
         $dql = [];
         foreach ($columns as $column) {
@@ -66,7 +70,7 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
             $dql[] = "{$column} {$operator} :{$uid}";
             $qb->setParameter($uid, $value);
         }
-        if (0 < \count($dql)) {
+        if (0 < count($dql)) {
             $qb->andWhere(implode(' OR ', $dql));
         }
     }

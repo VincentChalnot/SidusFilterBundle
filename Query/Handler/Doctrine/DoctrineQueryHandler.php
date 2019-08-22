@@ -49,7 +49,7 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
      * @param QueryHandlerConfigurationInterface $configuration
      * @param ManagerRegistry                    $doctrine
      *
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      */
     public function __construct(
         FilterTypeRegistry $filterTypeRegistry,

@@ -11,6 +11,7 @@
 namespace Sidus\FilterBundle\Registry;
 
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
+use UnexpectedValueException;
 
 /**
  * Registry for filter types
@@ -33,14 +34,14 @@ class FilterTypeRegistry
     /**
      * @param string $provider
      *
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      *
      * @return FilterTypeInterface[]
      */
     public function getFilterTypes(string $provider): array
     {
         if (!array_key_exists($provider, $this->filterTypes)) {
-            throw new \UnexpectedValueException("No filter types for provider with code : {$provider}");
+            throw new UnexpectedValueException("No filter types for provider with code : {$provider}");
         }
 
         return $this->filterTypes[$provider];
@@ -50,7 +51,7 @@ class FilterTypeRegistry
      * @param string $provider
      * @param string $code
      *
-     * @throws \UnexpectedValueException
+     * @throws UnexpectedValueException
      *
      * @return FilterTypeInterface
      */
@@ -60,7 +61,7 @@ class FilterTypeRegistry
             $flattenedTypes = implode("', '", array_keys($this->filterTypes[$provider]));
             $m = "No type for provider {$provider} with code : {$code}, ";
             $m .= "available types are '{$flattenedTypes}'.";
-            throw new \UnexpectedValueException($m);
+            throw new UnexpectedValueException($m);
         }
 
         return $this->filterTypes[$provider][$code];

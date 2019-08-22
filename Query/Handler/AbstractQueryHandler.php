@@ -10,10 +10,13 @@
 
 namespace Sidus\FilterBundle\Query\Handler;
 
+use LogicException;
+use OutOfBoundsException;
 use Pagerfanta\Exception\InvalidArgumentException;
 use Pagerfanta\Exception\NotValidCurrentPageException;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
+use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Form\Type\OrderButtonType;
 use Sidus\FilterBundle\Form\Type\SortConfigType;
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
@@ -25,6 +28,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\Form\SubmitButton;
 use Symfony\Component\HttpFoundation\Request;
+use UnexpectedValueException;
 
 /**
  * Build the necessary logic around filters based on a configuration
@@ -81,11 +85,11 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     /**
      * @param Request $request
      *
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
+     * @throws LogicException
+     * @throws OutOfBoundsException
      * @throws NotValidCurrentPageException
-     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
-     * @throws \UnexpectedValueException
+     * @throws BadQueryHandlerException
+     * @throws UnexpectedValueException
      */
     public function handleRequest(Request $request): void
     {
@@ -96,12 +100,12 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     /**
      * @param array $data
      *
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
+     * @throws LogicException
+     * @throws OutOfBoundsException
      * @throws AlreadySubmittedException
      * @throws NotValidCurrentPageException
-     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
-     * @throws \UnexpectedValueException
+     * @throws BadQueryHandlerException
+     * @throws UnexpectedValueException
      */
     public function handleArray(array $data = []): void
     {
@@ -110,14 +114,14 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     }
 
     /**
-     * @throws \LogicException
+     * @throws LogicException
      *
      * @return FormInterface
      */
     public function getForm(): FormInterface
     {
         if (!$this->form) {
-            throw new \LogicException(
+            throw new LogicException(
                 'You must first build the form by calling buildForm($builder) with your form builder'
             );
         }
@@ -136,8 +140,8 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     /**
      * @param FormBuilderInterface $builder
      *
-     * @throws \UnexpectedValueException
-     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
+     * @throws UnexpectedValueException
+     * @throws BadQueryHandlerException
      *
      * @return FormInterface
      */
@@ -159,7 +163,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     public function getPager(): Pagerfanta
     {
         if (null === $this->pager) {
-            throw new \LogicException('Handle filter form before getting pager');
+            throw new LogicException('Handle filter form before getting pager');
         }
 
         return $this->pager;
@@ -199,8 +203,8 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     /**
      * @todo : Put in form event ?
      *
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
+     * @throws LogicException
+     * @throws OutOfBoundsException
      *
      * @return SortConfig
      */
@@ -232,8 +236,8 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     /**
      * @param FormBuilderInterface $builder
      *
-     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
-     * @throws \UnexpectedValueException
+     * @throws BadQueryHandlerException
+     * @throws UnexpectedValueException
      */
     protected function buildFilterForm(FormBuilderInterface $builder): void
     {
@@ -274,10 +278,10 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     /**
      * @param int $selectedPage
      *
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
-     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
-     * @throws \UnexpectedValueException
+     * @throws LogicException
+     * @throws OutOfBoundsException
+     * @throws BadQueryHandlerException
+     * @throws UnexpectedValueException
      */
     protected function handleForm($selectedPage = null): void
     {
@@ -287,10 +291,10 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     }
 
     /**
-     * @throws \LogicException
-     * @throws \OutOfBoundsException
-     * @throws \UnexpectedValueException
-     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
+     * @throws LogicException
+     * @throws OutOfBoundsException
+     * @throws UnexpectedValueException
+     * @throws BadQueryHandlerException
      */
     protected function applyFilters(): void
     {
@@ -320,7 +324,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
             $this->sortConfig->setPage($selectedPage);
         }
         if (null !== $this->pager) {
-            throw new \LogicException('Pager already applied');
+            throw new LogicException('Pager already applied');
         }
         $this->pager = $this->createPager();
         $this->pager->setMaxPerPage($this->getConfiguration()->getResultsPerPage());

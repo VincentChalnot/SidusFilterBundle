@@ -10,6 +10,7 @@
 
 namespace Sidus\FilterBundle\Filter\Type;
 
+use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 
@@ -35,7 +36,7 @@ interface FilterTypeInterface
      * @param FilterInterface       $filter
      * @param mixed                 $data
      *
-     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
+     * @throws BadQueryHandlerException
      */
     public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data): void;
 
@@ -43,7 +44,7 @@ interface FilterTypeInterface
      * @param QueryHandlerInterface $queryHandler
      * @param FilterInterface       $filter
      *
-     * @throws \Sidus\FilterBundle\Exception\BadQueryHandlerException
+     * @throws BadQueryHandlerException
      *
      * @return array
      */

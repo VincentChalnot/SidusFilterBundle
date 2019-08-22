@@ -10,12 +10,21 @@
 
 namespace Sidus\FilterBundle\Pagination;
 
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\MappingException;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\AST\AggregateExpression;
 use Doctrine\ORM\Query\AST\PathExpression;
 use Doctrine\ORM\Query\AST\SelectExpression;
 use Doctrine\ORM\Query\AST\SelectStatement;
+use Doctrine\ORM\Query\ParserResult;
+use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\Query\SqlWalker;
+use RuntimeException;
+use function count;
 
 /**
  * Custom CountOutputWalker copied from Doctrine with huge performance improvements and fix for Oracle
@@ -25,7 +34,7 @@ use Doctrine\ORM\Query\SqlWalker;
 class CountOutputWalker extends SqlWalker
 {
     /**
-     * @var \Doctrine\DBAL\Platforms\AbstractPlatform
+     * @var AbstractPlatform
      */
     private $platform;
 
@@ -34,11 +43,11 @@ class CountOutputWalker extends SqlWalker
      * because Doctrine\ORM\Query\SqlWalker keeps everything private without
      * accessors.
      *
-     * @param \Doctrine\ORM\Query              $query
-     * @param \Doctrine\ORM\Query\ParserResult $parserResult
+     * @param Query              $query
+     * @param ParserResult $parserResult
      * @param array                            $queryComponents
      *
-     * @throws \Doctrine\DBAL\DBALException
+     * @throws DBALException
      */
     public function __construct($query, $parserResult, array $queryComponents)
     {
@@ -56,10 +65,10 @@ class CountOutputWalker extends SqlWalker
      *
      * @param SelectStatement $AST
      *
-     * @throws \RuntimeException
-     * @throws \Doctrine\ORM\Mapping\MappingException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\Query\QueryException
+     * @throws RuntimeException
+     * @throws MappingException
+     * @throws OptimisticLockException
+     * @throws QueryException
      *
      * @return string
      */
@@ -79,7 +88,7 @@ class CountOutputWalker extends SqlWalker
         $this->getQuery()->setHint(self::HINT_DISTINCT, true);
 
         if ($AST->havingClause) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'Cannot count query that uses a HAVING clause. Use the output walkers for pagination'
             );
         }
@@ -87,8 +96,8 @@ class CountOutputWalker extends SqlWalker
         // Get the root entity and alias from the AST fromClause
         $from = $AST->fromClause->identificationVariableDeclarations;
 
-        if (\count($from) > 1) {
-            throw new \RuntimeException(
+        if (count($from) > 1) {
+            throw new RuntimeException(
                 'Cannot count query which selects two FROM components, cannot make distinction'
             );
         }
