@@ -79,6 +79,14 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     }
 
     /**
+     * @return string
+     */
+    public function getEntityReference(): string
+    {
+        return $this->entityReference;
+    }
+
+    /**
      * @return QueryBuilder
      */
     public function getQueryBuilder(): QueryBuilder
@@ -121,6 +129,44 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
 
         return $resolvedAttribute;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAttributeMetadata(string $attributePath): array
+    {
+        $entityMetadata = $this->entityManager->getClassMetadata($this->entityReference);
+
+        $attributesList = explode('.', $attributePath);
+
+        $scalarFound = false;
+        $attributeMetadata = null;
+        foreach ($attributesList as $nestedAttribute) {
+            if ($scalarFound) {
+                $m = "Can't resolve path {$attributePath}, trying to resolve a relation on a scalar attribute.";
+                throw new UnexpectedValueException($m);
+            }
+            if ($entityMetadata->hasAssociation($nestedAttribute)) {
+                $attributeMetadata = $entityMetadata->getAssociationMapping($nestedAttribute);
+                $nestedEntityReference = $entityMetadata->getAssociationTargetClass($nestedAttribute);
+                $entityMetadata = $this->entityManager->getClassMetadata($nestedEntityReference);
+            } elseif ($entityMetadata->hasField($nestedAttribute)) {
+                $scalarFound = true;
+                $attributeMetadata = $entityMetadata->getFieldMapping($nestedAttribute);
+            } else {
+                $m = "Unkown attribute {$nestedAttribute} in class {$entityMetadata->getName()}.";
+                $m .= " Path: {$attributePath}";
+                throw new UnexpectedValueException($m);
+            }
+        }
+
+        if (null === $attributeMetadata) {
+            throw new \LogicException("Unable to resolve attribute path {$attributePath}, no metadata found");
+        }
+
+        return $attributeMetadata;
+    }
+
 
     /**
      * @param SortConfig $sortConfig

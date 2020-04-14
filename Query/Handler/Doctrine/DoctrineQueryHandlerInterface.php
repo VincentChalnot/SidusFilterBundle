@@ -26,6 +26,11 @@ interface DoctrineQueryHandlerInterface extends QueryHandlerInterface
     public function getAlias(): string;
 
     /**
+     * @return string
+     */
+    public function getEntityReference(): string;
+
+    /**
      * @return QueryBuilder
      */
     public function getQueryBuilder(): QueryBuilder;
@@ -42,4 +47,11 @@ interface DoctrineQueryHandlerInterface extends QueryHandlerInterface
      * @return string
      */
     public function resolveAttributeAlias(string $attributePath): string;
+
+    /**
+     * @param string $attributePath
+     *
+     * @return array
+     */
+    public function getAttributeMetadata(string $attributePath): array;
 }

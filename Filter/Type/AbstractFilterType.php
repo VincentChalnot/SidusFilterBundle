@@ -50,9 +50,9 @@ abstract class AbstractFilterType implements FilterTypeInterface
     }
 
     /**
-     * @return string
+     * {@inheritDoc}
      */
-    public function getFormType(): string
+    public function getFormType(QueryHandlerInterface $queryHandler, FilterInterface $filter): string
     {
         return $this->formType;
     }

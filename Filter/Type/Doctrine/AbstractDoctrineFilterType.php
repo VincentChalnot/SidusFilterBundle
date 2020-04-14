@@ -42,6 +42,21 @@ abstract class AbstractDoctrineFilterType extends AbstractFilterType
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getAttributeMetadatas(
+        FilterInterface $filter,
+        DoctrineQueryHandlerInterface $queryHandler
+    ): array {
+        $metadata = [];
+        foreach ($filter->getAttributes() as $attributePath) {
+            $metadata[] = $queryHandler->getAttributeMetadata($attributePath);
+        }
+
+        return $metadata;
+    }
+
+    /**
      * @return string
      */
     public function getProvider(): string

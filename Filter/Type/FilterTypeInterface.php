@@ -27,9 +27,12 @@ interface FilterTypeInterface
     public function getName(): string;
 
     /**
+     * @param QueryHandlerInterface $queryHandler
+     * @param FilterInterface       $filter
+     *
      * @return string
      */
-    public function getFormType(): string;
+    public function getFormType(QueryHandlerInterface $queryHandler, FilterInterface $filter): string;
 
     /**
      * @param QueryHandlerInterface $queryHandler

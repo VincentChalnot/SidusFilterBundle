@@ -48,6 +48,14 @@ services:
         tags:
             - { name: sidus.filter_type }
 
+    Sidus\FilterBundle\Filter\Type\Doctrine\EntityFilterType:
+        public: false
+        arguments:
+            - entity
+            - Symfony\Bridge\Doctrine\Form\Type\EntityType
+        tags:
+            - { name: sidus.filter_type }
+
     Sidus\FilterBundle\Filter\Type\Doctrine\ExactFilterType:
         public: false
         arguments:

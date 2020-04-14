@@ -268,7 +268,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
             }
             $filtersBuilder->add(
                 $filter->getCode(),
-                $filter->getFormType() ?? $filterType->getFormType(),
+                $filter->getFormType() ?? $filterType->getFormType($this, $filter),
                 $formOptions
             );
         }
