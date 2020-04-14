@@ -2,7 +2,7 @@
 /*
  * This file is part of the Sidus/FilterBundle package.
  *
- * Copyright (c) 2015-2018 Vincent Chalnot
+ * Copyright (c) 2015-2020 Vincent Chalnot
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -67,7 +67,7 @@ class QueryHandlerRegistry
      */
     public function addQueryHandlerConfiguration(QueryHandlerConfigurationInterface $queryHandlerConfiguration): void
     {
-        $this->queryHandlerConfigurations[$queryHandlerConfiguration->getCode()][$queryHandlerConfiguration];
+        $this->queryHandlerConfigurations[$queryHandlerConfiguration->getCode()] = $queryHandlerConfiguration;
     }
 
     /**
