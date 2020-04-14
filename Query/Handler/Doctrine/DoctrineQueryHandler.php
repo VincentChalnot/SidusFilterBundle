@@ -114,8 +114,8 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
         // Remaining attributes in attributeList are nested so we need joins
         foreach ($attributesList as $nestedAttribute) {
             $qb = $this->getQueryBuilder();
-            $joinAlias = uniqid('nested');
-            $qb->join($previousAttribute, $joinAlias);
+            $joinAlias = uniqid('nested', false);
+            $qb->leftJoin($previousAttribute, $joinAlias);
             $resolvedAttribute = $joinAlias.'.'.$nestedAttribute;
         }
 

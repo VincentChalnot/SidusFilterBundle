@@ -40,5 +40,8 @@
         "symfony/property-access": "~3.0|~4.0",
         "white-october/pagerfanta-bundle": "~1.0",
         "sidus/base-bundle": "~1.0"
+    },
+    "suggest": {
+        "doctrine/doctrine-bundle": "Without Doctrine ORM, this bundle won't do anything out of the box"
     }
 }

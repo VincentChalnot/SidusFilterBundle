@@ -38,15 +38,20 @@ class ChoiceFilterType extends AbstractSimpleFilterType
         }
 
         $choices = [];
+        $originalQb = $queryHandler->getQueryBuilder(); // Saving current query builder state
+
         foreach ($this->getFullAttributeReferences($filter, $queryHandler) as $column) {
-            $qb = clone $queryHandler->getQueryBuilder();
-            $qb->select("{$column} AS __value")
+            $subQb = clone $queryHandler->getQueryBuilder();
+            $subQb->select("{$column} AS __value")
                 ->groupBy($column);
-            foreach ($qb->getQuery()->getArrayResult() as $result) {
+            foreach ($subQb->getQuery()->getArrayResult() as $result) {
                 $value = $result['__value'];
                 $choices[$value] = $value;
             }
         }
+
+        // Rolling back to previous query builder
+        $queryHandler->setQueryBuilder($originalQb, $queryHandler->getAlias());
 
         return array_merge(
             $this->formOptions,

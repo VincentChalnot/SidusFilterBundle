@@ -30,46 +30,27 @@ This example uses the code of the Doctrine/TextFilterType do demonstrate how it 
 
 namespace AppBundle\Filter\Type\Doctrine;
 
-use Sidus\FilterBundle\Exception\BadQueryHandlerException;
-use Sidus\FilterBundle\Filter\FilterInterface;
-use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
-use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
-use Sidus\FilterBundle\Filter\Type\Doctrine\AbstractDoctrineFilterType;
+use Doctrine\ORM\QueryBuilder;
+use Sidus\FilterBundle\Filter\Type\Doctrine\AbstractSimpleFilterType;
 
-class CustomFilterType extends AbstractDoctrineFilterType
+class CustomFilterType extends AbstractSimpleFilterType
 {
     /**
      * {@inheritdoc}
      */
-    public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data): void
+    protected function applyDQL(QueryBuilder $qb, string $column, $data): string
     {
-        // Check that the query handler is of the proper type
-        if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
-            throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
-        }
+        $uid = uniqid('text', false); // Generate random parameter names to prevent collisions
+        $qb->setParameter($uid, "%{$data}%"); // Add the parameter
 
-        // Fetch the query builder
-        $qb = $queryHandler->getQueryBuilder();
-        $dql = []; // Prepare an array of DQL statements
-
-        // Fetch all attributes references (all filters must support multiple attributes)
-        foreach ($this->getFullAttributeReferences($filter, $queryHandler) as $column) {
-            $uid = uniqid('text'); // Generate random parameter names to prevent collisions
-            
-            // This example uses the same logic as the TextFilterType
-            $dql[] = "{$column} LIKE :{$uid}"; // Add the dql statement to the list
-            $qb->setParameter($uid, '%'.$data.'%'); // Add the parameter
-        }
-
-        // If the array of DQL statements is not empty (it shouldn't), apply it on the query builder with a OR
-        if (0 < \count($dql)) {
-            $qb->andWhere(implode(' OR ', $dql)); // implode all your DQL statements
-        }
+        return "{$column} LIKE :{$uid}";
     }
 }
 ````
 
-Note that here we use methods that are specific to the Doctrine provider: ````$queryHandler->getQueryBuilder()````
+This relies on the base logic defined in the ````AbstractSimpleFilterType````:
+
+Note that it uses methods that are specific to the Doctrine provider: ````$queryHandler->getQueryBuilder()````
 is a custom method implemented only by the ````DoctrineQueryHandlerInterface````.
 
 The ````AbstractDoctrineFilterType::getFullAttributeReferences()```` method is a shortcut to fetch a resolved list of
