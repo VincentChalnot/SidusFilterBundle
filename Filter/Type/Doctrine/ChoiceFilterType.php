@@ -15,6 +15,7 @@ use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
+use function is_array;
 
 /**
  * Filter logic for choice with Doctrine entities
@@ -24,6 +25,8 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 class ChoiceFilterType extends AbstractSimpleFilterType
 {
     /**
+     * Trying to automatically resolve choice options from database
+     *
      * {@inheritdoc}
      */
     public function getFormOptions(QueryHandlerInterface $queryHandler, FilterInterface $filter): array
@@ -37,15 +40,21 @@ class ChoiceFilterType extends AbstractSimpleFilterType
         }
 
         $choices = [];
+        $originalQb = $queryHandler->getQueryBuilder(); // Saving current query builder state
+
         foreach ($this->getFullAttributeReferences($filter, $queryHandler) as $column) {
             $qb = clone $queryHandler->getQueryBuilder();
             $qb->select("{$column} AS __value")
                 ->groupBy($column);
+
             foreach ($qb->getQuery()->getArrayResult() as $result) {
                 $value = $result['__value'];
                 $choices[$value] = $value;
             }
         }
+
+        // Rolling back to previous query builder to revert automatic joints
+        $queryHandler->setQueryBuilder($originalQb, $queryHandler->getAlias());
 
         return array_merge(
             $this->formOptions,
@@ -55,20 +64,14 @@ class ChoiceFilterType extends AbstractSimpleFilterType
     }
 
     /**
-     * Must return the DQL statement and set the proper parameters in the QueryBuilder
-     *
-     * @param QueryBuilder $qb
-     * @param string       $column
-     * @param mixed        $data
-     *
-     * @return string
+     * {@inheritDoc}
      */
     protected function applyDQL(QueryBuilder $qb, string $column, $data): string
     {
         $uid = uniqid('choices', false);
         $qb->setParameter($uid, $data);
 
-        if (\is_array($data)) {
+        if (is_array($data)) {
             return "{$column} IN (:{$uid})";
         }
 
