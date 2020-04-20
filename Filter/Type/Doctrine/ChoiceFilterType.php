@@ -40,7 +40,7 @@ class ChoiceFilterType extends AbstractSimpleFilterType
         }
 
         $choices = [];
-        $originalQb = $queryHandler->getQueryBuilder(); // Saving current query builder state
+        $originalQb = clone $queryHandler->getQueryBuilder(); // Saving current query builder state
 
         foreach ($this->getFullAttributeReferences($filter, $queryHandler) as $column) {
             $qb = clone $queryHandler->getQueryBuilder();
