@@ -14,7 +14,7 @@
         {
             "name": "Vincent Chalnot",
             "email": "vincent@sidus.fr",
-            "homepage": "http://chalnot.fr",
+            "homepage": "https://sidus.fr",
             "role": "Developer"
         },
         {
@@ -31,14 +31,14 @@
     },
     "require": {
         "php": ">=7.1",
-        "symfony/dependency-injection": "~3.0|~4.0",
-        "symfony/http-kernel": "~3.0|~4.0",
-        "symfony/config": "~3.0|~4.0",
-        "symfony/form": "~3.0|~4.0",
-        "symfony/options-resolver": "~3.0|~4.0",
-        "symfony/http-foundation": "~3.0|~4.0",
-        "symfony/property-access": "~3.0|~4.0",
-        "white-october/pagerfanta-bundle": "~1.0",
+        "symfony/dependency-injection": ">=3.0",
+        "symfony/http-kernel": ">=3.0",
+        "symfony/config": ">=3.0",
+        "symfony/form": ">=3.0",
+        "symfony/options-resolver": ">=3.0",
+        "symfony/http-foundation": ">=3.0",
+        "symfony/property-access": ">=3.0",
+        "pagerfanta/pagerfanta": ">=2.7",
         "sidus/base-bundle": "~1.0"
     },
     "suggest": {

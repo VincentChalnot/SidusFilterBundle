@@ -2,16 +2,16 @@
 /*
  * This file is part of the Sidus/FilterBundle package.
  *
- * Copyright (c) 2015-2020 Vincent Chalnot
+ * Copyright (c) 2015-2021 Vincent Chalnot
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
+declare(strict_types=1);
+
 namespace Sidus\FilterBundle\DependencyInjection;
 
-use InvalidArgumentException;
-use RuntimeException;
 use Symfony\Component\Config\Definition\Builder\NodeBuilder;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
@@ -37,15 +37,10 @@ class Configuration implements ConfigurationInterface
         $this->root = $root;
     }
 
-    /**
-     * {@inheritdoc}
-     * @throws RuntimeException
-     * @throws InvalidArgumentException
-     */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root($this->root);
+        $treeBuilder = new TreeBuilder($this->root);
+        $rootNode = $treeBuilder->getRootNode();
 
         $filterDefinition = $rootNode
             ->children()
@@ -63,16 +58,10 @@ class Configuration implements ConfigurationInterface
         return $treeBuilder;
     }
 
-    /**
-     * @param NodeBuilder $filterDefinition
-     *
-     * @throws InvalidArgumentException
-     * @throws RuntimeException
-     */
     protected function appendFilterDefinition(NodeBuilder $filterDefinition): void
     {
         $fieldDefinition = $filterDefinition
-            ->scalarNode('provider')->isRequired()->end()
+            ->scalarNode('provider')->isRequired()->cannotBeEmpty()->end()
             ->integerNode('results_per_page')->defaultValue(15)->end()
             ->arrayNode('sortable')
                 ->prototype('scalar')->end()
@@ -102,12 +91,6 @@ class Configuration implements ConfigurationInterface
             ->end();
     }
 
-    /**
-     * @param NodeBuilder $fieldDefinition
-     *
-     * @throws InvalidArgumentException
-     * @throws RuntimeException
-     */
     protected function appendFieldDefinition(NodeBuilder $fieldDefinition): void
     {
         $fieldDefinition

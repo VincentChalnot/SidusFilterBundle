@@ -21,9 +21,6 @@ class AppKernel
     {
         $bundles = [
             // ...
-
-            // Optional, only needed if you want to use the pagerfanta() twig function
-            new WhiteOctober\PagerfantaBundle\WhiteOctoberPagerfantaBundle(),
             
             // Optional, see the benefits of this bundle here: https://github.com/VincentChalnot/SidusBaseBundle
             new Sidus\BaseBundle\SidusBaseBundle(),
