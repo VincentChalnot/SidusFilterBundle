@@ -64,7 +64,7 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
      * @param DateTime    $value
      * @param string       $operator
      */
-    protected function buildQb(array $columns, QueryBuilder $qb, DateTime $value, string $operator): void
+    protected function buildQb(array $columns, QueryBuilder $qb, DateTimeInterface $value, string $operator): void
     {
         $dql = [];
         foreach ($columns as $column) {

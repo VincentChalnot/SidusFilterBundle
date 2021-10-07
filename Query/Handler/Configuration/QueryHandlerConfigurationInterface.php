@@ -65,7 +65,7 @@ interface QueryHandlerConfigurationInterface
     public function addSortable(string $sortable);
 
     /**
-     * @return array[]
+     * @return string[]
      */
     public function getDefaultSort(): array;
 

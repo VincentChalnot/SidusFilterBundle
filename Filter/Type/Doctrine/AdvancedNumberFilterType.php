@@ -77,6 +77,9 @@ class AdvancedNumberFilterType extends AbstractSimpleFilterType
      */
     protected function isEmpty($data): bool
     {
+        if (null === $data) {
+            return true;
+        }
         // Handle specific cases where input can be blank
         if (array_key_exists('option', $data) && in_array($data['option'], static::EMPTY_OPTIONS, true)) {
             return false;
