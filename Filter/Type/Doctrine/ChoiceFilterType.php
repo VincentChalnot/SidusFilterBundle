@@ -37,10 +37,34 @@ class ChoiceFilterType extends AbstractSimpleFilterType
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
 
-        if (isset($filter->getFormOptions()['choices'])) {
+        if (isset($this->formOptions['choices']) || isset($filter->getFormOptions()['choices'])) {
             return parent::getFormOptions($queryHandler, $filter);
         }
 
+        return array_merge(
+            $this->formOptions,
+            $filter->getFormOptions(),
+            ['choices' => $this->getChoices($queryHandler, $filter)]
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function applyDQL(QueryBuilder $qb, string $column, $data): string
+    {
+        $uid = uniqid('choices', false);
+        $qb->setParameter($uid, $data);
+
+        if (is_array($data)) {
+            return "{$column} IN (:{$uid})";
+        }
+
+        return "{$column} = :{$uid}";
+    }
+
+    protected function getChoices(DoctrineQueryHandlerInterface $queryHandler, FilterInterface $filter): array
+    {
         $choices = [];
         $originalQb = clone $queryHandler->getQueryBuilder(); // Saving current query builder state
 
@@ -68,25 +92,6 @@ class ChoiceFilterType extends AbstractSimpleFilterType
         // Rolling back to previous query builder to revert automatic joints
         $queryHandler->setQueryBuilder($originalQb, $queryHandler->getAlias());
 
-        return array_merge(
-            $this->formOptions,
-            $filter->getFormOptions(),
-            ['choices' => $choices]
-        );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function applyDQL(QueryBuilder $qb, string $column, $data): string
-    {
-        $uid = uniqid('choices', false);
-        $qb->setParameter($uid, $data);
-
-        if (is_array($data)) {
-            return "{$column} IN (:{$uid})";
-        }
-
-        return "{$column} = :{$uid}";
+        return $choices;
     }
 }

@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
@@ -34,10 +35,6 @@ class EntityFilterType extends ChoiceFilterType
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
 
-        if (isset($filter->getFormOptions()['choices'])) {
-            return parent::getFormOptions($queryHandler, $filter);
-        }
-
         if (\count($filter->getAttributes()) !== 1) {
             throw new \LogicException("Multiple attributes for 'entity' filter type are not supported");
         }
@@ -46,21 +43,7 @@ class EntityFilterType extends ChoiceFilterType
 
         $metadata = $queryHandler->getAttributeMetadata($attributePath);
 
-        // Checking if attribute is a relation or a scalar
-        if (!isset($metadata['targetEntity'])) {
-            $m = "Attribute path {$attributePath} resolve to a scalar attribute, use the 'choice' filter ";
-            $m .= "type instead of the 'entity'";
-            throw new \LogicException($m);
-        }
-
-        $originalQb = $queryHandler->getQueryBuilder();
-        $column = $queryHandler->resolveAttributeAlias($attributePath);
-
-        $qb = clone $queryHandler->getQueryBuilder();
-        $qb->select("IDENTITY({$column})")
-            ->groupBy($column);
-
-        $queryHandler->setQueryBuilder($originalQb, $queryHandler->getAlias());
+        $qb = $this->getQueryBuilder($queryHandler, $metadata, $attributePath);
 
         return array_merge(
             $this->formOptions,
@@ -78,5 +61,26 @@ class EntityFilterType extends ChoiceFilterType
             ],
             $filter->getFormOptions()
         );
+    }
+
+    protected function getQueryBuilder(DoctrineQueryHandlerInterface $queryHandler, array $metadata, $attributePath): QueryBuilder
+    {
+        // Checking if attribute is a relation or a scalar
+        if (!isset($metadata['targetEntity'])) {
+            $m = "Attribute path {$attributePath} resolve to a scalar attribute, use the 'choice' filter ";
+            $m .= "type instead of the 'entity'";
+            throw new \LogicException($m);
+        }
+
+        $originalQb = $queryHandler->getQueryBuilder();
+        $column = $queryHandler->resolveAttributeAlias($attributePath);
+
+        $qb = clone $queryHandler->getQueryBuilder();
+        $qb->select("IDENTITY({$column})")
+            ->groupBy($column);
+
+        $queryHandler->setQueryBuilder($originalQb, $queryHandler->getAlias());
+
+        return $qb;
     }
 }
