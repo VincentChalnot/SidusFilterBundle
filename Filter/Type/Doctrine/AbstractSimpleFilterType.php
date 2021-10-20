@@ -74,4 +74,41 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
     {
         return null === $data || (is_array($data) && 0 === count($data));
     }
+
+    /**
+     * Apply a filter to a column, handling specific requirements
+     */
+    protected function applyStringOperator(QueryBuilder $qb, string $column, string $uid, string $operator): string
+    {
+        if ($this->requiresCaseInsensitiveLikeTransform($qb, $operator)) {
+            $function = $qb->getEntityManager()->getConfiguration()->getCustomStringFunction('ilike');
+            if ($function) {
+                // Custom ilike function is supported, let's use it
+                if (strtoupper($operator) === 'LIKE') {
+                    return "ILIKE({$column}, :{$uid}) = TRUE";
+                }
+                if (strtoupper($operator) === 'NOT LIKE') {
+                    return "ILIKE({$column}, :{$uid}) = FALSE";
+                }
+            }
+
+            return "LOWER({$column}) {$operator} LOWER(:{$uid})";
+        }
+
+        return "{$column} {$operator} :{$uid}";
+    }
+
+    /**
+     * Some platforms behave differently regarding case-sensitiveness, for example a LIKE is usually case-insensitive in
+     * MySQL (it might depend on the collation) but is case-sensitive in PostgreSQL
+     */
+    protected function requiresCaseInsensitiveLikeTransform(QueryBuilder $qb, string $operator): bool
+    {
+        if (!in_array(strtoupper($operator), ['LIKE', 'NOT LIKE'])) {
+            return false;
+        }
+        $platform = $qb->getEntityManager()->getConnection()->getDatabasePlatform();
+
+        return 'postgresql' === $platform?->getName();
+    }
 }

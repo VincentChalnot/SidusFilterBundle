@@ -29,6 +29,6 @@ class TextFilterType extends AbstractSimpleFilterType
         $uid = uniqid('text', false); // Generate random parameter names to prevent collisions
         $qb->setParameter($uid, '%'.$data.'%'); // Add the parameter
 
-        return "{$column} LIKE :{$uid}"; // Add the dql statement to the list
+        return $this->applyStringOperator($qb, $column, $uid, 'LIKE'); // Add the dql statement to the list
     }
 }

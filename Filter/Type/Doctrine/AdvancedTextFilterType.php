@@ -41,31 +41,31 @@ class AdvancedTextFilterType extends AbstractSimpleFilterType
             case 'exact':
                 $qb->setParameter($uid, $input);
 
-                return "{$column} = :{$uid}";
+                return $this->applyStringOperator($qb, $column, $uid, '=');
             case 'like_':
                 $qb->setParameter($uid, trim($input, '%').'%');
 
-                return "{$column} LIKE :{$uid}";
+                return $this->applyStringOperator($qb, $column, $uid, 'LIKE');
             case '_like':
                 $qb->setParameter($uid, '%'.trim($input, '%'));
 
-                return "{$column} LIKE :{$uid}";
+                return $this->applyStringOperator($qb, $column, $uid, 'LIKE');
             case '_like_':
                 $qb->setParameter($uid, '%'.trim($input, '%').'%');
 
-                return "{$column} LIKE :{$uid}";
+                return $this->applyStringOperator($qb, $column, $uid, 'LIKE');
             case 'notlike_':
                 $qb->setParameter($uid, trim($input, '%').'%');
 
-                return "{$column} NOT LIKE :{$uid}";
+                return $this->applyStringOperator($qb, $column, $uid, 'NOT LIKE');
             case '_notlike':
                 $qb->setParameter($uid, '%'.trim($input, '%'));
 
-                return "{$column} NOT LIKE :{$uid}";
+                return $this->applyStringOperator($qb, $column, $uid, 'NOT LIKE');
             case '_notlike_':
                 $qb->setParameter($uid, '%'.trim($input, '%').'%');
 
-                return "{$column} NOT LIKE :{$uid}";
+                return $this->applyStringOperator($qb, $column, $uid, 'NOT LIKE');
             case 'empty':
                 return "{$column} = ''";
             case 'notempty':

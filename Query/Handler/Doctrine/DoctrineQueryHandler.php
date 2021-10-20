@@ -12,13 +12,13 @@ declare(strict_types=1);
 
 namespace Sidus\FilterBundle\Query\Handler\Doctrine;
 
-use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
-use Sidus\FilterBundle\Pagination\DoctrineORMAdapter;
+use Doctrine\Persistence\ManagerRegistry;
 use Pagerfanta\Pagerfanta;
 use Sidus\FilterBundle\DTO\SortConfig;
+use Sidus\FilterBundle\Pagination\DoctrineORMAdapter;
 use Sidus\FilterBundle\Query\Handler\AbstractQueryHandler;
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 use Sidus\FilterBundle\Registry\FilterTypeRegistry;
@@ -117,34 +117,26 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
      */
     public function resolveAttributeAlias(string $attributePath): string
     {
-        $attributesList = explode('.', $attributePath);
-        $previousAttribute = $this->getAlias().'.'.array_shift($attributesList);
-        $resolvedAttribute = $previousAttribute;
+        $metadata = $this->getAttributeMetadata($attributePath, true);
 
-        // Remaining attributes in attributeList are nested so we need joins
-        foreach ($attributesList as $nestedAttribute) {
-            $qb = $this->getQueryBuilder();
-            $joinAlias = uniqid('nested', false);
-            $qb->leftJoin($previousAttribute, $joinAlias);
-            $resolvedAttribute = $joinAlias.'.'.$nestedAttribute;
-        }
-
-        return $resolvedAttribute;
+        return $metadata['alias'];
     }
 
     /**
-     * {@inheritDoc}
+     * If $applyJoin is set to true, necessary joins will be applied to the query builder and the attribute alias will
+     * be returned in the "alias" key of the result.
      */
-    public function getAttributeMetadata(string $attributePath): array
+    public function getAttributeMetadata(string $attributePath, bool $applyJoin = false): array
     {
         $entityMetadata = $this->entityManager->getClassMetadata($this->entityReference);
 
         $attributesList = explode('.', $attributePath);
 
-        $scalarFound = false;
+        $previousAttributeIsScalar = false;
         $attributeMetadata = null;
+        $previousAlias = $this->getAlias();
         foreach ($attributesList as $nestedAttribute) {
-            if ($scalarFound) {
+            if ($previousAttributeIsScalar) {
                 $m = "Can't resolve path {$attributePath}, trying to resolve a relation on a scalar attribute.";
                 throw new UnexpectedValueException($m);
             }
@@ -152,11 +144,21 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
                 $attributeMetadata = $entityMetadata->getAssociationMapping($nestedAttribute);
                 $nestedEntityReference = $entityMetadata->getAssociationTargetClass($nestedAttribute);
                 $entityMetadata = $this->entityManager->getClassMetadata($nestedEntityReference);
+                if ($applyJoin) {
+                    $attributeMetadata['alias'] = "{$previousAlias}.{$nestedAttribute}";
+                    $qb = $this->getQueryBuilder();
+                    $joinAlias = uniqid('nested'.ucfirst($nestedAttribute), false);
+                    $qb->leftJoin($attributeMetadata['alias'], $joinAlias);
+                    $previousAlias = $joinAlias;
+                }
             } elseif ($entityMetadata->hasField($nestedAttribute)) {
-                $scalarFound = true;
+                $previousAttributeIsScalar = true;
                 $attributeMetadata = $entityMetadata->getFieldMapping($nestedAttribute);
+                if ($applyJoin) {
+                    $attributeMetadata['alias'] = "{$previousAlias}.{$nestedAttribute}";
+                }
             } else {
-                $m = "Unkown attribute {$nestedAttribute} in class {$entityMetadata->getName()}.";
+                $m = "Unknown attribute {$nestedAttribute} in class {$entityMetadata->getName()}.";
                 $m .= " Path: {$attributePath}";
                 throw new UnexpectedValueException($m);
             }

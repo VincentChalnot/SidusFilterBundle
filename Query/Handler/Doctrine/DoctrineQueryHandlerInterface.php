@@ -22,38 +22,15 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
  */
 interface DoctrineQueryHandlerInterface extends QueryHandlerInterface
 {
-    /**
-     * @return string
-     */
     public function getAlias(): string;
 
-    /**
-     * @return string
-     */
     public function getEntityReference(): string;
 
-    /**
-     * @return QueryBuilder
-     */
     public function getQueryBuilder(): QueryBuilder;
 
-    /**
-     * @param QueryBuilder $queryBuilder
-     * @param string       $alias
-     */
     public function setQueryBuilder(QueryBuilder $queryBuilder, $alias);
 
-    /**
-     * @param string $attributePath
-     *
-     * @return string
-     */
     public function resolveAttributeAlias(string $attributePath): string;
 
-    /**
-     * @param string $attributePath
-     *
-     * @return array
-     */
     public function getAttributeMetadata(string $attributePath): array;
 }
