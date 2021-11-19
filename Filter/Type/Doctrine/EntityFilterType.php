@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
@@ -51,9 +52,10 @@ class EntityFilterType extends ChoiceFilterType
                 'class' => $metadata['targetEntity'],
                 'em' => $queryHandler->getQueryBuilder()->getEntityManager(),
                 'query_builder' => static function (EntityRepository $repository) use ($qb) {
+                    $classMetadata = $qb->getEntityManager()->getClassMetadata($repository->getClassName());
                     $targetQb = $repository->createQueryBuilder('t');
                     $targetQb
-                        ->where("t.id IN ({$qb->getDQL()})")
+                        ->where("t.{$classMetadata->getSingleIdentifierFieldName()} IN ({$qb->getDQL()})")
                         ->setParameters($qb->getParameters());
 
                     return $targetQb;
@@ -76,8 +78,13 @@ class EntityFilterType extends ChoiceFilterType
         $column = $queryHandler->resolveAttributeAlias($attributePath);
 
         $qb = clone $queryHandler->getQueryBuilder();
-        $qb->select("IDENTITY({$column})")
-            ->groupBy($column);
+        if ($metadata['id'] ?? false) { // This is a good way to know if we are in a *toMany relation
+            // Specific case for *ToMany relations as the id is not available through a local column
+            $qb->select($column);
+        } else {
+            $qb->select("IDENTITY({$column})");
+        }
+        $qb->groupBy($column);
 
         $queryHandler->setQueryBuilder($originalQb, $queryHandler->getAlias());
 

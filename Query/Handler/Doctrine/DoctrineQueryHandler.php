@@ -14,6 +14,7 @@ namespace Sidus\FilterBundle\Query\Handler\Doctrine;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Pagerfanta\Pagerfanta;
@@ -141,9 +142,13 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
                 throw new UnexpectedValueException($m);
             }
             if ($entityMetadata->hasAssociation($nestedAttribute)) {
+                $previousAttributeMetadata = $attributeMetadata;
                 $attributeMetadata = $entityMetadata->getAssociationMapping($nestedAttribute);
+                $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
+
                 $nestedEntityReference = $entityMetadata->getAssociationTargetClass($nestedAttribute);
                 $entityMetadata = $this->entityManager->getClassMetadata($nestedEntityReference);
+
                 if ($applyJoin) {
                     $attributeMetadata['alias'] = "{$previousAlias}.{$nestedAttribute}";
                     $qb = $this->getQueryBuilder();
@@ -153,7 +158,10 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
                 }
             } elseif ($entityMetadata->hasField($nestedAttribute)) {
                 $previousAttributeIsScalar = true;
+                $previousAttributeMetadata = $attributeMetadata;
                 $attributeMetadata = $entityMetadata->getFieldMapping($nestedAttribute);
+                $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
+
                 if ($applyJoin) {
                     $attributeMetadata['alias'] = "{$previousAlias}.{$nestedAttribute}";
                 }
@@ -166,6 +174,22 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
 
         if (null === $attributeMetadata) {
             throw new \LogicException("Unable to resolve attribute path {$attributePath}, no metadata found");
+        }
+
+        // *ToMany relations do not behave like other associations, we must join on the relation once more to point to
+        // the id because we can't use IDENTITY() on them
+        $toManyTypes = [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY];
+        if (in_array($attributeMetadata['type'], $toManyTypes, true)) {
+            $entityMetadata = $this->entityManager->getClassMetadata($attributeMetadata['targetEntity']);
+            $previousAttributeMetadata = $attributeMetadata;
+            $attributeMetadata = $entityMetadata->getFieldMapping($entityMetadata->getSingleIdentifierFieldName());
+            $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
+            // Also pass targetEntity to mimic a relationship behavior
+            $attributeMetadata['targetEntity'] = $entityMetadata->getName();
+            if ($applyJoin) {
+                // Alias was already applied, this is what makes *ToMany weird
+                $attributeMetadata['alias'] = "{$previousAlias}.{$attributeMetadata['fieldName']}";
+            }
         }
 
         return $attributeMetadata;
