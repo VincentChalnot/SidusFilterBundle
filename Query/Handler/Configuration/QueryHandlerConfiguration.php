@@ -16,9 +16,6 @@ use Sidus\FilterBundle\Filter\FilterInterface;
 use Symfony\Component\PropertyAccess\Exception\ExceptionInterface;
 use Symfony\Component\PropertyAccess\PropertyAccess;
 use UnexpectedValueException;
-use function array_slice;
-use function count;
-use function is_int;
 
 /**
  * Holds the configuration of a query handler
@@ -95,7 +92,6 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
             if ($index < 0) {
                 $index += $count;
             }
-            /** @noinspection AdditionOperationOnArraysInspection */
             $this->filters = array_slice($this->filters, 0, $index, true) +
                 [$filter->getCode() => $filter] +
                 array_slice($this->filters, $index, $count - $index, true);

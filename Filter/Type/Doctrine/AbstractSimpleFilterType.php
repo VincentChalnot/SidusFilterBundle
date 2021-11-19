@@ -17,8 +17,6 @@ use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
-use function count;
-use function is_array;
 
 /**
  * Base type for simple filters
@@ -72,7 +70,9 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
      */
     protected function isEmpty($data): bool
     {
-        return null === $data || (is_array($data) && 0 === count($data));
+        return null === $data
+            || (is_array($data) && 0 === count($data))
+            || ($data instanceof \Countable && $data->count() === 0);
     }
 
     /**

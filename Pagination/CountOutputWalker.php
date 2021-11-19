@@ -26,7 +26,6 @@ use Doctrine\ORM\Query\ParserResult;
 use Doctrine\ORM\Query\QueryException;
 use Doctrine\ORM\Query\SqlWalker;
 use RuntimeException;
-use function count;
 
 /**
  * Custom CountOutputWalker copied from Doctrine with huge performance improvements and fix for Oracle

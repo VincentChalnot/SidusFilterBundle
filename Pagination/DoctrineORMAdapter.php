@@ -15,7 +15,6 @@ namespace Sidus\FilterBundle\Pagination;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Pagerfanta\Adapter\AdapterInterface;
-use function count;
 
 /**
  * Better adapter for Doctrine pager count

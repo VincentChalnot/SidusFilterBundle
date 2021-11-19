@@ -27,7 +27,6 @@ use Doctrine\ORM\Tools\Pagination\LimitSubqueryOutputWalker;
 use Doctrine\ORM\Tools\Pagination\LimitSubqueryWalker;
 use Doctrine\ORM\Tools\Pagination\WhereInWalker;
 use IteratorAggregate;
-use function count;
 
 /**
  * Better paginator with simpler count query
