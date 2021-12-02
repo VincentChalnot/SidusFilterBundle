@@ -12,18 +12,17 @@ declare(strict_types=1);
 
 namespace Sidus\FilterBundle\Filter\Type\Doctrine;
 
-use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandlerInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
 
 /**
- * Filter logic for choice with Doctrine entities
+ * Filter logic for choices using available values in Doctrine entities
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
  */
-class ChoiceFilterType extends AbstractSimpleFilterType
+class ChoiceFilterType extends CustomChoiceFilterType
 {
     /**
      * Trying to automatically resolve choice options from database
@@ -45,21 +44,6 @@ class ChoiceFilterType extends AbstractSimpleFilterType
             $filter->getFormOptions(),
             ['choices' => $this->getChoices($queryHandler, $filter)]
         );
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function applyDQL(QueryBuilder $qb, string $column, $data): string
-    {
-        $uid = uniqid('choices', false);
-        $qb->setParameter($uid, $data);
-
-        if (is_iterable($data)) {
-            return "{$column} IN (:{$uid})";
-        }
-
-        return "{$column} = :{$uid}";
     }
 
     protected function getChoices(DoctrineQueryHandlerInterface $queryHandler, FilterInterface $filter): array

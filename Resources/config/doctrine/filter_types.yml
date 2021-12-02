@@ -40,6 +40,14 @@ services:
         tags:
             - { name: sidus.filter_type }
 
+    Sidus\FilterBundle\Filter\Type\Doctrine\CustomChoiceFilterType:
+        public: false
+        arguments:
+            - custom_choice
+            - 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'
+        tags:
+            - { name: sidus.filter_type }
+
     Sidus\FilterBundle\Filter\Type\Doctrine\ChoiceFilterType:
         public: false
         arguments:
