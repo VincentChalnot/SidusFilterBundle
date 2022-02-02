@@ -190,9 +190,9 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
                 'data' => $this->getSortConfig(),
             ]
         );
-        foreach ($this->getConfiguration()->getSortable() as $sortable) {
+        foreach ($this->getConfiguration()->getSortable() as $index => $sortable) {
             $sortableBuilder->add(
-                $sortable,
+                $index,
                 OrderButtonType::class,
                 [
                     'sort_config' => $this->getSortConfig(),
@@ -219,9 +219,9 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
         /** @var SortConfig $sortConfig */
         $sortConfig = $sortConfigForm->getData();
 
-        foreach ($this->getConfiguration()->getSortable() as $sortable) {
+        foreach ($this->getConfiguration()->getSortable() as $index => $sortable) {
             /** @var SubmitButton $button */
-            $button = $sortableForm->get($sortable);
+            $button = $sortableForm->get((string) $index);
             if ($button->isClicked()) {
                 if ($sortConfig->getColumn() === $sortable) {
                     $sortConfig->switchDirection();
