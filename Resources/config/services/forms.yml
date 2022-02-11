@@ -21,3 +21,13 @@ services:
         public: false
         tags:
               - { name: form.type }
+
+    Sidus\FilterBundle\Form\Extension\DateExtension:
+        public: false
+        tags:
+            - { name: form.type_extension }
+
+    Sidus\FilterBundle\Form\Extension\DoctrineEntityExtension:
+        public: false
+        tags:
+            - { name: form.type_extension }

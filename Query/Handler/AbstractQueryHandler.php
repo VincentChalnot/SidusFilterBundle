@@ -308,8 +308,15 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
                 $filter->getFilterType()
             );
             $data = $filter->getDefault();
-            if ($filterForm->isSubmitted() && !$filter->getOption('hidden', false)) {
-                $data = $filterForm->get($filter->getCode())->getData();
+            // Hidden filters don't have a form
+            if (!$filter->getOption('hidden', false)) {
+                if ($form->isSubmitted()) {
+                    // If submitted, simply get the form data
+                    $data = $filterForm->get($filter->getCode())->getData();
+                } else {
+                    // If not submitted, we need to submit the default data in order for all model transformers to apply
+                    $data = $filterForm->get($filter->getCode())->submit($data, false)->getData();
+                }
             }
             $filterType->handleData($this, $filter, $data);
         }

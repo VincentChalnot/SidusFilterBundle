@@ -15,6 +15,7 @@ namespace Sidus\FilterBundle\Query\Handler\Doctrine;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Pagerfanta\Pagerfanta;
@@ -118,7 +119,7 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
      */
     public function resolveAttributeAlias(string $attributePath): string
     {
-        $metadata = $this->getAttributeMetadata($attributePath, true);
+        $metadata = $this->getAttributeMetadata($attributePath, Join::LEFT_JOIN);
 
         return $metadata['alias'];
     }
@@ -127,7 +128,7 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
      * If $applyJoin is set to true, necessary joins will be applied to the query builder and the attribute alias will
      * be returned in the "alias" key of the result.
      */
-    public function getAttributeMetadata(string $attributePath, bool $applyJoin = false): array
+    public function getAttributeMetadata(string $attributePath, ?string $joinType = null): array
     {
         $entityMetadata = $this->entityManager->getClassMetadata($this->entityReference);
 
@@ -149,11 +150,17 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
                 $nestedEntityReference = $entityMetadata->getAssociationTargetClass($nestedAttribute);
                 $entityMetadata = $this->entityManager->getClassMetadata($nestedEntityReference);
 
-                if ($applyJoin) {
+                if ($joinType) {
                     $attributeMetadata['alias'] = "{$previousAlias}.{$nestedAttribute}";
                     $qb = $this->getQueryBuilder();
                     $joinAlias = uniqid('nested'.ucfirst($nestedAttribute), false);
-                    $qb->leftJoin($attributeMetadata['alias'], $joinAlias);
+                    if (Join::INNER_JOIN === $joinType) {
+                        $qb->innerJoin($attributeMetadata['alias'], $joinAlias);
+                    } elseif (Join::LEFT_JOIN === $joinType) {
+                        $qb->leftJoin($attributeMetadata['alias'], $joinAlias);
+                    } else {
+                        throw new UnexpectedValueException("Unknown join type {$joinType}");
+                    }
                     $previousAlias = $joinAlias;
                 }
             } elseif ($entityMetadata->hasField($nestedAttribute)) {
@@ -162,7 +169,7 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
                 $attributeMetadata = $entityMetadata->getFieldMapping($nestedAttribute);
                 $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
 
-                if ($applyJoin) {
+                if ($joinType) {
                     $attributeMetadata['alias'] = "{$previousAlias}.{$nestedAttribute}";
                 }
             } else {
@@ -186,7 +193,7 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
             $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
             // Also pass targetEntity to mimic a relationship behavior
             $attributeMetadata['targetEntity'] = $entityMetadata->getName();
-            if ($applyJoin) {
+            if ($joinType) {
                 // Alias was already applied, this is what makes *ToMany weird
                 $attributeMetadata['alias'] = "{$previousAlias}.{$attributeMetadata['fieldName']}";
             }
