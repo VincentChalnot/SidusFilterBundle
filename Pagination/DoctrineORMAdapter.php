@@ -23,11 +23,9 @@ use Pagerfanta\Adapter\AdapterInterface;
  */
 class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterface
 {
-    /** @var DoctrineORMPaginator */
-    private $paginator;
+    private DoctrineORMPaginator $paginator;
 
-    /** @var int */
-    protected $nbResults;
+    protected int $nbResults;
 
     /**
      * @param Query|QueryBuilder $query                                           A Doctrine ORM query or query
@@ -37,7 +35,7 @@ class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterfac
      * @param Boolean|null       $useOutputWalkers                                Whether to use output walkers
      *                                                                            pagination mode
      */
-    public function __construct($query, $fetchJoinCollection = true, $useOutputWalkers = null)
+    public function __construct($query, bool $fetchJoinCollection = true, bool $useOutputWalkers = null)
     {
         $this->paginator = new DoctrineORMPaginator($query, $fetchJoinCollection);
         $this->paginator->setUseOutputWalkers($useOutputWalkers);
@@ -58,35 +56,22 @@ class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterfac
      *
      * @return Boolean Whether the query joins a collection.
      */
-    public function getFetchJoinCollection()
+    public function getFetchJoinCollection(): bool
     {
         return $this->paginator->getFetchJoinCollection();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getNbResults()
+    public function getNbResults(): int
     {
-        if (null !== $this->nbResults) {
-            return $this->nbResults;
-        }
-
-        return count($this->paginator);
+        return $this->nbResults ?? count($this->paginator);
     }
 
-    /**
-     * @param int $nbResults
-     */
-    public function setNbResults(int $nbResults): void
+    public function setNbResults(int $nbResult): void
     {
-        $this->nbResults = $nbResults;
+        $this->nbResults = $nbResult;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getSlice($offset, $length)
+    public function getSlice(int $offset, int $length): iterable
     {
         $this->paginator
             ->getQuery()
