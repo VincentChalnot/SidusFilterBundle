@@ -45,7 +45,13 @@ class DoctrineEntityExtension extends AbstractTypeExtension
                     };
 
                     if (null !== $value && $options['multiple'] && interface_exists(Collection::class)) {
-                        return array_map($callback, $value);
+                        if (is_array($value)) {
+                            return array_map($callback, $value);
+                        }
+                        if ($value instanceof Collection) {
+                            return $value->map($callback);
+                        }
+                        throw new \UnexpectedValueException('Unknown value type');
                     }
 
                     return $callback($value);
