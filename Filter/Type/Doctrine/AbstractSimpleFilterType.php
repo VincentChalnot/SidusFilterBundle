@@ -108,7 +108,10 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
             return false;
         }
         $platform = $qb->getEntityManager()->getConnection()->getDatabasePlatform();
+        if (null === $platform) {
+            return false;
+        }
 
-        return 'postgresql' === $platform?->getName();
+        return 'postgresql' === $platform->getName();
     }
 }
