@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Form\Type;
 
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\Translation\Exception\InvalidArgumentException;
@@ -56,6 +57,31 @@ class DateRangeType extends AbstractType
                     ],
                 ]
             );
+
+        $builder->addModelTransformer(
+            new CallbackTransformer(
+                static function ($value) {
+                    if (null === $value) {
+                        return [
+                            self::START_NAME => null,
+                            self::END_NAME => null,
+                        ];
+                    }
+
+                    return $value;
+                },
+                static function ($value) {
+                    if (null === $value) {
+                        return [
+                            self::START_NAME => null,
+                            self::END_NAME => null,
+                        ];
+                    }
+
+                    return $value;
+                },
+            ),
+        );
     }
 
     /**
