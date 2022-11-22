@@ -63,18 +63,12 @@ class OrderButtonType extends SubmitType
         );
     }
 
-    /**
-     * @return string
-     */
-    public function getParent()
+    public function getParent(): string
     {
         return SubmitType::class;
     }
 
-    /**
-     * @return string
-     */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sidus_order_button';
     }

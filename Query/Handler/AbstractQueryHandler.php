@@ -192,7 +192,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
         );
         foreach ($this->getConfiguration()->getSortable() as $index => $sortable) {
             $sortableBuilder->add(
-                $index,
+                (string) $index,
                 OrderButtonType::class,
                 [
                     'sort_config' => $this->getSortConfig(),

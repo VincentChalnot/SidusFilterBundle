@@ -12,8 +12,9 @@ declare(strict_types=1);
 
 namespace Sidus\FilterBundle\Pagination;
 
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Platforms\AbstractPlatform;
+use Doctrine\ORM\Internal\SQLResultCasing;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\ORM\OptimisticLockException;
@@ -34,10 +35,9 @@ use RuntimeException;
  */
 class CountOutputWalker extends SqlWalker
 {
-    /**
-     * @var AbstractPlatform
-     */
-    private $platform;
+    use SQLResultCasing;
+
+    private AbstractPlatform $platform;
 
     /**
      * Stores various parameters that are otherwise unavailable
@@ -48,7 +48,7 @@ class CountOutputWalker extends SqlWalker
      * @param ParserResult $parserResult
      * @param array                            $queryComponents
      *
-     * @throws DBALException
+     * @throws Exception
      */
     public function __construct($query, $parserResult, array $queryComponents)
     {
@@ -80,10 +80,9 @@ class CountOutputWalker extends SqlWalker
         }
 
         if ($AST->groupByClause) {
-            $countExpr = $this->platform->getCountExpression('*');
             $sql = parent::walkSelectStatement($AST);
 
-            return "SELECT {$countExpr} AS dctrn_count FROM ({$sql}) dctrn_table";
+            return "SELECT COUNT(*) AS dctrn_count FROM ({$sql}) dctrn_table";
         }
 
         $this->getQuery()->setHint(self::HINT_DISTINCT, true);
@@ -135,8 +134,8 @@ class CountOutputWalker extends SqlWalker
         $sql = parent::walkSelectStatement($AST);
 
         return str_replace(
-            "AS {$this->platform->getSQLResultCasing('sclr_0')} FROM",
-            "AS {$this->platform->getSQLResultCasing('dctrn_count')} FROM",
+            "AS {$this->getSQLResultCasing($this->platform, 'sclr_0')} FROM",
+            "AS {$this->getSQLResultCasing($this->platform, 'dctrn_count')} FROM",
             $sql
         );
     }

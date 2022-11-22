@@ -15,7 +15,8 @@ namespace Sidus\FilterBundle\Pagination;
 use ArrayIterator;
 use Countable;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
+use Doctrine\ORM\Internal\SQLResultCasing;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\QueryBuilder;
@@ -35,87 +36,67 @@ use IteratorAggregate;
  */
 class DoctrineORMPaginator implements Countable, IteratorAggregate
 {
-    /** @var Query */
-    protected $query;
+    use SQLResultCasing;
 
-    /** @var bool */
-    protected $fetchJoinCollection;
+    protected Query $query;
 
-    /** @var bool|null */
-    protected $useOutputWalkers;
+    protected bool $fetchJoinCollection;
 
-    /** @var int */
-    protected $count;
+    protected ?bool $useOutputWalkers = null;
+
+    protected ?int $count = null;
 
     /**
      * @param Query|QueryBuilder $query               A Doctrine ORM query or query builder.
-     * @param boolean            $fetchJoinCollection Whether the query joins a collection (true by default).
+     * @param bool               $fetchJoinCollection Whether the query joins a collection (true by default).
      */
-    public function __construct($query, $fetchJoinCollection = true)
+    public function __construct(Query|QueryBuilder $query, bool $fetchJoinCollection = true)
     {
         if ($query instanceof QueryBuilder) {
             $query = $query->getQuery();
         }
 
         $this->query = $query;
-        $this->fetchJoinCollection = (bool) $fetchJoinCollection;
+        $this->fetchJoinCollection = $fetchJoinCollection;
     }
 
-    /**
-     * Returns the query.
-     *
-     * @return Query
-     */
-    public function getQuery()
+    public function getQuery(): Query
     {
         return $this->query;
     }
 
     /**
      * Returns whether the query joins a collection.
-     *
-     * @return boolean Whether the query joins a collection.
      */
-    public function getFetchJoinCollection()
+    public function getFetchJoinCollection(): bool
     {
         return $this->fetchJoinCollection;
     }
 
     /**
      * Returns whether the paginator will use an output walker.
-     *
-     * @return bool|null
      */
-    public function getUseOutputWalkers()
+    public function getUseOutputWalkers(): ?bool
     {
         return $this->useOutputWalkers;
     }
 
     /**
      * Sets whether the paginator will use an output walker.
-     *
-     * @param bool|null $useOutputWalkers
-     *
-     * @return $this
      */
-    public function setUseOutputWalkers($useOutputWalkers)
+    public function setUseOutputWalkers(?bool $useOutputWalkers): self
     {
         $this->useOutputWalkers = $useOutputWalkers;
 
         return $this;
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @throws DBALException
-     */
-    public function count()
+    public function count(): int
     {
         if (null === $this->count) {
             try {
                 $this->count = array_sum(array_map('current', $this->getCountQuery()->getScalarResult()));
-            } catch (NoResultException $e) {
+            } catch (NoResultException) {
                 $this->count = 0;
             }
         }
@@ -123,10 +104,7 @@ class DoctrineORMPaginator implements Countable, IteratorAggregate
         return $this->count;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         $offset = $this->query->getFirstResult();
         $length = $this->query->getMaxResults();
@@ -168,16 +146,8 @@ class DoctrineORMPaginator implements Countable, IteratorAggregate
         return new ArrayIterator($result);
     }
 
-    /**
-     * Clones a query.
-     *
-     * @param Query $query The query.
-     *
-     * @return Query The cloned query.
-     */
-    protected function cloneQuery(Query $query)
+    protected function cloneQuery(Query $query): Query
     {
-        /* @var $cloneQuery Query */
         $cloneQuery = clone $query;
 
         $cloneQuery->setParameters(clone $query->getParameters());
@@ -192,27 +162,16 @@ class DoctrineORMPaginator implements Countable, IteratorAggregate
 
     /**
      * Determines whether to use an output walker for the query.
-     *
-     * @param Query $query The query.
-     *
-     * @return bool
      */
-    protected function useOutputWalker(Query $query)
+    protected function useOutputWalker(Query $query): bool
     {
-        if (null === $this->useOutputWalkers) {
-            return false === (bool) $query->getHint(Query::HINT_CUSTOM_OUTPUT_WALKER);
-        }
-
-        return $this->useOutputWalkers;
+        return $this->useOutputWalkers ?? (false === (bool) $query->getHint(Query::HINT_CUSTOM_OUTPUT_WALKER));
     }
 
     /**
      * Appends a custom tree walker to the tree walkers hint.
-     *
-     * @param Query  $query
-     * @param string $walkerClass
      */
-    protected function appendTreeWalker(Query $query, $walkerClass)
+    protected function appendTreeWalker(Query $query, string $walkerClass): void
     {
         $hints = $query->getHint(Query::HINT_CUSTOM_TREE_WALKERS);
 
@@ -226,21 +185,19 @@ class DoctrineORMPaginator implements Countable, IteratorAggregate
 
     /**
      * Returns Query prepared to count.
-     *
-     * @throws DBALException
-     *
-     * @return Query
      */
-    protected function getCountQuery()
+    protected function getCountQuery(): Query
     {
-        /* @var $countQuery Query */
         $countQuery = $this->cloneQuery($this->query);
 
         if ($this->useOutputWalker($countQuery)) {
             $platform = $countQuery->getEntityManager()->getConnection()->getDatabasePlatform(); // law of demeter win
+            if (null === $platform) {
+                throw new \UnexpectedValueException('Missing database platform');
+            }
 
             $rsm = new ResultSetMapping();
-            $rsm->addScalarResult($platform->getSQLResultCasing('dctrn_count'), 'count');
+            $rsm->addScalarResult($this->getSQLResultCasing($platform, 'dctrn_count'), 'count');
 
             $countQuery->setHint(Query::HINT_CUSTOM_OUTPUT_WALKER, CountOutputWalker::class);
             $countQuery->setResultSetMapping($rsm);
