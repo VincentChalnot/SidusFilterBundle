@@ -1,7 +1,7 @@
 {% block sidus_order_button_widget %}
     {% apply spaceless %}
         <button {{ block('widget_container_attributes') }} name="{{ form.vars.full_name }}">
-            {{ arrow|raw }}&nbsp;{{ label }}
+            {{ arrow|raw }}&nbsp;{{ label|raw }}
         </button>
     {% endapply %}
 {% endblock %}
