@@ -85,6 +85,6 @@ class AdvancedNumberFilterType extends AbstractSimpleFilterType
             return false;
         }
 
-        return parent::isEmpty($data) || empty($data['input']);
+        return parent::isEmpty($data) || null === $data['input'];
     }
 }
