@@ -52,18 +52,11 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     /** @var QueryBuilder */
     protected $queryBuilder;
 
-    /**
-     * @param FilterTypeRegistry                 $filterTypeRegistry
-     * @param QueryHandlerConfigurationInterface $configuration
-     * @param ManagerRegistry                    $doctrine
-     *
-     * @throws UnexpectedValueException
-     */
     public function __construct(
         FilterTypeRegistry $filterTypeRegistry,
         QueryHandlerConfigurationInterface $configuration,
         ManagerRegistry $doctrine,
-        DoctrineAttributeMetadataResolver $doctrineAttributeMetadataResolver,
+        DoctrineAttributeMetadataResolver $doctrineAttributeMetadataResolver
     ) {
         parent::__construct($filterTypeRegistry, $configuration);
         $this->doctrineAttributeMetadataResolver = $doctrineAttributeMetadataResolver;
