@@ -2,7 +2,7 @@
 /*
  * This file is part of the Sidus/FilterBundle package.
  *
- * Copyright (c) 2015-2021 Vincent Chalnot
+ * Copyright (c) 2015-2023 Vincent Chalnot
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -19,6 +19,7 @@ use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
 use Pagerfanta\Pagerfanta;
+use Sidus\FilterBundle\Doctrine\DoctrineAttributeMetadataResolver;
 use Sidus\FilterBundle\DTO\SortConfig;
 use Sidus\FilterBundle\Pagination\DoctrineORMAdapter;
 use Sidus\FilterBundle\Query\Handler\AbstractQueryHandler;
@@ -35,6 +36,9 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
 {
     /** @var EntityManagerInterface */
     protected $entityManager;
+
+    /** @var DoctrineAttributeMetadataResolver */
+    protected $doctrineAttributeMetadataResolver;
 
     /** @var string */
     protected $entityReference;
@@ -58,9 +62,11 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
     public function __construct(
         FilterTypeRegistry $filterTypeRegistry,
         QueryHandlerConfigurationInterface $configuration,
-        ManagerRegistry $doctrine
+        ManagerRegistry $doctrine,
+        DoctrineAttributeMetadataResolver $doctrineAttributeMetadataResolver,
     ) {
         parent::__construct($filterTypeRegistry, $configuration);
+        $this->doctrineAttributeMetadataResolver = $doctrineAttributeMetadataResolver;
         $this->entityReference = $configuration->getOption('entity');
         if (null === $this->entityReference) {
             throw new UnexpectedValueException(
@@ -130,78 +136,14 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
      */
     public function getAttributeMetadata(string $attributePath, ?string $joinType = null): array
     {
-        $entityMetadata = $this->entityManager->getClassMetadata($this->entityReference);
-
-        $attributesList = explode('.', $attributePath);
-
-        $previousAttributeIsScalar = false;
-        $attributeMetadata = null;
-        $previousAlias = $this->getAlias();
-        foreach ($attributesList as $nestedAttribute) {
-            if ($previousAttributeIsScalar) {
-                $m = "Can't resolve path {$attributePath}, trying to resolve a relation on a scalar attribute.";
-                throw new UnexpectedValueException($m);
-            }
-            if ($entityMetadata->hasAssociation($nestedAttribute)) {
-                $previousAttributeMetadata = $attributeMetadata;
-                $attributeMetadata = $entityMetadata->getAssociationMapping($nestedAttribute);
-                $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
-
-                $nestedEntityReference = $entityMetadata->getAssociationTargetClass($nestedAttribute);
-                $entityMetadata = $this->entityManager->getClassMetadata($nestedEntityReference);
-
-                if ($joinType) {
-                    $attributeMetadata['alias'] = "{$previousAlias}.{$nestedAttribute}";
-                    $qb = $this->getQueryBuilder();
-                    $joinAlias = uniqid('nested'.ucfirst($nestedAttribute), false);
-                    if (Join::INNER_JOIN === $joinType) {
-                        $qb->innerJoin($attributeMetadata['alias'], $joinAlias);
-                    } elseif (Join::LEFT_JOIN === $joinType) {
-                        $qb->leftJoin($attributeMetadata['alias'], $joinAlias);
-                    } else {
-                        throw new UnexpectedValueException("Unknown join type {$joinType}");
-                    }
-                    $previousAlias = $joinAlias;
-                }
-            } elseif ($entityMetadata->hasField($nestedAttribute)) {
-                $previousAttributeIsScalar = true;
-                $previousAttributeMetadata = $attributeMetadata;
-                $attributeMetadata = $entityMetadata->getFieldMapping($nestedAttribute);
-                $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
-
-                if ($joinType) {
-                    $attributeMetadata['alias'] = "{$previousAlias}.{$nestedAttribute}";
-                }
-            } else {
-                $m = "Unknown attribute {$nestedAttribute} in class {$entityMetadata->getName()}.";
-                $m .= " Path: {$attributePath}";
-                throw new UnexpectedValueException($m);
-            }
-        }
-
-        if (null === $attributeMetadata) {
-            throw new \LogicException("Unable to resolve attribute path {$attributePath}, no metadata found");
-        }
-
-        // *ToMany relations do not behave like other associations, we must join on the relation once more to point to
-        // the id because we can't use IDENTITY() on them
-        $toManyTypes = [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY];
-        if (in_array($attributeMetadata['type'], $toManyTypes, true)) {
-            $entityMetadata = $this->entityManager->getClassMetadata($attributeMetadata['targetEntity']);
-            $previousAttributeMetadata = $attributeMetadata;
-            $attributeMetadata = $entityMetadata->getFieldMapping($entityMetadata->getSingleIdentifierFieldName());
-            $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
-            // Also pass targetEntity to mimic a relationship behavior
-            $attributeMetadata['targetEntity'] = $entityMetadata->getName();
-            if ($joinType) {
-                // Alias was already applied, this is what makes *ToMany weird
-                $attributeMetadata['alias'] = "{$previousAlias}.{$attributeMetadata['fieldName']}";
-            }
-        }
-
-        return $attributeMetadata;
+        return $this->doctrineAttributeMetadataResolver->getAttributeMetadata(
+            $this->entityReference,
+            $this->getAlias(),
+            $attributePath,
+            null === $joinType ? null : $this->getQueryBuilder(),
+            $joinType ?? Join::LEFT_JOIN
+        );
     }
-
 
     /**
      * @param SortConfig $sortConfig

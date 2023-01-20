@@ -1,0 +1,4 @@
+services:
+    Sidus\FilterBundle\Doctrine\DoctrineAttributeMetadataResolver:
+        public: false
+        autowire: true
