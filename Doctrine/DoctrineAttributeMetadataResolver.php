@@ -14,6 +14,7 @@ namespace Sidus\FilterBundle\Doctrine;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Mapping\MappingException;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -42,10 +43,15 @@ class DoctrineAttributeMetadataResolver
         $previousAttributeIsScalar = false;
         $attributeMetadata = null;
         $previousAlias = $rootAlias;
+        $embeddedRelation = null;
         foreach ($attributesList as $nestedAttribute) {
             if ($previousAttributeIsScalar) {
                 $m = "Can't resolve path {$attributePath}, trying to resolve a relation on a scalar attribute.";
                 throw new \UnexpectedValueException($m);
+            }
+            if (null !== $embeddedRelation) {
+                $nestedAttribute = $embeddedRelation.'.'.$nestedAttribute;
+                $embeddedRelation = null;
             }
             if ($entityMetadata->hasAssociation($nestedAttribute)) {
                 $previousAttributeMetadata = $attributeMetadata;
@@ -68,8 +74,12 @@ class DoctrineAttributeMetadataResolver
                     $previousAlias = $joinAlias;
                 }
             } elseif ($entityMetadata->hasField($nestedAttribute)) {
-                $previousAttributeIsScalar = true;
                 $previousAttributeMetadata = $attributeMetadata;
+                if (isset($entityMetadata->embeddedClasses[$nestedAttribute])) {
+                    $embeddedRelation = $nestedAttribute;
+                    continue;
+                }
+                $previousAttributeIsScalar = true;
                 $attributeMetadata = $entityMetadata->getFieldMapping($nestedAttribute);
                 $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
 
