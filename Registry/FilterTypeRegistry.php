@@ -13,6 +13,9 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Registry;
 
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
+use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
+use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\ServiceLocator;
 use UnexpectedValueException;
 
 /**
@@ -23,21 +26,23 @@ use UnexpectedValueException;
 class FilterTypeRegistry
 {
     /** @var FilterTypeInterface[][] */
-    protected $filterTypes = [];
+    protected array $filterTypes = [];
 
-    /**
-     * @param FilterTypeInterface $filterType
-     */
+    public function __construct(
+        #[TaggedIterator('sidus.filter_type')]
+        iterable $filterTypes,
+    ) {
+        foreach ($filterTypes as $filterType) {
+            $this->addFilterType($filterType);
+        }
+    }
+
     public function addFilterType(FilterTypeInterface $filterType): void
     {
         $this->filterTypes[$filterType->getProvider()][$filterType->getName()] = $filterType;
     }
 
     /**
-     * @param string $provider
-     *
-     * @throws UnexpectedValueException
-     *
      * @return FilterTypeInterface[]
      */
     public function getFilterTypes(string $provider): array
@@ -49,14 +54,6 @@ class FilterTypeRegistry
         return $this->filterTypes[$provider];
     }
 
-    /**
-     * @param string $provider
-     * @param string $code
-     *
-     * @throws UnexpectedValueException
-     *
-     * @return FilterTypeInterface
-     */
     public function getFilterType(string $provider, string $code): FilterTypeInterface
     {
         if (!$this->hasFilterType($provider, $code)) {
@@ -69,12 +66,6 @@ class FilterTypeRegistry
         return $this->filterTypes[$provider][$code];
     }
 
-    /**
-     * @param string $provider
-     * @param string $code
-     *
-     * @return bool
-     */
     public function hasFilterType(string $provider, string $code): bool
     {
         return !empty($this->filterTypes[$provider][$code]);

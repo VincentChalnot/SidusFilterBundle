@@ -28,25 +28,20 @@ class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterfac
     protected int $nbResults;
 
     /**
-     * @param Query|QueryBuilder $query                                           A Doctrine ORM query or query
-     *                                                                            builder.
-     * @param Boolean            $fetchJoinCollection                             Whether the query joins a collection
-     *                                                                            (true by default).
-     * @param Boolean|null       $useOutputWalkers                                Whether to use output walkers
-     *                                                                            pagination mode
+     * @param Query|QueryBuilder $query A Doctrine ORM query or query builder.
+     * @param bool $fetchJoinCollection Whether the query joins a collection (true by default).
+     * @param bool|null $useOutputWalkers Whether to use output walkers pagination mode
      */
-    public function __construct($query, bool $fetchJoinCollection = true, bool $useOutputWalkers = null)
-    {
+    public function __construct(
+        Query|QueryBuilder $query,
+        bool $fetchJoinCollection = true,
+        ?bool $useOutputWalkers = null,
+    ) {
         $this->paginator = new DoctrineORMPaginator($query, $fetchJoinCollection);
         $this->paginator->setUseOutputWalkers($useOutputWalkers);
     }
 
-    /**
-     * Returns the query
-     *
-     * @return Query
-     */
-    public function getQuery()
+    public function getQuery(): Query
     {
         return $this->paginator->getQuery();
     }

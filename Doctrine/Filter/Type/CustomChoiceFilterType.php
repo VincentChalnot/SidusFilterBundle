@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Filter\Type\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Filter\Type;
 
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
@@ -25,9 +25,6 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
  */
 class CustomChoiceFilterType extends AbstractSimpleFilterType
 {
-    /**
-     * {@inheritDoc}
-     */
     protected function applyDQL(QueryBuilder $qb, string $column, $data): string
     {
         $uid = uniqid('choices', false);

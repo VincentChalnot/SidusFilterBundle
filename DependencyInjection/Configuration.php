@@ -1,4 +1,6 @@
 <?php
+/** @noinspection NullPointerExceptionInspection */
+/** @noinspection PhpPossiblePolymorphicInvocationInspection */
 /*
  * This file is part of the Sidus/FilterBundle package.
  *
@@ -26,14 +28,9 @@ use Symfony\Component\Config\Definition\ConfigurationInterface;
  */
 class Configuration implements ConfigurationInterface
 {
-    protected $root;
-
-    /**
-     * @param string $root
-     */
-    public function __construct($root = 'sidus_filter')
-    {
-        $this->root = $root;
+    public function __construct(
+        protected string $root = 'sidus_filter',
+    ) {
     }
 
     public function getConfigTreeBuilder(): TreeBuilder

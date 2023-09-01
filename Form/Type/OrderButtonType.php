@@ -26,12 +26,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class OrderButtonType extends SubmitType
 {
-    /**
-     * @param FormView      $view
-     * @param FormInterface $form
-     * @param array         $options
-     */
-    public function buildView(FormView $view, FormInterface $form, array $options)
+    public function buildView(FormView $view, FormInterface $form, array $options): void
     {
         parent::buildView($view, $form, $options);
         $view->vars['arrow'] = '&uarr;&darr;';
@@ -44,12 +39,7 @@ class OrderButtonType extends SubmitType
         }
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     *
-     * @throws AccessException
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired(
             [

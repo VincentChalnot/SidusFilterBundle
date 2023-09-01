@@ -10,10 +10,10 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Factory\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Factory;
 
 use Doctrine\Persistence\ManagerRegistry;
-use Sidus\FilterBundle\Doctrine\DoctrineAttributeMetadataResolver;
+use Sidus\FilterBundle\Doctrine\Metadata\DoctrineAttributeMetadataResolver;
 use Sidus\FilterBundle\Factory\QueryHandlerFactoryInterface;
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 use Sidus\FilterBundle\Query\Handler\Doctrine\DoctrineQueryHandler;
@@ -28,32 +28,13 @@ use UnexpectedValueException;
  */
 class DoctrineQueryHandlerFactory implements QueryHandlerFactoryInterface
 {
-    /** @var FilterTypeRegistry */
-    protected $filterTypeRegistry;
-
-    /** @var ManagerRegistry */
-    protected $doctrine;
-
-    /** @var DoctrineAttributeMetadataResolver */
-    protected $doctrineAttributeMetadataResolver;
-
     public function __construct(
-        FilterTypeRegistry $filterTypeRegistry,
-        ManagerRegistry $doctrine,
-        DoctrineAttributeMetadataResolver $doctrineAttributeMetadataResolver
+        protected FilterTypeRegistry $filterTypeRegistry,
+        protected ManagerRegistry $doctrine,
+        protected DoctrineAttributeMetadataResolver $doctrineAttributeMetadataResolver,
     ) {
-        $this->filterTypeRegistry = $filterTypeRegistry;
-        $this->doctrine = $doctrine;
-        $this->doctrineAttributeMetadataResolver = $doctrineAttributeMetadataResolver;
     }
 
-    /**
-     * @param QueryHandlerConfigurationInterface $queryHandlerConfiguration
-     *
-     * @throws UnexpectedValueException
-     *
-     * @return QueryHandlerInterface
-     */
     public function createQueryHandler(
         QueryHandlerConfigurationInterface $queryHandlerConfiguration
     ): QueryHandlerInterface {
@@ -65,10 +46,7 @@ class DoctrineQueryHandlerFactory implements QueryHandlerFactoryInterface
         );
     }
 
-    /**
-     * @return string
-     */
-    public function getProvider(): string
+    public static function getProvider(): string
     {
         return 'doctrine';
     }

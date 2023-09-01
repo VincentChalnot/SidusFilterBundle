@@ -16,7 +16,6 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\CallbackTransformer;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Translation\Exception\InvalidArgumentException;
 
 /**
  * Form type to allow picking of a date range
@@ -28,12 +27,6 @@ class DateRangeType extends AbstractType
     public const START_NAME = 'startDate';
     public const END_NAME = 'endDate';
 
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     *
-     * @throws InvalidArgumentException
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -61,33 +54,22 @@ class DateRangeType extends AbstractType
         $builder->addModelTransformer(
             new CallbackTransformer(
                 static function ($value) {
-                    if (null === $value) {
-                        return [
-                            self::START_NAME => null,
-                            self::END_NAME => null,
-                        ];
-                    }
-
-                    return $value;
+                    return $value ?? [
+                        self::START_NAME => null,
+                        self::END_NAME => null,
+                    ];
                 },
                 static function ($value) {
-                    if (null === $value) {
-                        return [
-                            self::START_NAME => null,
-                            self::END_NAME => null,
-                        ];
-                    }
-
-                    return $value;
+                    return $value ?? [
+                        self::START_NAME => null,
+                        self::END_NAME => null,
+                    ];
                 },
             ),
         );
     }
 
-    /**
-     * @return string
-     */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sidus_date_range';
     }

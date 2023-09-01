@@ -31,7 +31,7 @@ This example uses the code of the Doctrine/TextFilterType do demonstrate how it 
 namespace AppBundle\Filter\Type\Doctrine;
 
 use Doctrine\ORM\QueryBuilder;
-use Sidus\FilterBundle\Filter\Type\Doctrine\AbstractSimpleFilterType;
+use Sidus\FilterBundle\Doctrine\Filter\Type\AbstractSimpleFilterType;
 
 class CustomFilterType extends AbstractSimpleFilterType
 {

@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Filter\Type\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Filter\Type;
 
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
@@ -27,16 +27,13 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
  */
 class EntityFilterType extends ChoiceFilterType
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getFormOptions(QueryHandlerInterface $queryHandler, FilterInterface $filter): array
     {
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
             throw new BadQueryHandlerException($queryHandler, DoctrineQueryHandlerInterface::class);
         }
 
-        if (\count($filter->getAttributes()) !== 1) {
+        if (1 !== \count($filter->getAttributes())) {
             throw new \LogicException("Multiple attributes for 'entity' filter type are not supported");
         }
         $attributes = $filter->getAttributes();

@@ -1,0 +1,19 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    Sidus\FilterBundle\:
+        resource: '../../'
+        exclude: '../../{DependencyInjection,Doctrine,Documentation,Model}'
+
+    Sidus\FilterBundle\Factory\FilterFactoryInterface:
+        alias: Sidus\FilterBundle\Factory\FilterFactory
+
+    Sidus\FilterBundle\Factory\QueryHandlerConfigurationFactoryInterface:
+        alias: Sidus\FilterBundle\Factory\QueryHandlerConfigurationFactory
+
+    Sidus\FilterBundle\Form\Type\SortConfigType:
+        arguments:
+            - Sidus\FilterBundle\DTO\SortConfig

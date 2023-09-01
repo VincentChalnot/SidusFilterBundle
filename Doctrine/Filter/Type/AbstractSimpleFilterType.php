@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Filter\Type\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Filter\Type;
 
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
@@ -25,9 +25,6 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
  */
 abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
 {
-    /**
-     * {@inheritdoc}
-     */
     public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data): void
     {
         // Check that the query handler is of the proper type
@@ -54,25 +51,14 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
 
     /**
      * Must return the DQL statement and set the proper parameters in the QueryBuilder
-     *
-     * @param QueryBuilder $qb
-     * @param string       $column
-     * @param mixed        $data
-     *
-     * @return string
      */
     abstract protected function applyDQL(QueryBuilder $qb, string $column, $data): string;
 
-    /**
-     * @param mixed $data
-     *
-     * @return bool
-     */
-    protected function isEmpty($data): bool
+    protected function isEmpty(mixed $data): bool
     {
         return null === $data
             || (is_array($data) && 0 === count($data))
-            || ($data instanceof \Countable && $data->count() === 0);
+            || ($data instanceof \Countable && 0 === $data->count());
     }
 
     /**
@@ -84,10 +70,10 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
             $function = $qb->getEntityManager()->getConfiguration()->getCustomStringFunction('ilike');
             if ($function) {
                 // Custom ilike function is supported, let's use it
-                if (strtoupper($operator) === 'LIKE') {
+                if ('LIKE' === strtoupper($operator)) {
                     return "ILIKE({$column}, :{$uid}) = TRUE";
                 }
-                if (strtoupper($operator) === 'NOT LIKE') {
+                if ('NOT LIKE' === strtoupper($operator)) {
                     return "ILIKE({$column}, :{$uid}) = FALSE";
                 }
             }

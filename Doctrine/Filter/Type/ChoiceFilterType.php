@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Filter\Type\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Filter\Type;
 
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
@@ -26,8 +26,6 @@ class ChoiceFilterType extends CustomChoiceFilterType
 {
     /**
      * Trying to automatically resolve choice options from database
-     *
-     * {@inheritdoc}
      */
     public function getFormOptions(QueryHandlerInterface $queryHandler, FilterInterface $filter): array
     {

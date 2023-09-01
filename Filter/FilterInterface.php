@@ -21,63 +21,28 @@ use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInte
  */
 interface FilterInterface
 {
-    /**
-     * @return QueryHandlerConfigurationInterface
-     */
     public function getQueryHandlerConfiguration(): QueryHandlerConfigurationInterface;
 
-    /**
-     * @return string
-     */
     public function getCode(): string;
 
-    /**
-     * @return array
-     */
     public function getAttributes(): array;
 
-    /**
-     * @return string
-     */
     public function getFilterType(): string;
 
-    /**
-     * @return string|null
-     */
-    public function getLabel();
+    public function getLabel(): ?string;
 
-    /**
-     * @return array
-     */
     public function getOptions(): array;
 
-    /**
-     * @return mixed
-     */
-    public function getDefault();
+    public function getDefault(): mixed;
 
-    /**
-     * @param mixed $value
-     */
-    public function setDefault($value);
+    public function setDefault(mixed $value);
 
     /**
      * Override form type from default filter type
-     *
-     * @return string|null
      */
-    public function getFormType();
+    public function getFormType(): ?string;
 
-    /**
-     * @return array
-     */
     public function getFormOptions(): array;
 
-    /**
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return mixed
-     */
-    public function getOption(string $key, $default = null);
+    public function getOption(string $key, mixed $default = null): mixed;
 }

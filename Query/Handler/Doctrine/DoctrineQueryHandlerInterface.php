@@ -28,7 +28,7 @@ interface DoctrineQueryHandlerInterface extends QueryHandlerInterface
 
     public function getQueryBuilder(): QueryBuilder;
 
-    public function setQueryBuilder(QueryBuilder $queryBuilder, $alias);
+    public function setQueryBuilder(QueryBuilder $queryBuilder, string $alias): void;
 
     public function resolveAttributeAlias(string $attributePath): string;
 

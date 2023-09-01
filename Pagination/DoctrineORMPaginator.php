@@ -134,7 +134,7 @@ class DoctrineORMPaginator implements Countable, IteratorAggregate
             } else {
                 $whereInQuery->setHint(WhereInWalker::HINT_PAGINATOR_ID_COUNT, count($ids));
             }
-            $whereInQuery->setFirstResult(null)->setMaxResults(null);
+            $whereInQuery->setFirstResult(0)->setMaxResults(null);
             $whereInQuery->setParameter(WhereInWalker::PAGINATOR_ID_ALIAS, $ids);
             $whereInQuery->setCacheable($this->query->isCacheable());
 
@@ -209,7 +209,7 @@ class DoctrineORMPaginator implements Countable, IteratorAggregate
             $this->appendTreeWalker($countQuery, CountWalker::class);
         }
 
-        $countQuery->setFirstResult(null)->setMaxResults(null);
+        $countQuery->setFirstResult(0)->setMaxResults(null);
 
         $parser = new Parser($countQuery);
         $parameterMappings = $parser->parse()->getParameterMappings();

@@ -21,12 +21,6 @@ use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInte
  */
 interface QueryHandlerConfigurationFactoryInterface
 {
-    /**
-     * @param string $code
-     * @param array  $configuration
-     *
-     * @return QueryHandlerConfigurationInterface
-     */
     public function createQueryHandlerConfiguration(
         string $code,
         array $configuration

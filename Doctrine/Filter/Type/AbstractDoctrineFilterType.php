@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Filter\Type\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Filter\Type;
 
 use Sidus\FilterBundle\Filter\FilterInterface;
 use Sidus\FilterBundle\Filter\Type\AbstractFilterType;
@@ -25,11 +25,6 @@ abstract class AbstractDoctrineFilterType extends AbstractFilterType
 {
     /**
      * Returns an array of DQL references ready for filtering, handling nested entities through joins
-     *
-     * @param FilterInterface               $filter
-     * @param DoctrineQueryHandlerInterface $queryHandler
-     *
-     * @return array
      */
     public function getFullAttributeReferences(
         FilterInterface $filter,
@@ -43,9 +38,6 @@ abstract class AbstractDoctrineFilterType extends AbstractFilterType
         return $references;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getAttributeMetadatas(
         FilterInterface $filter,
         DoctrineQueryHandlerInterface $queryHandler
@@ -58,10 +50,7 @@ abstract class AbstractDoctrineFilterType extends AbstractFilterType
         return $metadata;
     }
 
-    /**
-     * @return string
-     */
-    public function getProvider(): string
+    public static function getProvider(): string
     {
         return 'doctrine';
     }

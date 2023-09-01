@@ -22,10 +22,6 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
  */
 class BadQueryHandlerException extends LogicException
 {
-    /**
-     * @param QueryHandlerInterface $queryHandler
-     * @param string                $class
-     */
     public function __construct(QueryHandlerInterface $queryHandler, string $class)
     {
         parent::__construct("Query handler {$queryHandler->getConfiguration()->getCode()} must implements {$class}");

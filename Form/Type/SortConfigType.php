@@ -29,22 +29,14 @@ class SortConfigType extends AbstractType
     public const DIRECTION_NAME = 'direction';
     public const PAGE_NAME = 'page';
 
-    /** @var string */
-    protected $sortConfigClass;
+    protected string $sortConfigClass;
 
-    /**
-     * @param string $sortConfigClass
-     */
-    public function __construct($sortConfigClass)
+    public function __construct(string $sortConfigClass)
     {
         $this->sortConfigClass = $sortConfigClass;
     }
 
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add(self::COLUMN_NAME, HiddenType::class)
@@ -52,12 +44,7 @@ class SortConfigType extends AbstractType
             ->add(self::PAGE_NAME, HiddenType::class);
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     *
-     * @throws AccessException
-     */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(
             [
@@ -67,11 +54,7 @@ class SortConfigType extends AbstractType
         );
     }
 
-
-    /**
-     * @return string
-     */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sidus_sort_config';
     }

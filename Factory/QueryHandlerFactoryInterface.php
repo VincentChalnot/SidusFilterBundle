@@ -14,25 +14,19 @@ namespace Sidus\FilterBundle\Factory;
 
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 
 /**
  * Builds Query Handlers based on their configuration
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
  */
+#[AutoconfigureTag('sidus.query_handler_factory')]
 interface QueryHandlerFactoryInterface
 {
-    /**
-     * @param QueryHandlerConfigurationInterface $queryHandlerConfiguration
-     *
-     * @return QueryHandlerInterface
-     */
     public function createQueryHandler(
         QueryHandlerConfigurationInterface $queryHandlerConfiguration
     ): QueryHandlerInterface;
 
-    /**
-     * @return string
-     */
-    public function getProvider(): string;
+    public static function getProvider(): string;
 }

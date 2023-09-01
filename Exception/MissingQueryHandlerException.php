@@ -21,9 +21,6 @@ use UnexpectedValueException;
  */
 class MissingQueryHandlerException extends UnexpectedValueException
 {
-    /**
-     * @param string $code
-     */
     public function __construct(string $code)
     {
         parent::__construct("No query handler with code: {$code}");

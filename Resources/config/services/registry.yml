@@ -1,7 +1,0 @@
-services:
-    Sidus\FilterBundle\Registry\QueryHandlerRegistry:
-        public: false
-        autowire: true
-
-    Sidus\FilterBundle\Registry\FilterTypeRegistry:
-        public: false

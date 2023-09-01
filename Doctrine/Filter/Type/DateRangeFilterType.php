@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Filter\Type\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Filter\Type;
 
 use DateTime;
 use DateTimeInterface;
@@ -28,9 +28,6 @@ use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
  */
 class DateRangeFilterType extends AbstractDoctrineFilterType
 {
-    /**
-     * {@inheritdoc}
-     */
     public function handleData(QueryHandlerInterface $queryHandler, FilterInterface $filter, $data): void
     {
         if (!$queryHandler instanceof DoctrineQueryHandlerInterface) {
@@ -56,12 +53,6 @@ class DateRangeFilterType extends AbstractDoctrineFilterType
         }
     }
 
-    /**
-     * @param array        $columns
-     * @param QueryBuilder $qb
-     * @param DateTime    $value
-     * @param string       $operator
-     */
     protected function buildQb(array $columns, QueryBuilder $qb, DateTimeInterface $value, string $operator): void
     {
         $dql = [];

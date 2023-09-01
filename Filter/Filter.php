@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Filter;
 
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
+use Symfony\Component\Form\Extension\Core\Type\FormType;
 
 /**
  * Default filter implementation, you should not need to customize this class
@@ -21,141 +22,63 @@ use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInte
  */
 class Filter implements FilterInterface
 {
-    /** @var QueryHandlerConfigurationInterface */
-    protected $queryHandlerConfiguration;
-
-    /** @var string */
-    protected $code;
-
-    /** @var string */
-    protected $filterType;
-
-    /** @var array */
-    protected $attributes = [];
-
-    /** @var string */
-    protected $formType;
-
-    /** @var string */
-    protected $label;
-
-    /** @var array */
-    protected $options = [];
-
-    /** @var array */
-    protected $formOptions = [];
-
-    /** @var mixed */
-    protected $default;
-
-    /**
-     * @param QueryHandlerConfigurationInterface $queryHandlerConfiguration
-     * @param string                             $code
-     * @param string                             $filterType
-     * @param array                              $attributes
-     * @param string                             $formType
-     * @param string                             $label
-     * @param array                              $options
-     * @param array                              $formOptions
-     * @param null                               $default
-     */
     public function __construct(
-        QueryHandlerConfigurationInterface $queryHandlerConfiguration,
-        string $code,
-        string $filterType,
-        array $attributes = [],
-        string $formType = null,
-        string $label = null,
-        array $options = [],
-        array $formOptions = [],
-        $default = null
+        protected QueryHandlerConfigurationInterface $queryHandlerConfiguration,
+        protected string $code,
+        protected string $filterType,
+        protected array $attributes = [],
+        protected ?string $formType = null,
+        protected ?string $label = null,
+        protected array $options = [],
+        protected array $formOptions = [],
+        protected mixed $default = null
     ) {
-        $this->queryHandlerConfiguration = $queryHandlerConfiguration;
-        $this->code = $code;
-        $this->filterType = $filterType;
-        $this->attributes = $attributes;
-        $this->formType = $formType;
-        $this->label = $label;
-        $this->options = $options;
-        $this->formOptions = $formOptions;
-        $this->default = $default;
-
         if (empty($attributes)) {
             $this->attributes = [$code];
         }
     }
 
-    /**
-     * @return QueryHandlerConfigurationInterface
-     */
     public function getQueryHandlerConfiguration(): QueryHandlerConfigurationInterface
     {
         return $this->queryHandlerConfiguration;
     }
 
-    /**
-     * @return string
-     */
     public function getCode(): string
     {
         return $this->code;
     }
 
-    /**
-     * @return string
-     */
     public function getFilterType(): string
     {
         return $this->filterType;
     }
 
-    /**
-     * @return array
-     */
     public function getAttributes(): array
     {
         return $this->attributes;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getLabel()
+    public function getLabel(): ?string
     {
         return $this->label;
     }
 
-    /**
-     * @return array
-     */
     public function getOptions(): array
     {
         return $this->options;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getFormType()
+    public function getFormType(): ?string
     {
         return $this->formType;
     }
 
-    /**
-     * @return array
-     */
     public function getFormOptions(): array
     {
         return $this->formOptions;
     }
 
-    /**
-     * @param string $key
-     * @param mixed  $default
-     *
-     * @return mixed
-     */
-    public function getOption(string $key, $default = null)
+    public function getOption(string $key, mixed $default = null): mixed
     {
         if (!array_key_exists($key, $this->options)) {
             return $default;
@@ -164,19 +87,13 @@ class Filter implements FilterInterface
         return $this->options[$key];
     }
 
-    /**
-     * @return mixed
-     */
-    public function getDefault()
+    public function getDefault(): mixed
     {
         return $this->default;
     }
 
-    /**
-     * @param mixed $default
-     */
-    public function setDefault($default): void
+    public function setDefault(mixed $value): void
     {
-        $this->default = $default;
+        $this->default = $value;
     }
 }

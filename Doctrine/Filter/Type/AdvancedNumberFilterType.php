@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Filter\Type\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Filter\Type;
 
 use Doctrine\ORM\QueryBuilder;
 use UnexpectedValueException;
@@ -24,15 +24,6 @@ class AdvancedNumberFilterType extends AbstractSimpleFilterType
 {
     protected const EMPTY_OPTIONS = ['empty', 'notempty', 'null', 'notnull'];
 
-    /**
-     * Must return the DQL statement and set the proper parameters in the QueryBuilder
-     *
-     * @param QueryBuilder $qb
-     * @param string       $column
-     * @param mixed        $data
-     *
-     * @return string
-     */
     protected function applyDQL(QueryBuilder $qb, string $column, $data): string
     {
         $input = $data['input'];
@@ -70,12 +61,7 @@ class AdvancedNumberFilterType extends AbstractSimpleFilterType
         throw new UnexpectedValueException("Unknown option '{$data['option']}'");
     }
 
-    /**
-     * @param mixed $data
-     *
-     * @return bool
-     */
-    protected function isEmpty($data): bool
+    protected function isEmpty(mixed $data): bool
     {
         if (null === $data) {
             return true;

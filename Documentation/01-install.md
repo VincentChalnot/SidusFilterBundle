@@ -5,7 +5,7 @@
 Require this bundle with composer:
 
 ````bash
-$ composer require sidus/filter-bundle "1.4.*"
+$ composer require sidus/filter-bundle
 ````
 
 ### Add the bundle to AppKernel.php
@@ -21,13 +21,7 @@ class AppKernel
     {
         $bundles = [
             // ...
-            
-            // Optional, see the benefits of this bundle here: https://github.com/VincentChalnot/SidusBaseBundle
-            new Sidus\BaseBundle\SidusBaseBundle(),
-            
-            // Required, obviously
             new Sidus\FilterBundle\SidusFilterBundle(),
-
             // ...
         ];
     }

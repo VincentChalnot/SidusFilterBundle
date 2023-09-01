@@ -24,10 +24,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
  */
 class ComboFilterType extends AbstractType
 {
-    /**
-     * @param FormBuilderInterface $builder
-     * @param array                $options
-     */
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
@@ -44,9 +40,6 @@ class ComboFilterType extends AbstractType
             );
     }
 
-    /**
-     * @param OptionsResolver $resolver
-     */
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired(
@@ -65,10 +58,7 @@ class ComboFilterType extends AbstractType
         $resolver->setAllowedTypes('input_options', ['array']);
     }
 
-    /**
-     * @return string|null
-     */
-    public function getBlockPrefix()
+    public function getBlockPrefix(): string
     {
         return 'sidus_combo_filter';
     }

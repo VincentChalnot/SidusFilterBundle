@@ -24,15 +24,6 @@ use UnexpectedValueException;
  */
 class FilterFactory implements FilterFactoryInterface
 {
-    /**
-     * @param QueryHandlerConfigurationInterface $queryHandlerConfiguration
-     * @param string                             $code
-     * @param array                              $configuration
-     *
-     * @throws UnexpectedValueException
-     *
-     * @return FilterInterface
-     */
     public function createFilter(
         QueryHandlerConfigurationInterface $queryHandlerConfiguration,
         string $code,

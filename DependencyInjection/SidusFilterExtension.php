@@ -12,26 +12,27 @@ declare(strict_types=1);
 
 namespace Sidus\FilterBundle\DependencyInjection;
 
-use Sidus\BaseBundle\DependencyInjection\Loader\ServiceLoader;
-use Sidus\BaseBundle\DependencyInjection\SidusBaseExtension;
 use Sidus\FilterBundle\Registry\QueryHandlerRegistry;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\Extension;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 /**
  * Loading configuration
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
  */
-class SidusFilterExtension extends SidusBaseExtension
+class SidusFilterExtension extends Extension
 {
-    public function load(array $configs, ContainerBuilder $container)
+    public function load(array $configs, ContainerBuilder $container): void
     {
-        parent::load($configs, $container);
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader->load('services.yaml');
 
         // Only load doctrine configuration if bundle is enabled
         if (array_key_exists('DoctrineBundle', $container->getParameter('kernel.bundles'))) {
-            $doctrineLoader = new ServiceLoader($container);
-            $doctrineLoader->loadFiles(__DIR__.'/../Resources/config/doctrine');
+            $loader->load('doctrine.yaml');
         }
 
         $configuration = new Configuration();

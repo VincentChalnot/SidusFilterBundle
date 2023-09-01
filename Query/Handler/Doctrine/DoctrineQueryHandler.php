@@ -12,14 +12,14 @@ declare(strict_types=1);
 
 namespace Sidus\FilterBundle\Query\Handler\Doctrine;
 
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectRepository;
 use Pagerfanta\Pagerfanta;
-use Sidus\FilterBundle\Doctrine\DoctrineAttributeMetadataResolver;
+use Sidus\FilterBundle\Doctrine\Metadata\DoctrineAttributeMetadataResolver;
 use Sidus\FilterBundle\DTO\SortConfig;
 use Sidus\FilterBundle\Pagination\DoctrineORMAdapter;
 use Sidus\FilterBundle\Query\Handler\AbstractQueryHandler;
@@ -34,32 +34,23 @@ use UnexpectedValueException;
  */
 class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQueryHandlerInterface
 {
-    /** @var EntityManagerInterface */
-    protected $entityManager;
+    protected ObjectManager $entityManager;
 
-    /** @var DoctrineAttributeMetadataResolver */
-    protected $doctrineAttributeMetadataResolver;
+    protected string $entityReference;
 
-    /** @var string */
-    protected $entityReference;
+    protected EntityRepository $repository;
 
-    /** @var EntityRepository */
-    protected $repository;
+    protected string $alias = 'e';
 
-    /** @var string */
-    protected $alias = 'e';
-
-    /** @var QueryBuilder */
-    protected $queryBuilder;
+    protected QueryBuilder $queryBuilder;
 
     public function __construct(
         FilterTypeRegistry $filterTypeRegistry,
         QueryHandlerConfigurationInterface $configuration,
         ManagerRegistry $doctrine,
-        DoctrineAttributeMetadataResolver $doctrineAttributeMetadataResolver
+        protected DoctrineAttributeMetadataResolver $doctrineAttributeMetadataResolver
     ) {
         parent::__construct($filterTypeRegistry, $configuration);
-        $this->doctrineAttributeMetadataResolver = $doctrineAttributeMetadataResolver;
         $this->entityReference = $configuration->getOption('entity');
         if (null === $this->entityReference) {
             throw new UnexpectedValueException(
@@ -70,52 +61,40 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
         if (!$this->entityManager) {
             throw new UnexpectedValueException("No manager found for class {$this->entityReference}");
         }
-        $this->repository = $this->entityManager->getRepository($this->entityReference);
+        $repository = $this->entityManager->getRepository($this->entityReference);
+        if (!$repository instanceof EntityRepository) {
+            throw new UnexpectedValueException(
+                "Repository for class {$this->entityReference} should be an instance of ".EntityRepository::class,
+            );
+        }
+        $this->repository = $repository;
     }
 
-    /**
-     * @return string
-     */
     public function getAlias(): string
     {
         return $this->alias;
     }
 
-    /**
-     * @return string
-     */
     public function getEntityReference(): string
     {
         return $this->entityReference;
     }
 
-    /**
-     * @return QueryBuilder
-     */
     public function getQueryBuilder(): QueryBuilder
     {
-        if (!$this->queryBuilder) {
+        if (!isset($this->queryBuilder)) {
             $this->queryBuilder = $this->repository->createQueryBuilder($this->alias);
         }
 
         return $this->queryBuilder;
     }
 
-    /**
-     * @param QueryBuilder $queryBuilder
-     * @param string       $alias
-     */
-    public function setQueryBuilder(QueryBuilder $queryBuilder, $alias)
+    public function setQueryBuilder(QueryBuilder $queryBuilder, string $alias): void
     {
         $this->alias = $alias;
         $this->queryBuilder = $queryBuilder;
     }
 
-    /**
-     * @param string $attributePath
-     *
-     * @return string
-     */
     public function resolveAttributeAlias(string $attributePath): string
     {
         $metadata = $this->getAttributeMetadata($attributePath, Join::LEFT_JOIN);
@@ -138,10 +117,7 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
         );
     }
 
-    /**
-     * @param SortConfig $sortConfig
-     */
-    protected function applySort(SortConfig $sortConfig)
+    protected function applySort(SortConfig $sortConfig): void
     {
         $column = $sortConfig->getColumn();
         if ($column) {
@@ -150,9 +126,6 @@ class DoctrineQueryHandler extends AbstractQueryHandler implements DoctrineQuery
         }
     }
 
-    /**
-     * @return Pagerfanta
-     */
     protected function createPager(): Pagerfanta
     {
         return new Pagerfanta(new DoctrineORMAdapter($this->getQueryBuilder()));

@@ -24,78 +24,59 @@ parameters:
         'sidus.filter.combo.notnull': 'notnull'
 
 services:
-    Sidus\FilterBundle\Filter\Type\Doctrine\DateRangeFilterType:
+    _defaults:
+        autowire: true
+        autoconfigure: true
         public: false
+
+    Sidus\FilterBundle\Doctrine\:
+        resource: '../../Doctrine/'
+
+    Sidus\FilterBundle\Doctrine\Filter\Type\DateRangeFilterType:
         arguments:
             - date_range
             - 'Sidus\FilterBundle\Form\Type\DateRangeType'
-        tags:
-            - { name: sidus.filter_type }
 
-    Sidus\FilterBundle\Filter\Type\Doctrine\TextFilterType:
-        public: false
+    Sidus\FilterBundle\Doctrine\Filter\Type\TextFilterType:
         arguments:
             - text
             - 'Symfony\Component\Form\Extension\Core\Type\TextType'
-        tags:
-            - { name: sidus.filter_type }
 
-    Sidus\FilterBundle\Filter\Type\Doctrine\CustomChoiceFilterType:
-        public: false
+    Sidus\FilterBundle\Doctrine\Filter\Type\CustomChoiceFilterType:
         arguments:
             - custom_choice
             - 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'
-        tags:
-            - { name: sidus.filter_type }
 
-    Sidus\FilterBundle\Filter\Type\Doctrine\ChoiceFilterType:
-        public: false
+    Sidus\FilterBundle\Doctrine\Filter\Type\ChoiceFilterType:
         arguments:
             - choice
             - 'Symfony\Component\Form\Extension\Core\Type\ChoiceType'
-        tags:
-            - { name: sidus.filter_type }
 
-    Sidus\FilterBundle\Filter\Type\Doctrine\EntityFilterType:
-        public: false
+    Sidus\FilterBundle\Doctrine\Filter\Type\EntityFilterType:
         arguments:
             - entity
             - Symfony\Bridge\Doctrine\Form\Type\EntityType
-        tags:
-            - { name: sidus.filter_type }
 
-    Sidus\FilterBundle\Filter\Type\Doctrine\ExactFilterType:
-        public: false
+    Sidus\FilterBundle\Doctrine\Filter\Type\ExactFilterType:
         arguments:
             - exact
             - 'Symfony\Component\Form\Extension\Core\Type\TextType'
-        tags:
-            - { name: sidus.filter_type }
 
-    Sidus\FilterBundle\Filter\Type\Doctrine\AdvancedTextFilterType:
-        public: false
+    Sidus\FilterBundle\Doctrine\Filter\Type\AdvancedTextFilterType:
         arguments:
             - advanced_text
             - Sidus\FilterBundle\Form\Type\ComboFilterType
             -   input_type: Symfony\Component\Form\Extension\Core\Type\TextType
                 options_choices: '%sidus.filter.advanced_text_choices%'
-        tags:
-            - { name: sidus.filter_type }
 
-    Sidus\FilterBundle\Filter\Type\Doctrine\AdvancedNumberFilterType:
-        public: false
+    Sidus\FilterBundle\Doctrine\Filter\Type\AdvancedNumberFilterType:
         arguments:
             - advanced_number
             - Sidus\FilterBundle\Form\Type\ComboFilterType
             -   input_type: Symfony\Component\Form\Extension\Core\Type\TextType
                 options_choices: '%sidus.filter.advanced_number_choices%'
-        tags:
-            - { name: sidus.filter_type }
 
-    Sidus\FilterBundle\Filter\Type\Doctrine\NotNullFilterType:
-        public: false
+    Sidus\FilterBundle\Doctrine\Filter\Type\NotNullFilterType:
         arguments:
             - not_null
             - Symfony\Component\Form\Extension\Core\Type\CheckboxType
-        tags:
-            - { name: sidus.filter_type }

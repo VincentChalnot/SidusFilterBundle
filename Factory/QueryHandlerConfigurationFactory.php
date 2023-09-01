@@ -24,26 +24,11 @@ use UnexpectedValueException;
  */
 class QueryHandlerConfigurationFactory implements QueryHandlerConfigurationFactoryInterface
 {
-    /** @var FilterFactoryInterface */
-    protected $filterFactory;
-
-    /**
-     * @param FilterFactoryInterface $filterFactory
-     */
-    public function __construct(FilterFactoryInterface $filterFactory)
-    {
-        $this->filterFactory = $filterFactory;
+    public function __construct(
+        protected FilterFactoryInterface $filterFactory,
+    ) {
     }
 
-    /**
-     * @param string $code
-     * @param array  $configuration
-     *
-     * @throws UnexpectedValueException
-     * @throws ExceptionInterface
-     *
-     * @return QueryHandlerConfigurationInterface
-     */
     public function createQueryHandlerConfiguration(
         string $code,
         array $configuration

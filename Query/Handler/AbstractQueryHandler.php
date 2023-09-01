@@ -345,7 +345,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     /**
      * @param SortConfig $sortConfig
      */
-    abstract protected function applySort(SortConfig $sortConfig);
+    abstract protected function applySort(SortConfig $sortConfig): void;
 
     /**
      * @return Pagerfanta

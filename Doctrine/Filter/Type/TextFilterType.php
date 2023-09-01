@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Filter\Type\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Filter\Type;
 
 use Doctrine\ORM\QueryBuilder;
 
@@ -19,16 +19,13 @@ use Doctrine\ORM\QueryBuilder;
  *
  * @author Vincent Chalnot <vincent@sidus.fr>
  */
-class ExactFilterType extends AbstractSimpleFilterType
+class TextFilterType extends AbstractSimpleFilterType
 {
-    /**
-     * {@inheritdoc}
-     */
     protected function applyDQL(QueryBuilder $qb, string $column, $data): string
     {
-        $uid = uniqid('exact', false); // Generate random parameter names to prevent collisions
-        $qb->setParameter($uid, $data); // Add the parameter
+        $uid = uniqid('text', false); // Generate random parameter names to prevent collisions
+        $qb->setParameter($uid, '%'.$data.'%'); // Add the parameter
 
-        return "{$column} = :{$uid}"; // Add the dql statement to the list
+        return $this->applyStringOperator($qb, $column, $uid, 'LIKE'); // Add the dql statement to the list
     }
 }

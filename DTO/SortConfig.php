@@ -19,66 +19,33 @@ namespace Sidus\FilterBundle\DTO;
  */
 class SortConfig
 {
-    /** @var string */
-    protected $defaultColumn;
+    protected ?string $column;
 
-    /** @var bool */
-    protected $defaultDirection = false;
+    protected ?bool $direction;
 
-    /** @var string */
-    protected $column;
+    protected int $page = 1;
 
-    /** @var bool */
-    protected $direction;
-
-    /** @var int */
-    protected $page = 1;
-
-    /**
-     * @param string $defaultColumn
-     * @param bool   $defaultDirection
-     */
-    public function __construct(string $defaultColumn = null, bool $defaultDirection = false)
-    {
-        $this->defaultColumn = $defaultColumn;
-        $this->defaultDirection = $defaultDirection;
+    public function __construct(
+        protected ?string $defaultColumn = null,
+        protected bool $defaultDirection = false,
+    ) {
     }
 
-    /**
-     * @return string|null
-     */
-    public function getColumn()
+    public function getColumn(): ?string
     {
-        if (null === $this->column) {
-            return $this->defaultColumn;
-        }
-
-        return $this->column;
+        return $this->column ?? $this->defaultColumn;
     }
 
-    /**
-     * @param string|null $column
-     */
     public function setColumn(string $column = null): void
     {
         $this->column = $column;
     }
 
-    /**
-     * @return boolean
-     */
     public function getDirection(): bool
     {
-        if (null === $this->direction) {
-            return $this->defaultDirection;
-        }
-
-        return $this->direction;
+        return $this->direction ?? $this->defaultDirection;
     }
 
-    /**
-     * @param boolean $direction
-     */
     public function setDirection(bool $direction = null): void
     {
         if (null !== $direction) {
@@ -94,17 +61,11 @@ class SortConfig
         $this->direction = !$this->direction;
     }
 
-    /**
-     * @return int
-     */
     public function getPage(): int
     {
         return $this->page;
     }
 
-    /**
-     * @param int $page
-     */
     public function setPage(int $page = null): void
     {
         if (null !== $page) {

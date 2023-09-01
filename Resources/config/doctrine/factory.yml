@@ -1,6 +1,0 @@
-services:
-    Sidus\FilterBundle\Factory\Doctrine\DoctrineQueryHandlerFactory:
-        public: false
-        autowire: true
-        tags:
-            - { name: sidus.query_handler_factory }

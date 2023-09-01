@@ -10,7 +10,7 @@
 
 declare(strict_types=1);
 
-namespace Sidus\FilterBundle\Doctrine;
+namespace Sidus\FilterBundle\Doctrine\Metadata;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
@@ -21,8 +21,9 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class DoctrineAttributeMetadataResolver
 {
-    public function __construct(private readonly ManagerRegistry $managerRegistry)
-    {
+    public function __construct(
+        private readonly ManagerRegistry $managerRegistry,
+    ) {
     }
 
     public function getAttributeMetadata(

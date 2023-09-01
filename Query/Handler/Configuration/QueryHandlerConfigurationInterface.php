@@ -22,46 +22,21 @@ use UnexpectedValueException;
  */
 interface QueryHandlerConfigurationInterface
 {
-    /**
-     * @return string
-     */
     public function getCode(): string;
 
-    /**
-     * @return string
-     */
     public function getProvider(): string;
 
-    /**
-     * @param FilterInterface $filter
-     * @param int             $index
-     *
-     * @throws UnexpectedValueException
-     */
-    public function addFilter(FilterInterface $filter, int $index = null);
+    public function addFilter(FilterInterface $filter, int $index = null): void;
 
     /**
      * @return FilterInterface[]
      */
     public function getFilters(): array;
 
-    /**
-     * @param string $code
-     *
-     * @throws UnexpectedValueException
-     *
-     * @return FilterInterface
-     */
     public function getFilter(string $code): FilterInterface;
 
-    /**
-     * @return array
-     */
     public function getSortable(): array;
 
-    /**
-     * @param string $sortable
-     */
     public function addSortable(string $sortable);
 
     /**
@@ -69,21 +44,9 @@ interface QueryHandlerConfigurationInterface
      */
     public function getDefaultSort(): array;
 
-    /**
-     * @return int
-     */
     public function getResultsPerPage(): int;
 
-    /**
-     * @return array
-     */
     public function getOptions(): array;
 
-    /**
-     * @param string $code
-     * @param null   $fallback
-     *
-     * @return mixed
-     */
-    public function getOption(string $code, $fallback = null);
+    public function getOption(string $code, mixed $fallback = null): mixed;
 }

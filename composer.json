@@ -30,16 +30,13 @@
         }
     },
     "require": {
-        "php": ">=7.1",
-        "symfony/dependency-injection": ">=3.0",
-        "symfony/http-kernel": ">=3.0",
-        "symfony/config": ">=3.0",
-        "symfony/form": ">=3.0",
-        "symfony/options-resolver": ">=3.0",
-        "symfony/http-foundation": ">=3.0",
-        "symfony/property-access": ">=3.0",
-        "pagerfanta/pagerfanta": ">=2.7",
-        "sidus/base-bundle": "~1.0"
+        "php": ">=8.1",
+        "symfony/dependency-injection": ">=6.3",
+        "symfony/form": ">=6.3",
+        "symfony/http-foundation": ">=6.3",
+        "symfony/options-resolver": ">=6.3",
+        "symfony/property-access": ">=6.3",
+        "pagerfanta/pagerfanta": ">=2.7"
     },
     "suggest": {
         "doctrine/doctrine-bundle": "Without Doctrine ORM, this bundle won't do anything out of the box"

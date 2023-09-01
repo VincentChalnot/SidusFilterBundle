@@ -21,9 +21,6 @@ use UnexpectedValueException;
  */
 class MissingQueryHandlerFactoryException extends UnexpectedValueException
 {
-    /**
-     * @param string $provider
-     */
     public function __construct(string $provider)
     {
         parent::__construct("No query handler factory for provider: {$provider}");

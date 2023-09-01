@@ -24,59 +24,36 @@ use UnexpectedValueException;
  */
 class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
 {
-    /** @var string */
-    protected $provider;
-
-    /** @var string */
-    protected $code;
+    protected string $provider;
 
     /** @var array */
-    protected $sortable;
+    protected array $sortable;
 
     /** @var FilterInterface[] */
-    protected $filters = [];
+    protected array $filters = [];
 
     /** @var array[] */
-    protected $defaultSort;
+    protected array $defaultSort;
 
-    /** @var int */
-    protected $resultsPerPage;
+    protected int $resultsPerPage = 10;
 
-    /** @var array */
-    protected $options;
+    protected array $options = [];
 
-    /**
-     * @param string $code
-     * @param array  $configuration
-     *
-     * @throws ExceptionInterface
-     */
     public function __construct(
-        string $code,
-        array $configuration
+        protected string $code,
+        protected array $configuration
     ) {
-        $this->code = $code;
-
         $accessor = PropertyAccess::createPropertyAccessor();
         foreach ($configuration as $key => $option) {
             $accessor->setValue($this, $key, $option);
         }
     }
 
-    /**
-     * @return string
-     */
     public function getCode(): string
     {
         return $this->code;
     }
 
-    /**
-     * @param FilterInterface $filter
-     * @param int             $index
-     *
-     * @throws UnexpectedValueException
-     */
     public function addFilter(FilterInterface $filter, int $index = null): void
     {
         if (null === $index) {
@@ -106,13 +83,6 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
         return $this->filters;
     }
 
-    /**
-     * @param string $code
-     *
-     * @throws UnexpectedValueException
-     *
-     * @return FilterInterface
-     */
     public function getFilter(string $code): FilterInterface
     {
         if (empty($this->filters[$code])) {
@@ -122,61 +92,37 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
         return $this->filters[$code];
     }
 
-    /**
-     * @return array
-     */
     public function getSortable(): array
     {
         return $this->sortable;
     }
 
-    /**
-     * @param string $sortable
-     */
     public function addSortable(string $sortable): void
     {
         $this->sortable[] = $sortable;
     }
 
-    /**
-     * @return array[]
-     */
     public function getDefaultSort(): array
     {
         return $this->defaultSort;
     }
 
-    /**
-     * @return int
-     */
     public function getResultsPerPage(): int
     {
         return $this->resultsPerPage;
     }
 
-    /**
-     * @return string
-     */
     public function getProvider(): string
     {
         return $this->provider;
     }
 
-    /**
-     * @return array
-     */
     public function getOptions(): array
     {
         return $this->options;
     }
 
-    /**
-     * @param string $code
-     * @param mixed  $fallback
-     *
-     * @return mixed
-     */
-    public function getOption(string $code, $fallback = null)
+    public function getOption(string $code, mixed $fallback = null): mixed
     {
         if (!array_key_exists($code, $this->options)) {
             return $fallback;
@@ -185,59 +131,32 @@ class QueryHandlerConfiguration implements QueryHandlerConfigurationInterface
         return $this->options[$code];
     }
 
-    /**
-     * @param string $provider
-     */
     public function setProvider(string $provider): void
     {
         $this->provider = $provider;
     }
 
-    /**
-     * @param array $sortable
-     */
     public function setSortable(array $sortable): void
     {
         $this->sortable = $sortable;
     }
 
-    /**
-     * @param FilterInterface[] $filters
-     */
-    public function setFilters(array $filters): void
-    {
-        $this->filters = $filters;
-    }
-
-    /**
-     * @param array[] $defaultSort
-     */
     public function setDefaultSort(array $defaultSort): void
     {
         $this->defaultSort = $defaultSort;
     }
 
-    /**
-     * @param int $resultsPerPage
-     */
     public function setResultsPerPage(int $resultsPerPage): void
     {
         $this->resultsPerPage = $resultsPerPage;
     }
 
-    /**
-     * @param array $options
-     */
     public function setOptions(array $options): void
     {
         $this->options = $options;
     }
 
-    /**
-     * @param string $code
-     * @param mixed  $value
-     */
-    public function addOption(string $code, $value): void
+    public function addOption(string $code, mixed $value): void
     {
         $this->options[$code] = $value;
     }
