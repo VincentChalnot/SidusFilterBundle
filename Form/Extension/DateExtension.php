@@ -32,8 +32,14 @@ class DateExtension extends AbstractTypeExtension
                     if (null === $value || $value instanceof \DateTimeInterface) {
                         return $value;
                     }
-
-                    return new \DateTime($value);
+                    if (!\is_string($value)) {
+                        return $value; // Might be handled by another transformer
+                    }
+                    try {
+                        return new \DateTime($value);
+                    } catch (\Exception $e) {
+                        return $value;
+                    }
                 },
                 static function ($value) {
                     return $value;
