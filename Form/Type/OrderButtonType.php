@@ -34,7 +34,7 @@ class OrderButtonType extends SubmitType
         /** @var SortConfig $sortConfig */
         $sortConfig = $options['sort_config'];
         $view->vars['sort_config'] = $sortConfig;
-        if ($sortConfig->getColumn() === $form->getName()) { // maybe use a specific option instead of name ?
+        if ($sortConfig->getColumn() === $options['column']) {
             $view->vars['arrow'] = $sortConfig->getDirection() ? '&uarr;' : '&darr;';
         }
     }
@@ -44,6 +44,7 @@ class OrderButtonType extends SubmitType
         $resolver->setRequired(
             [
                 'sort_config',
+                'column',
             ]
         );
         $resolver->setDefaults(

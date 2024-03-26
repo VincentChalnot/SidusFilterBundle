@@ -196,6 +196,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
                 OrderButtonType::class,
                 [
                     'sort_config' => $this->getSortConfig(),
+                    'column' => $sortable,
                 ]
             );
         }
