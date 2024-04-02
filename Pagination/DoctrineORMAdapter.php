@@ -14,6 +14,7 @@ namespace Sidus\FilterBundle\Pagination;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Pagerfanta\Adapter\AdapterInterface;
 
 /**
@@ -23,7 +24,7 @@ use Pagerfanta\Adapter\AdapterInterface;
  */
 class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterface
 {
-    private DoctrineORMPaginator $paginator;
+    private Paginator $paginator;
 
     protected int $nbResults;
 
@@ -37,7 +38,7 @@ class DoctrineORMAdapter implements AdapterInterface, ManualCountAdapterInterfac
         bool $fetchJoinCollection = true,
         ?bool $useOutputWalkers = null,
     ) {
-        $this->paginator = new DoctrineORMPaginator($query, $fetchJoinCollection);
+        $this->paginator = new Paginator($query, $fetchJoinCollection);
         $this->paginator->setUseOutputWalkers($useOutputWalkers);
     }
 

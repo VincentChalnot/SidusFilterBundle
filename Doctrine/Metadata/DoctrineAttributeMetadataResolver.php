@@ -13,8 +13,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Doctrine\Metadata;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
-use Doctrine\ORM\Mapping\MappingException;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\Persistence\ManagerRegistry;
@@ -56,7 +55,7 @@ class DoctrineAttributeMetadataResolver
             }
             if ($entityMetadata->hasAssociation($nestedAttribute)) {
                 $previousAttributeMetadata = $attributeMetadata;
-                $attributeMetadata = $entityMetadata->getAssociationMapping($nestedAttribute);
+                $attributeMetadata = $entityMetadata->getAssociationMapping($nestedAttribute)->toArray();
                 $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
 
                 $nestedEntityReference = $entityMetadata->getAssociationTargetClass($nestedAttribute);
@@ -81,7 +80,7 @@ class DoctrineAttributeMetadataResolver
                     continue;
                 }
                 $previousAttributeIsScalar = true;
-                $attributeMetadata = $entityMetadata->getFieldMapping($nestedAttribute);
+                $attributeMetadata = (array) $entityMetadata->getFieldMapping($nestedAttribute);
                 $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
 
                 if ($qb) {
@@ -100,11 +99,11 @@ class DoctrineAttributeMetadataResolver
 
         // *ToMany relations do not behave like other associations, we must join on the relation once more to point to
         // the id because we can't use IDENTITY() on them
-        $toManyTypes = [ClassMetadataInfo::ONE_TO_MANY, ClassMetadataInfo::MANY_TO_MANY];
+        $toManyTypes = [ClassMetadata::ONE_TO_MANY, ClassMetadata::MANY_TO_MANY];
         if (in_array($attributeMetadata['type'], $toManyTypes, true)) {
             $entityMetadata = $entityManager->getClassMetadata($attributeMetadata['targetEntity']);
             $previousAttributeMetadata = $attributeMetadata;
-            $attributeMetadata = $entityMetadata->getFieldMapping($entityMetadata->getSingleIdentifierFieldName());
+            $attributeMetadata = (array) $entityMetadata->getFieldMapping($entityMetadata->getSingleIdentifierFieldName());
             $attributeMetadata['parent'] = $previousAttributeMetadata; // Keep the metadata hierarchy
             // Also pass targetEntity to mimic a relationship behavior
             $attributeMetadata['targetEntity'] = $entityMetadata->getName();
