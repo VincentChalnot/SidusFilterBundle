@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.3] - 2026-07-21
+
+### Fixed
+
+- PHP 8.4 deprecates typed parameters defaulting to `null` without an explicit `?` prefix.
+  Fixed in `QueryHandlerConfiguration(Interface)` and `SortConfig`.
+
+### Note
+
+- The above fix was originally released as `6.0.2`. Its tag was mistakenly force-moved after
+  publication (a `git commit --amend` to add this changelog section, then a re-tag) to attach
+  this entry, which Packagist correctly rejected: stable tags are immutable once published.
+  `v6.0.2` has been restored to its originally-published commit (`3df11a6`, no changelog entry
+  for this fix), and this changelog entry is released as `6.0.3` instead. No code changed
+  between `6.0.2` and `6.0.3` - `6.0.3` only adds this section.
+
 ## [6.0.1] - 2026-07-21
 
 ### Fixed
@@ -37,6 +53,13 @@ All notable changes to this project will be documented in this file.
 - Verified against PHP 8.2-8.4 and Symfony 7.4.
 - No changes required for consumers who only use the bundle's public configuration/service API
   (`sidus_filter` config, `QueryHandlerRegistry`, `FilterFactory`, Twig form themes).
+
+### Note
+
+- `v6.0.0`'s tag was also mistakenly force-moved after publication (forward onto the commit that
+  added this changelog file), which Packagist rejected the same way. Restored to its
+  originally-published commit (`4020dfb`, predating this file); the changelog content itself is
+  still available starting at `6.0.1`, which already carries it as an ancestor.
 
 ## [5.0.2] - 2024-03-26
 

@@ -26,7 +26,7 @@ interface QueryHandlerConfigurationInterface
 
     public function getProvider(): string;
 
-    public function addFilter(FilterInterface $filter, int $index = null): void;
+    public function addFilter(FilterInterface $filter, ?int $index = null): void;
 
     /**
      * @return FilterInterface[]
