@@ -36,7 +36,7 @@ class SortConfig
         return $this->column ?? $this->defaultColumn;
     }
 
-    public function setColumn(string $column = null): void
+    public function setColumn(?string $column = null): void
     {
         $this->column = $column;
     }
@@ -46,7 +46,7 @@ class SortConfig
         return $this->direction ?? $this->defaultDirection;
     }
 
-    public function setDirection(bool $direction = null): void
+    public function setDirection(?bool $direction = null): void
     {
         if (null !== $direction) {
             $this->direction = $direction;
@@ -66,7 +66,7 @@ class SortConfig
         return $this->page;
     }
 
-    public function setPage(int $page = null): void
+    public function setPage(?int $page = null): void
     {
         if (null !== $page) {
             $this->page = $page;
