@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [6.0.1] - 2026-07-21
+
+### Fixed
+
+- `AbstractSimpleFilterType::requiresCaseInsensitiveLikeTransform()` called the removed
+  `Doctrine\DBAL\Platforms\AbstractPlatform::getName()` method (dropped in `doctrine/dbal` 4.0),
+  crashing every `LIKE`/`NOT LIKE` filter (e.g. the built-in text filter) with `Call to
+  undefined method ...::getName()` on any DBAL 4 project. Replaced with an `instanceof
+  Doctrine\DBAL\Platforms\PostgreSQLPlatform` check.
+- Declared the previously-implicit `doctrine/dbal` and `doctrine/orm` dependencies in
+  `composer.json` (the `Doctrine\` namespace was used throughout `Doctrine/` without either
+  package being required).
+
 ## [6.0.0] - 2026-07-21
 
 ### Changed (BC breaks)

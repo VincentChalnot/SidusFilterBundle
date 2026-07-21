@@ -12,6 +12,7 @@ declare(strict_types=1);
 
 namespace Sidus\FilterBundle\Doctrine\Filter\Type;
 
+use Doctrine\DBAL\Platforms\PostgreSQLPlatform;
 use Doctrine\ORM\QueryBuilder;
 use Sidus\FilterBundle\Exception\BadQueryHandlerException;
 use Sidus\FilterBundle\Filter\FilterInterface;
@@ -98,6 +99,6 @@ abstract class AbstractSimpleFilterType extends AbstractDoctrineFilterType
             return false;
         }
 
-        return 'postgresql' === $platform->getName();
+        return $platform instanceof PostgreSQLPlatform;
     }
 }
