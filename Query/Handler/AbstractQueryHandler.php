@@ -96,7 +96,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
     public function handleRequest(Request $request): void
     {
         $this->getForm()->handleRequest($request);
-        $this->handleForm($request->get('page'));
+        $this->handleForm($request->query->get('page'));
     }
 
     /**

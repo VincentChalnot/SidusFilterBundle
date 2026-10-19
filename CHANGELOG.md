@@ -11,6 +11,9 @@ All notable changes to this project will be documented in this file.
   ServiceLocator but no such service exists"). They now use `#[AutowireLocator]` and `#[AutowireIterator]`
   (available since Symfony 6.4). `defaultIndexMethod: 'getProvider'` is kept so that 6.4 and 7.4 behave as
   before; it is deprecated by Symfony 8.1 (`#[AsTaggedItem]` replaces it), a deprecation only.
+- Symfony 8 compatibility: `AbstractQueryHandler::handleRequest()` called `Request::get()`, removed in
+  HttpFoundation 8 (every list answered 500). It reads the `page` query parameter with `$request->query->get()`.
+  `Request::get()` also looked at the route attributes and the POST body: the pager only ever uses the query string.
 
 ### Changed
 
