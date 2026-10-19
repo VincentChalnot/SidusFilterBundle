@@ -13,8 +13,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Registry;
 
 use Sidus\FilterBundle\Filter\Type\FilterTypeInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
-use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 use UnexpectedValueException;
 
@@ -29,7 +28,7 @@ class FilterTypeRegistry
     protected array $filterTypes = [];
 
     public function __construct(
-        #[TaggedIterator('sidus.filter_type')]
+        #[AutowireIterator('sidus.filter_type')]
         iterable $filterTypes,
     ) {
         foreach ($filterTypes as $filterType) {

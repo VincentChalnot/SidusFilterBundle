@@ -19,8 +19,7 @@ use Sidus\FilterBundle\Factory\QueryHandlerConfigurationFactoryInterface;
 use Sidus\FilterBundle\Factory\QueryHandlerFactoryInterface;
 use Sidus\FilterBundle\Query\Handler\Configuration\QueryHandlerConfigurationInterface;
 use Sidus\FilterBundle\Query\Handler\QueryHandlerInterface;
-use Symfony\Component\DependencyInjection\Attribute\TaggedIterator;
-use Symfony\Component\DependencyInjection\Attribute\TaggedLocator;
+use Symfony\Component\DependencyInjection\Attribute\AutowireLocator;
 use Symfony\Component\DependencyInjection\ServiceLocator;
 
 /**
@@ -41,7 +40,7 @@ class QueryHandlerRegistry
 
     public function __construct(
         protected QueryHandlerConfigurationFactoryInterface $queryHandlerConfigurationFactory,
-        #[TaggedLocator('sidus.query_handler_factory', defaultIndexMethod: 'getProvider')]
+        #[AutowireLocator('sidus.query_handler_factory', defaultIndexMethod: 'getProvider')]
         protected ServiceLocator $queryHandlerFactories,
     ) {
     }

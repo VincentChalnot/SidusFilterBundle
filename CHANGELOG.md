@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Fixed
+
+- Symfony 8 compatibility: `QueryHandlerRegistry` and `FilterTypeRegistry` used the `#[TaggedLocator]` and
+  `#[TaggedIterator]` attributes, removed in Symfony 8.0 (autowiring then failed with "references class
+  ServiceLocator but no such service exists"). They now use `#[AutowireLocator]` and `#[AutowireIterator]`
+  (available since Symfony 6.4). `defaultIndexMethod: 'getProvider'` is kept so that 6.4 and 7.4 behave as
+  before; it is deprecated by Symfony 8.1 (`#[AsTaggedItem]` replaces it), a deprecation only.
+
+### Changed
+
+- The `symfony/*` requirements are now `^6.4 || ^7.4 || ^8.0` instead of `>=6.3`: the Autowire attributes
+  need 6.4, only the LTS lines and the current major are supported, and Symfony 9 is not claimed.
+
 ## [6.0.3] - 2026-07-21
 
 ### Fixed
