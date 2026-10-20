@@ -702,3 +702,8 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
 - **Pagerfanta bridge**: `ListResultAdapter::createPager(ListResult)` wraps an already computed result (its own page
   only, out-of-range pages allowed); with `count: none` the number of results is `(page-1)*per_page + items (+1 if a next
   page exists)`. A handler-driven adapter is not provided: a handler is single-use and already returns the result.
+- **Layering** is a test (`tests/Layering`): files of `src/` outside `Form/`, `Http/`, `Pagerfanta/` (and `Command/` for
+  Console) import none of the optional packages (only `SidusFilterBundle.php` mentions the Form adapter, behind
+  `interface_exists`), and a subprocess boots a kernel with Form, Twig and Pagerfanta hidden from the autoloader. Note
+  that symfony/http-kernel (a core requirement) already pulls symfony/http-foundation, so the Http adapter is always
+  loadable; it is "optional" only in the sense that nothing in the core depends on it.
