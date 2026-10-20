@@ -23,6 +23,12 @@ All notable changes to this project will be documented in this file.
 - Count strategies (`auto`, `none`, service id) and per-request totals (`ListInput::withTotalCount()`).
 - `QueryHandlerRegistry::createQueryHandler()` (a new handler per call), `ListDefinitionRegistry`, and the
   `debug:sidus-filter` command. Definitions are validated at container compile time.
+- Optional Symfony Form adapter (`ListFormFactory`, per-filter-type mappers, sort field with per-column state), themes
+  `base`, `bootstrap_6`, `bulma_1` (a Tailwind example in `docs/examples`) and `en`/`fr` translations.
+- Optional HTTP adapter: `ListRequestParser`, `ListResultNormalizer`, `ListResponseFactory` (strict `400`
+  problem+json by default), `#[MapListInput]`, `sidus_filter.http` configuration.
+- Optional Pagerfanta bridge: `ListResultAdapter`.
+- Documentation (`docs/`), `UPGRADE-7.0.md` and a GitHub Actions matrix (PHP 8.4/8.5, Symfony 8.1/8.x, lowest/highest).
 
 ## [6.0.3] - 2026-07-21
 
