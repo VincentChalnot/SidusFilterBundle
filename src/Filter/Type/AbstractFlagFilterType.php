@@ -28,11 +28,13 @@ abstract class AbstractFlagFilterType extends AbstractFilterType
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
     {
-        return true === $value ? $this->forAttributes($filter, $this->criterionFactory()) : null;
+        return true === $value ? $this->forAttributes($filter, $this->criterionFactory($filter->providerOptions)) : null;
     }
 
     /**
+     * @param array<string, array<string, mixed>> $providerOptions the filter's `provider_options`
+     *
      * @return \Closure(\Sidus\FilterBundle\Definition\Field): Criterion
      */
-    abstract protected function criterionFactory(): \Closure;
+    abstract protected function criterionFactory(array $providerOptions): \Closure;
 }

@@ -37,6 +37,7 @@ final class ExactFilterType extends AbstractFilterType
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
     {
-        return $this->forAttributes($filter, static fn (Field $field): Equals => new Equals($field, $value));
+        $options = $filter->providerOptions;
+        return $this->forAttributes($filter, static fn (Field $field): Equals => new Equals($field, $value, providerOptions: $options));
     }
 }

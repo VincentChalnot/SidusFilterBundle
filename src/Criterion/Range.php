@@ -15,10 +15,11 @@ final readonly class Range extends FieldCriterion
         public int|float|\DateTimeInterface|string|null $max = null,
         public bool $minInclusive = true,
         public bool $maxInclusive = true,
+        array $providerOptions = [],
     ) {
         if (null === $min && null === $max) {
             throw new \InvalidArgumentException('Range requires at least one bound.');
         }
-        parent::__construct($field);
+        parent::__construct($field, $providerOptions);
     }
 }

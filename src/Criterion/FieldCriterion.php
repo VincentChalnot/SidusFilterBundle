@@ -10,7 +10,12 @@ abstract readonly class FieldCriterion implements Criterion
 {
     public Field $field;
 
-    public function __construct(Field|string $field)
+    /**
+     * @param array<string, array<string, mixed>> $providerOptions the emitting filter's `provider_options`, per provider
+     *                                                              name: how a provider realises this criterion
+     *                                                              (never what it means)
+     */
+    public function __construct(Field|string $field, public array $providerOptions = [])
     {
         $this->field = Field::of($field);
     }

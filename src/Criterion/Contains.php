@@ -9,8 +9,8 @@ use Sidus\FilterBundle\Definition\Field;
 /** Substring match. Wildcards in the text are literal; case folding is Unicode lower-case, accents are not folded. */
 final readonly class Contains extends FieldCriterion
 {
-    public function __construct(Field|string $field, public string $text, public bool $caseSensitive = false)
+    public function __construct(Field|string $field, public string $text, public bool $caseSensitive = false, array $providerOptions = [])
     {
-        parent::__construct($field);
+        parent::__construct($field, $providerOptions);
     }
 }

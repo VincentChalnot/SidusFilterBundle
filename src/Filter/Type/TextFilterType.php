@@ -51,19 +51,20 @@ final class TextFilterType extends AbstractOperatorFilterType
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
     {
+        $options = $filter->providerOptions;
         ['operator' => $operator, 'value' => $text] = $value;
         $caseSensitive = $filter->options['case_sensitive'];
         $negated = self::isNegated($operator);
         $base = self::base($operator);
 
-        return $this->forAttributes($filter, static function (Field $field) use ($base, $text, $caseSensitive, $negated): Criterion {
+        return $this->forAttributes($filter, static function (Field $field) use ($base, $text, $caseSensitive, $negated, $options): Criterion {
             $criterion = match ($base) {
-                'contains' => new Contains($field, $text, $caseSensitive),
-                'starts_with' => new StartsWith($field, $text, $caseSensitive),
-                'ends_with' => new EndsWith($field, $text, $caseSensitive),
-                'equals' => new Equals($field, $text),
-                'null' => new IsNull($field),
-                default => new IsEmpty($field),
+                'contains' => new Contains($field, $text, $caseSensitive, providerOptions: $options),
+                'starts_with' => new StartsWith($field, $text, $caseSensitive, providerOptions: $options),
+                'ends_with' => new EndsWith($field, $text, $caseSensitive, providerOptions: $options),
+                'equals' => new Equals($field, $text, providerOptions: $options),
+                'null' => new IsNull($field, providerOptions: $options),
+                default => new IsEmpty($field, providerOptions: $options),
             };
 
             return $negated ? new Not($criterion) : $criterion;

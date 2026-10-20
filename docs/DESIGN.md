@@ -714,3 +714,17 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
   `interface_exists`), and a subprocess boots a kernel with Form, Twig and Pagerfanta hidden from the autoloader. Note
   that symfony/http-kernel (a core requirement) already pulls symfony/http-foundation, so the Http adapter is always
   loadable; it is "optional" only in the sense that nothing in the core depends on it.
+- **Form mapper signature**: `FormFilterMapperInterface::add(FormBuilderInterface $builder, FilterDefinition $filter,
+  ListDefinition $list, mixed $data)`: the mapper receives the list the filter belongs to (a `relation` mapper derives the
+  related class from the list's provider options).
+- **Provider options travel with criteria**: `FieldCriterion` has a trailing `array $providerOptions = []` (the emitting
+  filter's `provider_options`, per provider name, e.g. `['doctrine' => ['case_insensitive' => 'ilike']]`), read-only like
+  the rest of the criterion; `Field` stays a plain path identity. Every built-in type passes `$filter->providerOptions` to
+  each leaf it builds (`Not`, `AnyOf`, `AllOf` carry none: their children do), so two filters on one field can be realised
+  differently. They tune how a supported criterion is realised, never what it means. `OrderBy::providerOptions` is the
+  sort counterpart. Custom filter types should do the same. New signatures: `Equals(Field|string $field, mixed $value,
+  array $providerOptions = [])`, `In($field, array $values, array $providerOptions = [])`, `Contains|StartsWith|EndsWith($field,
+  string $text, bool $caseSensitive = false, array $providerOptions = [])`, `Matches($field, string $pattern, bool
+  $caseSensitive = true, array $providerOptions = [])`, `Range($field, $min, $max, bool $minInclusive, bool $maxInclusive,
+  array $providerOptions = [])`, `IsNull|IsEmpty($field, array $providerOptions = [])`; `FieldCriterion::__construct($field,
+  array $providerOptions = [])`; `AbstractFlagFilterType::criterionFactory(array $providerOptions): \Closure`.

@@ -28,12 +28,13 @@ final class RegexpFilterType extends AbstractOperatorFilterType
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
     {
+        $options = $filter->providerOptions;
         ['operator' => $operator, 'value' => $pattern] = $value;
         $caseSensitive = !str_contains($operator, 'imatches');
         $negated = str_starts_with($operator, 'not_');
 
-        return $this->forAttributes($filter, static function (Field $field) use ($pattern, $caseSensitive, $negated): Criterion {
-            $criterion = new Matches($field, $pattern, $caseSensitive);
+        return $this->forAttributes($filter, static function (Field $field) use ($pattern, $caseSensitive, $negated, $options): Criterion {
+            $criterion = new Matches($field, $pattern, $caseSensitive, providerOptions: $options);
 
             return $negated ? new Not($criterion) : $criterion;
         });

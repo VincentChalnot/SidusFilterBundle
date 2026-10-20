@@ -83,9 +83,10 @@ final class ChoiceFilterType extends AbstractFilterType
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
     {
+        $options = $filter->providerOptions;
         return $this->forAttributes($filter, static fn (Field $field): Criterion => \is_array($value)
-            ? new In($field, $value)
-            : new Equals($field, $value));
+            ? new In($field, $value, providerOptions: $options)
+            : new Equals($field, $value, providerOptions: $options));
     }
 
     /**

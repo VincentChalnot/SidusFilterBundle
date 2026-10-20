@@ -77,7 +77,8 @@ final class DateRangeFilterType extends AbstractFilterType
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
     {
-        return $this->forAttributes($filter, static fn (Field $field): Range => new Range($field, $value['from'], $value['to']));
+        $options = $filter->providerOptions;
+        return $this->forAttributes($filter, static fn (Field $field): Range => new Range($field, $value['from'], $value['to'], providerOptions: $options));
     }
 
     private function parse(mixed $value, bool $endOfDay, \DateTimeZone $timezone): ?\DateTimeImmutable

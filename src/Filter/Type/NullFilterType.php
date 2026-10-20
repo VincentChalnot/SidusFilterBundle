@@ -20,8 +20,8 @@ final class NullFilterType extends AbstractFlagFilterType
         return self::withAnyOf($filter, [IsNull::class]);
     }
 
-    protected function criterionFactory(): \Closure
+    protected function criterionFactory(array $providerOptions): \Closure
     {
-        return static fn (Field $field): IsNull => new IsNull($field);
+        return static fn (Field $field): IsNull => new IsNull($field, $providerOptions);
     }
 }

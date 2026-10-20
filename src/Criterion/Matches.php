@@ -12,8 +12,8 @@ use Sidus\FilterBundle\Definition\Field;
  */
 final readonly class Matches extends FieldCriterion
 {
-    public function __construct(Field|string $field, public string $pattern, public bool $caseSensitive = true)
+    public function __construct(Field|string $field, public string $pattern, public bool $caseSensitive = true, array $providerOptions = [])
     {
-        parent::__construct($field);
+        parent::__construct($field, $providerOptions);
     }
 }

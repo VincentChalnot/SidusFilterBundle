@@ -15,12 +15,12 @@ final readonly class In extends FieldCriterion
     /**
      * @param list<mixed> $values
      */
-    public function __construct(Field|string $field, array $values)
+    public function __construct(Field|string $field, array $values, array $providerOptions = [])
     {
         if ([] === $values) {
             throw new \InvalidArgumentException('In requires at least one value.');
         }
-        parent::__construct($field);
+        parent::__construct($field, $providerOptions);
         $this->values = array_values($values);
     }
 }

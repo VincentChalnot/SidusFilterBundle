@@ -38,17 +38,18 @@ final class NumberFilterType extends AbstractOperatorFilterType
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
     {
+        $options = $filter->providerOptions;
         ['operator' => $operator, 'value' => $number] = $value;
 
         return $this->forAttributes($filter, static fn (Field $field): Criterion => match ($operator) {
-            'eq' => new Equals($field, $number),
-            'neq' => new Not(new Equals($field, $number)),
-            'gt' => new Range($field, min: $number, minInclusive: false),
-            'gte' => new Range($field, min: $number),
-            'lt' => new Range($field, max: $number, maxInclusive: false),
-            'lte' => new Range($field, max: $number),
-            'is_null' => new IsNull($field),
-            'is_not_null' => new Not(new IsNull($field)),
+            'eq' => new Equals($field, $number, providerOptions: $options),
+            'neq' => new Not(new Equals($field, $number, providerOptions: $options)),
+            'gt' => new Range($field, min: $number, minInclusive: false, providerOptions: $options),
+            'gte' => new Range($field, min: $number, providerOptions: $options),
+            'lt' => new Range($field, max: $number, maxInclusive: false, providerOptions: $options),
+            'lte' => new Range($field, max: $number, providerOptions: $options),
+            'is_null' => new IsNull($field, providerOptions: $options),
+            'is_not_null' => new Not(new IsNull($field, providerOptions: $options)),
         });
     }
 

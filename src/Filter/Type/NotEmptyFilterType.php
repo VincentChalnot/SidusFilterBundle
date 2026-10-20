@@ -21,8 +21,8 @@ final class NotEmptyFilterType extends AbstractFlagFilterType
         return self::withAnyOf($filter, [Not::class, IsEmpty::class]);
     }
 
-    protected function criterionFactory(): \Closure
+    protected function criterionFactory(array $providerOptions): \Closure
     {
-        return static fn (Field $field): Not => new Not(new IsEmpty($field));
+        return static fn (Field $field): Not => new Not(new IsEmpty($field, $providerOptions));
     }
 }
