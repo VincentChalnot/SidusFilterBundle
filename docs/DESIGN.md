@@ -631,3 +631,11 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
 - `native`: `options.builder` names a `NativeCriterionBuilderInterface` service (tag `sidus_filter.native_builder`).
 - Compile-time methods of filter types (`configureOptions`, `getRequiredOperations`, `normalize`) must be pure: the
   compiler pass calls them on an instance created without its constructor (see 3c notes).
+- **Capability negotiation** is compile-time and static: a provider's `Capabilities` is the set of criterion classes
+  for which a `CriterionCompilerInterface` (static `getProvider()`/`getCriterionClass()`) is registered, optionally with
+  explicit refusal reasons that win. `Definition\DefinitionResolver` (pure) validates a processed list config:
+  provider, list options and `provider_options.<provider>` (static `configureListOptions`/`configureFilterOptions` of
+  the factory), filter options, attributes, defaults (normalised, must be valid), `locked` requires a default, public
+  name uniqueness among *active* filters, at most one sort filter, and every criterion class a filter can emit must be
+  supported. A filter whose `providers:` excludes the list's provider is dropped before any check. Field-dependent
+  refusals (Doctrine metadata) are the provider's cache-warm-up concern.
