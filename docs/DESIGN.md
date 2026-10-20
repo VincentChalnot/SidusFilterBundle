@@ -567,8 +567,7 @@ Composer path repository.
 `prepareQuery()` hooks to customizers; port `AdminRoleFilterType` to a `choice`/criteria type; rename config keys
 (7.3).
 
-**EAV filter bundle 3.0:** Doctrine dialect: own `FieldResolver` (attribute codes, families), own root condition
-customizer, own hydrating result post-processor (hook `ResultHydratorInterface` on the Doctrine provider).
+**EAV filter bundle 3.0 (D1 resolved: separate provider `sidus_eav`, built later on top of the Doctrine bundle):** Doctrine dialect with own `FieldResolver` (attribute codes, families), own root condition customizer, own hydrating result post-processor. Not part of 1.0; built after Doctrine provider stabilizes. Planned extension points (M1–M8) are listed in MIGRATION-CONSUMERS.md §2.2.3 for reference.
 
 ## 15. Versioning and release plan
 

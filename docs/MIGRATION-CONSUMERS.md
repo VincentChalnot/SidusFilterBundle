@@ -48,10 +48,8 @@ notes to apply by hand, in the order given in [Order of work](#order-of-work).
   `provider_options.doctrine.expression` for computed sorts, refusal of `Equals`/`In` on a path ending at an association (attributes
   must end on `.id`), refusal of `Equals`/`In` on JSON columns (ComTSo `admin_role`), and the missing EAV extension points
   (M1 to M8 in section c).
-- **Core decisions the notes need from the owner**: EAV provider name (`sidus_eav` with a small core addition so it can reuse the
-  Doctrine compilers, or `provider: doctrine` with `options.dialect`), a `ListFormType` extension hook for DataGrid's
-  reset/submit/actions children (section a proposes a type extension), and how `InMemorySourceInterface::items()` can receive
-  per-request context (qk `ReadAction`, open question O5 of section d).
+- **D1 resolved: EAV provider (`sidus_eav`)**: A separate bundle, built on top of the Doctrine provider after 1.0. Not part of this 1.0 release. The planned extension points (M1–M8) are referenced in section (c) for future work only.
+- Core decisions the notes still need from the owner: a `ListFormType` extension hook for DataGrid's reset/submit/actions children (section a proposes a type extension), and how `InMemorySourceInterface::items()` can receive per-request context (qk `ReadAction`, open question O5 of section d).
 
 ---
 
@@ -1141,7 +1139,7 @@ Legend: **[D]** derived from code I read (cited), **[P]** proposal (design decis
 
 1. **The 2018 bundle cannot load on v6.0.4 already** [D]. It is a rewrite to 3.0, not a port (proofs in 1.3).
 2. **Nothing of the EAV bundle's logic survives as code**; what survives is its *behaviours*, which map onto v7 as: a field resolver (attribute code → value-table steps), a root condition (`family`), a result hydrator (data loader), two filter types (`eav_choice`, `eav_data`), a form label extension.
-3. **The Doctrine bundle has no extension point for any of the three "dialect" hooks today** [D]: `FieldResolver`, `DoctrineQueryHandler`, `DoctrineQueryHandlerFactory` are `final`, the factory does `new FieldResolver(...)` itself, `'doctrine'` is hard-coded at 11 sites in 7 files, `ResolvedStep` cannot carry a join condition (`attributeCode = :code`), there is no root hook and no result hook. Section 2.2.3 lists the 8 missing pieces (M1–M8) with proposed signatures. They must land in the Doctrine bundle **before** the EAV bundle can be written.
+3. **The Doctrine bundle has no extension point for any of the three "dialect" hooks today** [D]: `FieldResolver`, `DoctrineQueryHandler`, `DoctrineQueryHandlerFactory` are `final`, the factory does `new FieldResolver(...)` itself, `'doctrine'` is hard-coded at 11 sites in 7 files, `ResolvedStep` cannot carry a join condition (`attributeCode = :code`), there is no root hook and no result hook. Section 2.2.3 lists the 8 missing pieces (M1–M8) with proposed signatures as a reference for the future EAV provider; they are **not part of the 1.0 release**.
 4. **Prerequisite outside both bundles** [D]: `sidus/eav-model-bundle` itself is pre-ORM 3 / pre-DBAL 4 / pre-Symfony 8 (annotations `@ORM\…` in `MODEL:Entity/AbstractData.php`, `Doctrine\Common\Persistence` in `MODEL:Resources/config/services/doctrine.yml`, platform event manager in `MODEL:Doctrine/Types/FamilyType.php:41`, array access on `associationMappings` in `MODEL:Event/DoctrineMetadataListener.php:51-63`, php `>=5.6` / `doctrine/orm ^2.5` in `MODEL:composer.json:26,29`). A ported model bundle is a hard dependency of 3.0 (plan step 2 in 4.3).
 5. **Worker-mode hazards live in the EAV model bundle** (`OptimizedDataLoader` keeps `$loadedEntityIds` and `$currentContext` in a shared service, static query-builder registries). The 3.0 hydrator must not depend on that state (2.3).
 6. Semantics change in 11 listed places (section 5). The important one: to-many attributes keep "any element, criteria independent" (the property the per-condition joins protected), single-valued attributes get a shared LEFT JOIN.
