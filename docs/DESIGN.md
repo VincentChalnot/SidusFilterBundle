@@ -602,3 +602,9 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
 | Versions, themes | PHP 8.4+, Symfony 8.1+; Bootstrap 6, Bulma 1, Tailwind skeleton example |
 | Doctrine pagination/count | Own implementation |
 | v6 YAML | Clean break, upgrade note only |
+
+## 18. Implementation notes (decisions where this document was silent)
+
+- Code lives in `src/`, tests in `tests/` (`Sidus\FilterBundle\Tests\`), bundle configuration in `config/`. The v6
+  worker-mode test, kernel and controller were deleted with the Doctrine code; the Doctrine bundle re-creates the
+  SQLite flavour, the core carries a container-level worker test on the in-memory provider (step "DI").

@@ -4,22 +4,32 @@ declare(strict_types=1);
 
 namespace Sidus\FilterBundle\Tests\App;
 
-use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Sidus\FilterBundle\SidusFilterBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\HttpKernel\Kernel;
-use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
+/**
+ * Boots the bundle with the configuration given by the test, in an isolated cache directory.
+ */
 final class TestKernel extends Kernel
 {
     use MicroKernelTrait;
 
+    /**
+     * @param \Closure(ContainerConfigurator): void|null $configure
+     */
+    public function __construct(
+        private readonly ?\Closure $configure = null,
+        private readonly string $id = 'default',
+    ) {
+        parent::__construct('test', true);
+    }
+
     public function registerBundles(): iterable
     {
         yield new FrameworkBundle();
-        yield new DoctrineBundle();
         yield new SidusFilterBundle();
     }
 
@@ -30,56 +40,19 @@ final class TestKernel extends Kernel
 
     public function getCacheDir(): string
     {
-        return sys_get_temp_dir().'/sidus-filter-bundle-tests/cache/'.$this->environment;
+        return sys_get_temp_dir().'/sidus-filter-bundle-tests/'.$this->id.'/cache';
     }
 
     public function getLogDir(): string
     {
-        return sys_get_temp_dir().'/sidus-filter-bundle-tests/log';
+        return sys_get_temp_dir().'/sidus-filter-bundle-tests/'.$this->id.'/log';
     }
 
     protected function configureContainer(ContainerConfigurator $container): void
     {
-        $container->extension('framework', [
-            'test' => true,
-            'secret' => 'test',
-            'form' => ['csrf_protection' => false],
-            'http_method_override' => false,
-            'router' => ['utf8' => true],
-        ]);
-        $container->extension('doctrine', [
-            'dbal' => ['url' => 'sqlite:///:memory:'],
-            'orm' => [
-                'mappings' => [
-                    'App' => [
-                        'type' => 'attribute',
-                        'dir' => __DIR__.'/Entity',
-                        'prefix' => 'Sidus\\FilterBundle\\Tests\\App\\Entity',
-                    ],
-                ],
-            ],
-        ]);
-        $container->extension('sidus_filter', [
-            'configurations' => [
-                'posts' => [
-                    'provider' => 'doctrine',
-                    'options' => ['entity' => Entity\Post::class],
-                    'results_per_page' => 2,
-                    'sortable' => ['title'],
-                    'default_sort' => ['title' => 'asc'],
-                    'filters' => ['title' => ['type' => 'text']],
-                ],
-            ],
-        ]);
-        $container->services()
-            ->set(PostListController::class)
-            ->autowire()
-            ->public()
-            ->tag('controller.service_arguments');
-    }
-
-    protected function configureRoutes(RoutingConfigurator $routes): void
-    {
-        $routes->add('posts', '/posts')->controller(PostListController::class);
+        $container->extension('framework', ['test' => true, 'secret' => 'test', 'http_method_override' => false]);
+        if (null !== $this->configure) {
+            ($this->configure)($container);
+        }
     }
 }

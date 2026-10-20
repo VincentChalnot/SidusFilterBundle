@@ -1,11 +1,12 @@
 {
     "name": "sidus/filter-bundle",
-    "description": "Simple yml-configuration-based filtering with Doctrine ORM abstraction",
+    "description": "Provider-agnostic list filtering, sorting and pagination: immutable definitions, per-request query handlers",
     "keywords": [
         "filter",
-        "doctrine",
         "sort",
-        "datagrid"
+        "pagination",
+        "datagrid",
+        "list"
     ],
     "homepage": "https://github.com/VincentChalnot/SidusFilterBundle",
     "type": "library",
@@ -26,7 +27,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Sidus\\FilterBundle\\": ""
+            "Sidus\\FilterBundle\\": "src/"
         },
         "exclude-from-classmap": [
             "/tests/"
@@ -34,23 +35,20 @@
     },
     "require": {
         "php": ">=8.4",
-        "doctrine/dbal": "^4.0",
-        "doctrine/orm": "^3.3",
         "symfony/config": "^8.1",
         "symfony/dependency-injection": "^8.1",
-        "symfony/form": "^8.1",
-        "symfony/http-foundation": "^8.1",
         "symfony/http-kernel": "^8.1",
         "symfony/options-resolver": "^8.1",
-        "symfony/property-access": "^8.1",
-        "pagerfanta/core": "^4.0"
+        "symfony/property-access": "^8.1"
     },
     "require-dev": {
+        "pagerfanta/core": "^4.0",
         "phpunit/phpunit": "^12.0",
+        "symfony/console": "^8.1",
+        "symfony/form": "^8.1",
         "symfony/framework-bundle": "^8.1",
-        "doctrine/doctrine-bundle": "^3.0",
-        "symfony/doctrine-bridge": "^8.1",
-        "symfony/twig-bundle": "^8.1",
+        "symfony/http-foundation": "^8.1",
+        "symfony/twig-bridge": "^8.1",
         "symfony/yaml": "^8.1"
     },
     "autoload-dev": {
@@ -63,5 +61,12 @@
     },
     "scripts": {
         "test": "phpunit"
+    },
+    "suggest": {
+        "symfony/form": "Optional HTML form adapter",
+        "symfony/http-foundation": "Optional HTTP request parser and result normalizer",
+        "pagerfanta/core": "Optional Pagerfanta adapter",
+        "symfony/console": "Enables the debug:sidus-filter command",
+        "symfony/twig-bridge": "Form themes"
     }
 }

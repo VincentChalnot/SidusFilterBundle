@@ -4,21 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-### Fixed
+### Changed (BC breaks)
 
-- Symfony 8 compatibility: `QueryHandlerRegistry` and `FilterTypeRegistry` used the `#[TaggedLocator]` and
-  `#[TaggedIterator]` attributes, removed in Symfony 8.0 (autowiring then failed with "references class
-  ServiceLocator but no such service exists"). They now use `#[AutowireLocator]` and `#[AutowireIterator]`
-  (available since Symfony 6.4). `defaultIndexMethod: 'getProvider'` is kept so that 6.4 and 7.4 behave as
-  before; it is deprecated by Symfony 8.1 (`#[AsTaggedItem]` replaces it), a deprecation only.
-- Symfony 8 compatibility: `AbstractQueryHandler::handleRequest()` called `Request::get()`, removed in
-  HttpFoundation 8 (every list answered 500). It reads the `page` query parameter with `$request->query->get()`.
-  `Request::get()` also looked at the route attributes and the POST body: the pager only ever uses the query string.
-
-### Changed
-
-- The `symfony/*` requirements are now `^6.4 || ^7.4 || ^8.0` instead of `>=6.3`: the Autowire attributes
-  need 6.4, only the LTS lines and the current major are supported, and Symfony 9 is not claimed.
+- 7.0 is a clean cutover, see `docs/DESIGN.md`. Code moved to `src/` (PSR-4 `Sidus\FilterBundle\` -> `src/`).
+- Removed all v6 code: the Doctrine provider (moves to `sidus/doctrine-filter-bundle`), `Factory/*`, `Pagination/*`,
+  the mutable `QueryHandlerRegistry`, `Query/Handler/*`, the v6 form types, the Bootstrap 3/4 themes and the v6
+  documentation.
+- Requires PHP 8.4+ and Symfony 8.1+. No dependency on Doctrine, Pagerfanta or symfony/form (optional adapters).
 
 ## [6.0.3] - 2026-07-21
 
