@@ -9,13 +9,13 @@ use Sidus\FilterBundle\Exception\ConfigurationException;
 use Sidus\FilterBundle\Exception\UnknownFilterTypeException;
 use Sidus\FilterBundle\Provider\Capabilities;
 use Sidus\FilterBundle\Provider\QueryHandlerFactoryInterface;
-use Sidus\FilterBundle\Registry\FilterTypeRegistry;
+use Sidus\FilterBundle\Filter\FilterTypeInterface;
 use Symfony\Component\OptionsResolver\Exception\ExceptionInterface as OptionsException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * Turns the processed `sidus_filter.lists.<code>` configuration into a {@see ListDefinition}, validating everything
- * that does not need runtime services (section 7.2): provider, options, filter types, attributes, defaults, public
+ * that does not need runtime services (section 7.2): provider, options, filter types, attributes, public
  * names, and the capability table of the provider (section 6). Pure: no container, no I/O.
  *
  * Every failure is a {@see ConfigurationException} naming the list, the filter and the reason.
@@ -23,11 +23,12 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 final readonly class DefinitionResolver
 {
     /**
+     * @param array<string, class-string<FilterTypeInterface>>           $filterTypes  filter type name => class
      * @param array<string, class-string<QueryHandlerFactoryInterface>> $factories    provider => factory class
      * @param array<string, Capabilities>                                $capabilities provider => capabilities
      */
     public function __construct(
-        private FilterTypeRegistry $filterTypes,
+        private array $filterTypes,
         private array $factories,
         private array $capabilities,
     ) {
@@ -103,14 +104,10 @@ final readonly class DefinitionResolver
         if (!\is_string($typeName) || '' === $typeName) {
             throw new ConfigurationException($where.': the "type" is required.');
         }
-        try {
-            $type = $this->filterTypes->get($typeName);
-        } catch (UnknownFilterTypeException $e) {
-            throw new ConfigurationException($where.': '.$e->getMessage(), previous: $e);
-        }
+        $type = $this->filterTypes[$typeName] ?? throw new ConfigurationException($where.': '.new UnknownFilterTypeException($typeName, array_keys($this->filterTypes))->getMessage());
         $where .= \sprintf(' (type "%s")', $typeName);
 
-        $options = $this->resolveOptions($where.': options', $type->configureOptions(...), $filterConfig['options'] ?? []);
+        $options = $this->resolveOptions($where.': options', $type::configureOptions(...), $filterConfig['options'] ?? []);
         $provider = $factory::getProvider();
         $providerOptions = $filterConfig['provider_options'] ?? [];
         if (isset($providerOptions[$provider])) {
@@ -127,7 +124,7 @@ final readonly class DefinitionResolver
             throw new ConfigurationException($where.': a locked filter requires a "default" (the fixed value).');
         }
 
-        $filter = new FilterDefinition(
+        return new FilterDefinition(
             key: $key,
             type: $typeName,
             attributes: $attributes,
@@ -139,14 +136,6 @@ final readonly class DefinitionResolver
             default: $default,
             form: $filterConfig['form'] ?? [],
         );
-        if (null !== $default) {
-            $normalized = $type->normalize($filter, $default);
-            if (!$normalized->isValid()) {
-                throw new ConfigurationException(\sprintf('%s: the default value is invalid: %s', $where, $normalized->violations[0]->message));
-            }
-        }
-
-        return $filter;
     }
 
     /**
@@ -154,8 +143,7 @@ final readonly class DefinitionResolver
      */
     private function checkCapabilities(string $code, FilterDefinition $filter, Capabilities $capabilities, array &$sortFilters): void
     {
-        $type = $this->filterTypes->get($filter->type);
-        foreach ($type->getRequiredOperations($filter) as $criterionClass) {
+        foreach ($this->filterTypes[$filter->type]::getRequiredOperations($filter) as $criterionClass) {
             if (Sort::class === $criterionClass) {
                 $sortFilters[] = $filter->key;
             }

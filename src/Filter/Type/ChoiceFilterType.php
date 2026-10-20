@@ -24,7 +24,7 @@ final class ChoiceFilterType extends AbstractFilterType
         return 'choice';
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public static function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults(['choices' => [], 'multiple' => false]);
         $resolver->setAllowedTypes('choices', 'array');
@@ -40,9 +40,9 @@ final class ChoiceFilterType extends AbstractFilterType
         });
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
-        return $this->withAnyOf($filter, $filter->options['multiple'] ? [In::class] : [Equals::class]);
+        return self::withAnyOf($filter, $filter->options['multiple'] ? [In::class] : [Equals::class]);
     }
 
     public function normalize(FilterDefinition $filter, mixed $raw): NormalizedValue

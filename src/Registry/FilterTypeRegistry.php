@@ -7,17 +7,8 @@ namespace Sidus\FilterBundle\Registry;
 use Psr\Container\ContainerInterface;
 use Sidus\FilterBundle\Exception\UnknownFilterTypeException;
 use Sidus\FilterBundle\Filter\FilterTypeInterface;
-use Sidus\FilterBundle\Filter\Type\ChoiceFilterType;
-use Sidus\FilterBundle\Filter\Type\DateRangeFilterType;
-use Sidus\FilterBundle\Filter\Type\ExactFilterType;
+use Sidus\FilterBundle\Filter\Type\BuiltInFilterTypes;
 use Sidus\FilterBundle\Filter\Type\NativeFilterType;
-use Sidus\FilterBundle\Filter\Type\NotEmptyFilterType;
-use Sidus\FilterBundle\Filter\Type\NotNullFilterType;
-use Sidus\FilterBundle\Filter\Type\NullFilterType;
-use Sidus\FilterBundle\Filter\Type\NumberFilterType;
-use Sidus\FilterBundle\Filter\Type\RegexpFilterType;
-use Sidus\FilterBundle\Filter\Type\SortFilterType;
-use Sidus\FilterBundle\Filter\Type\TextFilterType;
 
 /**
  * Filter types indexed by name, built once from the tagged iterator (no locator with an index method).
@@ -40,11 +31,12 @@ final class FilterTypeRegistry
      */
     public static function builtIn(?ContainerInterface $nativeBuilders = null): self
     {
-        return new self([
-            new TextFilterType(), new ExactFilterType(), new ChoiceFilterType(), new NumberFilterType(),
-            new DateRangeFilterType(), new NullFilterType(), new NotNullFilterType(), new NotEmptyFilterType(),
-            new RegexpFilterType(), new SortFilterType(), new NativeFilterType($nativeBuilders),
-        ]);
+        $types = [];
+        foreach (BuiltInFilterTypes::classes() as $class) {
+            $types[] = NativeFilterType::class === $class ? new NativeFilterType($nativeBuilders) : new $class();
+        }
+
+        return new self($types);
     }
 
     public function has(string $name): bool

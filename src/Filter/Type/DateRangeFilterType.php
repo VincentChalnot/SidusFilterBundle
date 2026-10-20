@@ -27,16 +27,16 @@ final class DateRangeFilterType extends AbstractFilterType
         return 'date_range';
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public static function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefault('timezone', 'UTC');
         $resolver->setAllowedTypes('timezone', 'string');
         $resolver->setAllowedValues('timezone', static fn (string $tz): bool => \in_array($tz, \DateTimeZone::listIdentifiers(), true));
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
-        return $this->withAnyOf($filter, [Range::class]);
+        return self::withAnyOf($filter, [Range::class]);
     }
 
     public function normalize(FilterDefinition $filter, mixed $raw): NormalizedValue

@@ -46,8 +46,14 @@ not_matches imatches not_imatches`.
 
 ## Writing your own type
 
-Implement `Sidus\FilterBundle\Filter\FilterTypeInterface` (autoconfigured, one service per type, indexed by
-`getName()`). `configureOptions()`, `getRequiredOperations()` and `normalize()` are called at compile time on an instance
-created **without its constructor**: keep them pure. `buildCriterion()` may use injected services. Compose the core
-criteria (`AnyOf(Contains(players.user.username), Contains(players.user.email))`) or emit `Native`.
-Extend `AbstractFilterType` (or `AbstractOperatorFilterType`) for the helpers.
+Implement `Sidus\FilterBundle\Filter\FilterTypeInterface` (autoconfigured, one service per type). It has two halves:
+
+- **static, compile time**: `getName()`, `configureOptions(OptionsResolver)` and `getRequiredOperations(FilterDefinition)`
+  (every criterion class the filter can emit, composites included: this feeds the strict capability check). No service
+  exists yet, so they are static and the compiler pass never instantiates your type.
+- **instance, per request**: `normalize()` (raw input to a value, "empty" or violations; never throws on user input) and
+  `buildCriterion()`. They may use injected services; the type may have constructor dependencies.
+
+Configured `default:` values are checked by the cache warmer with the real instances, so an invalid default fails
+`cache:warmup`. Compose the core criteria (`AnyOf(Contains(players.user.username), Contains(players.user.email))`) or
+emit `Native`. Extend `AbstractFilterType` (or `AbstractOperatorFilterType`) for the helpers.

@@ -13,7 +13,7 @@ use Sidus\FilterBundle\Criterion\Sort;
 use Sidus\FilterBundle\Definition\DefinitionResolver;
 use Sidus\FilterBundle\Exception\ConfigurationException;
 use Sidus\FilterBundle\Provider\Capabilities;
-use Sidus\FilterBundle\Registry\FilterTypeRegistry;
+use Sidus\FilterBundle\Filter\Type\BuiltInFilterTypes;
 use Sidus\FilterBundle\Tests\Support\FakeFactory;
 
 final class DefinitionResolverTest extends TestCase
@@ -22,7 +22,7 @@ final class DefinitionResolverTest extends TestCase
     {
         $capabilities ??= new Capabilities('fake', [Contains::class, Equals::class, Not::class, Sort::class]);
 
-        return new DefinitionResolver(FilterTypeRegistry::builtIn(), ['fake' => FakeFactory::class], ['fake' => $capabilities]);
+        return new DefinitionResolver(BuiltInFilterTypes::classes(), ['fake' => FakeFactory::class], ['fake' => $capabilities]);
     }
 
     /**
@@ -78,7 +78,6 @@ final class DefinitionResolverTest extends TestCase
         yield 'bad provider options' => [$c(['t' => ['type' => 'text', 'provider_options' => ['fake' => ['case_insensitive' => 'x']]]]), 'provider_options.fake'];
         yield 'bad attribute' => [$c(['t' => ['type' => 'text', 'attributes' => ['a b']]]), 'Invalid field path'];
         yield 'locked without default' => [$c(['t' => ['type' => 'text', 'locked' => true]]), 'locked filter requires a "default"'];
-        yield 'invalid default' => [$c(['t' => ['type' => 'choice', 'options' => ['choices' => ['a']], 'default' => 'z']]), 'the default value is invalid: This value is not a valid choice'];
         yield 'duplicate public name' => [
             $c(['title' => ['type' => 'text'], 'q' => ['type' => 'text', 'name' => 'title']]),
             'filters "title" and "q" have the same public name "title"',

@@ -16,9 +16,9 @@ final class NotNullFilterType extends AbstractFlagFilterType
         return 'not_null';
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
-        return $this->withAnyOf($filter, [Not::class, IsNull::class]);
+        return self::withAnyOf($filter, [Not::class, IsNull::class]);
     }
 
     protected function criterionFactory(): \Closure

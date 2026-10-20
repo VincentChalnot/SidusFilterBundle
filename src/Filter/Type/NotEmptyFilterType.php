@@ -16,9 +16,9 @@ final class NotEmptyFilterType extends AbstractFlagFilterType
         return 'not_empty';
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
-        return $this->withAnyOf($filter, [Not::class, IsEmpty::class]);
+        return self::withAnyOf($filter, [Not::class, IsEmpty::class]);
     }
 
     protected function criterionFactory(): \Closure

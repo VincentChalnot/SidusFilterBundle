@@ -13,7 +13,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 abstract class AbstractFilterType implements FilterTypeInterface
 {
-    public function configureOptions(OptionsResolver $resolver): void
+    public static function configureOptions(OptionsResolver $resolver): void
     {
     }
 
@@ -39,7 +39,7 @@ abstract class AbstractFilterType implements FilterTypeInterface
      *
      * @return list<class-string<Criterion>>
      */
-    protected function withAnyOf(FilterDefinition $filter, array $classes): array
+    protected static function withAnyOf(FilterDefinition $filter, array $classes): array
     {
         if (\count($filter->attributes) > 1) {
             $classes[] = AnyOf::class;

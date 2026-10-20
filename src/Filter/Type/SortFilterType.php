@@ -31,7 +31,7 @@ final class SortFilterType extends AbstractFilterType
         return 'sort';
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public static function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired('columns');
         $resolver->setDefaults(['default' => [], 'max_columns' => 3]);
@@ -77,7 +77,7 @@ final class SortFilterType extends AbstractFilterType
         });
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
         return [Sort::class];
     }

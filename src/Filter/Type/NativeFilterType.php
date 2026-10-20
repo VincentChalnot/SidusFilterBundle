@@ -27,13 +27,13 @@ final class NativeFilterType extends AbstractFilterType
         return 'native';
     }
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public static function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setRequired('builder');
         $resolver->setAllowedTypes('builder', 'string');
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
         return [Native::class];
     }

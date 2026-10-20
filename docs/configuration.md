@@ -17,7 +17,7 @@ sidus_filter:
                     options: {}    # validated by the filter type
                     provider_options: {}   # per provider name, validated by that provider, ignored by the others
                     locked: false  # the value is `default`, never read from the input
-                    default: ~     # normalised like user input; invalid defaults fail at compile time
+                    default: ~     # normalised like user input; an invalid default fails cache:warmup
                     form: {}       # label, type, options: read by the form adapter only
     http:                          # request parser and response factory (HTTP adapter)
         filters_key: filters       # '' = every top-level parameter except the reserved ones is a filter
@@ -72,7 +72,11 @@ field, no API input, no capability check, no public-name clash.
 ## Compile-time validation
 
 Everything that does not need a runtime service fails when the container compiles, with the list and filter in the
-message: unknown provider or filter type, invalid options, invalid attribute paths, invalid defaults, `locked` without
+message: unknown provider or filter type, invalid options, invalid attribute paths, `locked` without
 `default`, duplicate public names, more than one sort filter, a `count` service that does not exist or does not implement
-the interface, and **every criterion a filter can emit that the provider cannot realise** (narrow the filter with
+the interface, two filter types with the same name, and **every criterion a filter can emit that the provider cannot realise** (narrow the filter with
 `options.operators`, or restrict it with `providers:`).
+
+Configured `default:` values are validated at **cache warm-up** (the non-optional `DefaultsWarmer`) with the real filter
+type instances, which may use injected services: an invalid default fails `cache:warmup`, and the first cache build in
+debug, instead of the first request.

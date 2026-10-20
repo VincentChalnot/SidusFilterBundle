@@ -223,11 +223,11 @@ interface FilterTypeInterface
 {
     public static function getName(): string;                           // 'text', 'choice', ...
 
-    /** Validate the filter's own options at compile time (OptionsResolver). */
-    public function configureOptions(OptionsResolver $resolver): void;
+    /** Validate the filter's own options at compile time (OptionsResolver). Static: no service exists yet. */
+    public static function configureOptions(OptionsResolver $resolver): void;
 
-    /** Operations this filter can emit for this definition: used for capability checks at compile time. */
-    public function getRequiredOperations(FilterDefinition $filter): array; // list<class-string<Criterion>>
+    /** Operations this filter can emit for this definition: used for capability checks at compile time. Static. */
+    public static function getRequiredOperations(FilterDefinition $filter): array; // list<class-string<Criterion>>
 
     /** Raw input (string/array from query, JSON, form, or configured default) → normalised value or violations. */
     public function normalize(FilterDefinition $filter, mixed $raw): NormalizedValue;   // value|empty|violations
@@ -629,13 +629,19 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
   up in `OrderBy::providerOptions` keyed by provider (aggregate/expression for Doctrine). Invalid sort input yields
   violations and the pipeline then falls back to `normalize($filter, null)`, i.e. the configured `default`.
 - `native`: `options.builder` names a `NativeCriterionBuilderInterface` service (tag `sidus_filter.native_builder`).
-- Compile-time methods of filter types (`configureOptions`, `getRequiredOperations`, `normalize`) must be pure: the
-  compiler pass calls them on an instance created without its constructor (see 3c notes).
+- **Filter type contract, two halves** (revised after the first implementation): `getName()`, `configureOptions()` and
+  `getRequiredOperations()` are **static** (compile time, called on the class, like the provider factory's static
+  methods); `normalize()` and `buildCriterion()` are instance methods that run per request and may use injected services
+  (a type with constructor dependencies is fine). The compiler pass never instantiates a filter type. Configured
+  `default:` values are therefore *not* checked at compile time: `Definition\DefaultsValidator`, run by the non-optional
+  `CacheWarmer\DefaultsWarmer` (`kernel.cache_warmer`), normalises each default with the real instances, so an invalid
+  default fails `cache:warmup` (and the first cache build, in debug) instead of the first request. Two services with
+  the same type name are a compile-time error. `Filter\Type\BuiltInFilterTypes::classes()` lists the shipped types.
 - **Capability negotiation** is compile-time and static: a provider's `Capabilities` is the set of criterion classes
   for which a `CriterionCompilerInterface` (static `getProvider()`/`getCriterionClass()`) is registered, optionally with
   explicit refusal reasons that win. `Definition\DefinitionResolver` (pure) validates a processed list config:
   provider, list options and `provider_options.<provider>` (static `configureListOptions`/`configureFilterOptions` of
-  the factory), filter options, attributes, defaults (normalised, must be valid), `locked` requires a default, public
+  the factory), filter options, attributes, `locked` requires a default, public
   name uniqueness among *active* filters, at most one sort filter, and every criterion class a filter can emit must be
   supported. A filter whose `providers:` excludes the list's provider is dropped before any check. Field-dependent
   refusals (Doctrine metadata) are the provider's cache-warm-up concern.

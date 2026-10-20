@@ -12,7 +12,6 @@ use Sidus\FilterBundle\Provider\Capabilities;
 use Sidus\FilterBundle\Provider\CountStrategyInterface;
 use Sidus\FilterBundle\Provider\CriterionCompilerInterface;
 use Sidus\FilterBundle\Provider\QueryHandlerFactoryInterface;
-use Sidus\FilterBundle\Registry\FilterTypeRegistry;
 use Sidus\FilterBundle\Registry\ListDefinitionRegistry;
 use Sidus\FilterBundle\Registry\QueryHandlerRegistry;
 use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
@@ -22,9 +21,8 @@ use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * Builds and validates every list definition once everything is registered (section 7.2): filter types, provider
- * factories and criterion compilers are read from their tagged services without instantiating them (static methods;
- * filter types are created without their constructor, which is why their compile-time methods must be pure), then the
- * pure {@see DefinitionResolver} runs the structural and capability checks. The resolved definitions replace the raw
+ * factories and criterion compilers are read from their tagged services without instantiating them, through their
+ * static methods, then the pure {@see DefinitionResolver} runs the structural and capability checks. The resolved definitions replace the raw
  * configuration as an argument of {@see ListDefinitionRegistry}.
  */
 final class ListDefinitionPass implements CompilerPassInterface
@@ -63,21 +61,23 @@ final class ListDefinitionPass implements CompilerPassInterface
         $container->getDefinition(QueryHandlerRegistry::class)->setArgument('$countStrategies', ServiceLocatorTagPass::register($container, $countServices));
     }
 
-    private function filterTypes(ContainerBuilder $container): FilterTypeRegistry
+    /**
+     * @return array<string, class-string<FilterTypeInterface>>
+     */
+    private function filterTypes(ContainerBuilder $container): array
     {
         $types = [];
         foreach (array_keys($container->findTaggedServiceIds(self::FILTER_TYPE_TAG)) as $id) {
             $class = $this->classOf($container, $id, FilterTypeInterface::class);
-            $types[] = new \ReflectionClass($class)->newInstanceWithoutConstructor();
+            $name = $class::getName();
+            if (isset($types[$name])) {
+                throw new ConfigurationException(\sprintf('Filter type "%s" is registered twice (%s and %s).', $name, $types[$name], $class));
+            }
+            $types[$name] = $class;
         }
-        $registry = new FilterTypeRegistry($types);
-        try {
-            $registry->names();
-        } catch (\LogicException $e) {
-            throw new ConfigurationException($e->getMessage(), previous: $e);
-        }
+        ksort($types);
 
-        return $registry;
+        return $types;
     }
 
     /**

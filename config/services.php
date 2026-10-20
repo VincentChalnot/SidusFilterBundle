@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
+use Sidus\FilterBundle\CacheWarmer\DefaultsWarmer;
 use Sidus\FilterBundle\Command\DebugCommand;
+use Sidus\FilterBundle\Definition\DefaultsValidator;
 use Sidus\FilterBundle\Filter\Type\ChoiceFilterType;
 use Sidus\FilterBundle\Filter\Type\DateRangeFilterType;
 use Sidus\FilterBundle\Filter\Type\ExactFilterType;
@@ -72,6 +74,9 @@ return static function (ContainerConfigurator $container): void {
         service(FilterTypeRegistry::class),
         '$countStrategies' => null,
     ]);
+
+    $services->set(DefaultsValidator::class)->args([service(FilterTypeRegistry::class)]);
+    $services->set(DefaultsWarmer::class)->public()->args([service(ListDefinitionRegistry::class), service(DefaultsValidator::class)])->tag('kernel.cache_warmer');
 
     if (class_exists(Command::class)) {
         $services->set(DebugCommand::class)->args([service(ListDefinitionRegistry::class), service(FilterTypeRegistry::class)]);

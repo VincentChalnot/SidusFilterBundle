@@ -23,6 +23,9 @@ All notable changes to this project will be documented in this file.
 - Count strategies (`auto`, `none`, service id) and per-request totals (`ListInput::withTotalCount()`).
 - `QueryHandlerRegistry::createQueryHandler()` (a new handler per call), `ListDefinitionRegistry`, and the
   `debug:sidus-filter` command. Definitions are validated at container compile time.
+- `FilterTypeInterface` has a static compile-time half (`getName()`, `configureOptions()`, `getRequiredOperations()`) and
+  an instance runtime half (`normalize()`, `buildCriterion()`): types may have constructor dependencies. Configured defaults
+  are validated at cache warm-up (`DefaultsWarmer`).
 - Optional Symfony Form adapter (`ListFormFactory`, per-filter-type mappers, sort field with per-column state), themes
   `base`, `bootstrap_6`, `bulma_1` (a Tailwind example in `docs/examples`) and `en`/`fr` translations.
 - Optional HTTP adapter: `ListRequestParser`, `ListResultNormalizer`, `ListResponseFactory` (strict `400`

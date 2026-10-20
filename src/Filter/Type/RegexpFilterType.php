@@ -19,11 +19,11 @@ final class RegexpFilterType extends AbstractOperatorFilterType
         return 'regexp';
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
         $negated = array_filter($filter->options['operators'], static fn (string $o): bool => str_starts_with($o, 'not_'));
 
-        return $this->withAnyOf($filter, [] === $negated ? [Matches::class] : [Matches::class, Not::class]);
+        return self::withAnyOf($filter, [] === $negated ? [Matches::class] : [Matches::class, Not::class]);
     }
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
@@ -39,14 +39,14 @@ final class RegexpFilterType extends AbstractOperatorFilterType
         });
     }
 
-    protected function knownOperators(): array
+    protected static function knownOperators(): array
     {
         return ['matches', 'not_matches', 'imatches', 'not_imatches'];
     }
 
-    protected function defaultOperators(): array
+    protected static function defaultOperators(): array
     {
-        return $this->knownOperators();
+        return static::knownOperators();
     }
 
     protected function normalizeValue(FilterDefinition $filter, string $operator, mixed $value): array|Violation

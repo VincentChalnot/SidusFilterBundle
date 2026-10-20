@@ -18,9 +18,9 @@ final class ExactFilterType extends AbstractFilterType
         return 'exact';
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
-        return $this->withAnyOf($filter, [Equals::class]);
+        return self::withAnyOf($filter, [Equals::class]);
     }
 
     public function normalize(FilterDefinition $filter, mixed $raw): NormalizedValue

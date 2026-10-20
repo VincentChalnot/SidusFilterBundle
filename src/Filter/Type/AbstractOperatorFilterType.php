@@ -16,18 +16,18 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 abstract class AbstractOperatorFilterType extends AbstractFilterType
 {
     /** @return list<string> every operator this type knows */
-    abstract protected function knownOperators(): array;
+    abstract protected static function knownOperators(): array;
 
     /** @return list<string> operators that take no value */
-    protected function valuelessOperators(): array
+    protected static function valuelessOperators(): array
     {
         return [];
     }
 
     /** @return list<string> */
-    protected function defaultOperators(): array
+    protected static function defaultOperators(): array
     {
-        return [$this->knownOperators()[0]];
+        return [static::knownOperators()[0]];
     }
 
     /**
@@ -35,18 +35,18 @@ abstract class AbstractOperatorFilterType extends AbstractFilterType
      */
     abstract protected function normalizeValue(FilterDefinition $filter, string $operator, mixed $value): array|Violation;
 
-    public function configureOptions(OptionsResolver $resolver): void
+    public static function configureOptions(OptionsResolver $resolver): void
     {
-        $known = $this->knownOperators();
-        $resolver->setDefault('operators', $this->defaultOperators());
+        $known = static::knownOperators();
+        $resolver->setDefault('operators', static::defaultOperators());
         $resolver->setAllowedTypes('operators', 'string[]');
         $resolver->setAllowedValues('operators', static fn (array $operators): bool => [] !== $operators
             && [] === array_diff($operators, $known));
         $resolver->setNormalizer('operators', static fn ($options, array $operators): array => array_values(array_unique($operators)));
-        $this->configureTypeOptions($resolver);
+        static::configureTypeOptions($resolver);
     }
 
-    protected function configureTypeOptions(OptionsResolver $resolver): void
+    protected static function configureTypeOptions(OptionsResolver $resolver): void
     {
     }
 
@@ -69,7 +69,7 @@ abstract class AbstractOperatorFilterType extends AbstractFilterType
                 return NormalizedValue::invalid(new Violation('operator', \sprintf('Unknown operator, allowed: %s.', implode(', ', $allowed)), $operator));
             }
         }
-        if (\in_array($operator, $this->valuelessOperators(), true)) {
+        if (\in_array($operator, static::valuelessOperators(), true)) {
             return NormalizedValue::of(['operator' => $operator, 'value' => null]);
         }
         if (self::isBlank($value)) {
@@ -81,13 +81,5 @@ abstract class AbstractOperatorFilterType extends AbstractFilterType
         }
 
         return NormalizedValue::of(['operator' => $operator, 'value' => $normalized[0]]);
-    }
-
-    /**
-     * @return list<string> operators the definition allows
-     */
-    protected function allowedOperators(FilterDefinition $filter): array
-    {
-        return $filter->options['operators'];
     }
 }

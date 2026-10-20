@@ -20,7 +20,7 @@ final class NumberFilterType extends AbstractOperatorFilterType
         return 'number';
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
         $classes = [];
         foreach ($filter->options['operators'] as $operator) {
@@ -33,7 +33,7 @@ final class NumberFilterType extends AbstractOperatorFilterType
             });
         }
 
-        return $this->withAnyOf($filter, $classes);
+        return self::withAnyOf($filter, $classes);
     }
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
@@ -52,12 +52,12 @@ final class NumberFilterType extends AbstractOperatorFilterType
         });
     }
 
-    protected function knownOperators(): array
+    protected static function knownOperators(): array
     {
         return ['eq', 'neq', 'gt', 'gte', 'lt', 'lte', 'is_null', 'is_not_null'];
     }
 
-    protected function valuelessOperators(): array
+    protected static function valuelessOperators(): array
     {
         return ['is_null', 'is_not_null'];
     }

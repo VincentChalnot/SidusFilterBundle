@@ -29,7 +29,7 @@ final class TextFilterType extends AbstractOperatorFilterType
         return 'text';
     }
 
-    public function getRequiredOperations(FilterDefinition $filter): array
+    public static function getRequiredOperations(FilterDefinition $filter): array
     {
         $classes = [];
         foreach ($filter->options['operators'] as $operator) {
@@ -46,7 +46,7 @@ final class TextFilterType extends AbstractOperatorFilterType
             }
         }
 
-        return $this->withAnyOf($filter, $classes);
+        return self::withAnyOf($filter, $classes);
     }
 
     public function buildCriterion(FilterDefinition $filter, mixed $value): ?Criterion
@@ -81,22 +81,22 @@ final class TextFilterType extends AbstractOperatorFilterType
         return str_starts_with($operator, 'not_') || str_starts_with($operator, 'is_not_');
     }
 
-    protected function knownOperators(): array
+    protected static function knownOperators(): array
     {
         return self::OPERATORS;
     }
 
-    protected function defaultOperators(): array
+    protected static function defaultOperators(): array
     {
         return ['contains'];
     }
 
-    protected function valuelessOperators(): array
+    protected static function valuelessOperators(): array
     {
         return ['is_null', 'is_not_null', 'is_empty', 'is_not_empty'];
     }
 
-    protected function configureTypeOptions(OptionsResolver $resolver): void
+    protected static function configureTypeOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefault('case_sensitive', false);
         $resolver->setAllowedTypes('case_sensitive', 'bool');

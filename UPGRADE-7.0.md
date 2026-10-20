@@ -36,7 +36,7 @@ cause instead of resetting it:
 | `type: not_null` | `type: not_null` |
 | `options.hidden: true` | `locked: true` (now normalised like any input) |
 | `label`, `form_type`, `form_options` | `form: { label, type, options }` |
-| `default:` | unchanged, normalised like user input; an invalid default fails at compile time |
+| `default:` | unchanged, normalised like user input; an invalid default fails `cache:warmup` |
 | `provider: doctrine` | unchanged, requires `sidus/doctrine-filter-bundle` |
 | qk `options.joins`, `totals->regression::int` | Doctrine bundle: named joins; `{ path: totals, json: [regression], cast: integer }` |
 
