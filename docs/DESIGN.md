@@ -608,3 +608,11 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
 - Code lives in `src/`, tests in `tests/` (`Sidus\FilterBundle\Tests\`), bundle configuration in `config/`. The v6
   worker-mode test, kernel and controller were deleted with the Doctrine code; the Doctrine bundle re-creates the
   SQLite flavour, the core carries a container-level worker test on the in-memory provider (step "DI").
+- **Fields**: criteria hold a `Definition\Field` (path, JSON path, cast); a string is parsed (`totals->regression::int`,
+  casts `int`/`bool` are aliases of `integer`/`boolean`). Sort columns are `OrderBy` value objects inside `Sort`.
+- **`ListInput`** is `{filters, page, perPage, totalCount}`; `fromArray()` maps a top-level `sort` to `filters['sort']`
+  (the conventional public name of the sort filter). The `sort` of section 11 is therefore an ordinary filter input.
+- **`ListResult::hasNextPage()`** is exact for `count: none` (the handler fetches `per_page + 1`) and derived from the
+  (lazy) total otherwise.
+- **Definitions are dumped as arrays** (`toArray()` / `fromArray()`): the compiler pass resolves configuration into
+  these arrays, the registry rebuilds the readonly objects once.
