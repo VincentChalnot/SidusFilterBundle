@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Form\Mapper;
 
 use Sidus\FilterBundle\Definition\FilterDefinition;
+use Sidus\FilterBundle\Definition\ListDefinition;
 use Sidus\FilterBundle\Form\Type\DateRangeType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -29,7 +30,7 @@ final class DateRangeMapper extends AbstractFormFilterMapper
         return \is_array($viewData) ? ['from' => $format($viewData['from'] ?? null), 'to' => $format($viewData['to'] ?? null)] : $viewData;
     }
 
-    public function add(FormBuilderInterface $builder, FilterDefinition $filter, mixed $data): void
+    public function add(FormBuilderInterface $builder, FilterDefinition $filter, ListDefinition $list, mixed $data): void
     {
         $this->addField($builder, $filter, DateRangeType::class, ['timezone' => $filter->options['timezone']], $data);
     }

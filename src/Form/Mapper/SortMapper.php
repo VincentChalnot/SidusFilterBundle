@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Form\Mapper;
 
 use Sidus\FilterBundle\Definition\FilterDefinition;
+use Sidus\FilterBundle\Definition\ListDefinition;
 use Sidus\FilterBundle\Form\Type\SortType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -18,7 +19,7 @@ final class SortMapper extends AbstractFormFilterMapper
         return 'sort';
     }
 
-    public function add(FormBuilderInterface $builder, FilterDefinition $filter, mixed $data): void
+    public function add(FormBuilderInterface $builder, FilterDefinition $filter, ListDefinition $list, mixed $data): void
     {
         $this->addField($builder, $filter, SortType::class, ['columns' => array_keys($filter->options['columns'])], $data);
     }

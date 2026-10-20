@@ -37,7 +37,7 @@ final class ListFormType extends AbstractType
             }
             $normalized = $this->filterTypes->get($filter->type)->normalize($filter, $filter->default);
             $data = $normalized->isValid() && !$normalized->isEmpty() ? $mapper->toFormData($filter, $normalized->value) : null;
-            $mapper->add($filters, $filter, $data);
+            $mapper->add($filters, $filter, $definition, $data);
         }
         $builder->add($filters);
         $builder->add('page', HiddenType::class, ['required' => false, 'error_bubbling' => false]);

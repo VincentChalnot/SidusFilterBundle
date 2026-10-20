@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Form\Mapper;
 
 use Sidus\FilterBundle\Definition\FilterDefinition;
+use Sidus\FilterBundle\Definition\ListDefinition;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\FormBuilderInterface;
 
@@ -22,7 +23,7 @@ final class FlagMapper extends AbstractFormFilterMapper
         return $this->filterType;
     }
 
-    public function add(FormBuilderInterface $builder, FilterDefinition $filter, mixed $data): void
+    public function add(FormBuilderInterface $builder, FilterDefinition $filter, ListDefinition $list, mixed $data): void
     {
         $this->addField($builder, $filter, CheckboxType::class, [], true === $data);
     }

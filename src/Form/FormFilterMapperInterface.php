@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Form;
 
 use Sidus\FilterBundle\Definition\FilterDefinition;
+use Sidus\FilterBundle\Definition\ListDefinition;
 use Symfony\Component\Form\FormBuilderInterface;
 
 /**
@@ -22,9 +23,10 @@ interface FormFilterMapperInterface
     /**
      * Adds the field, named after the filter's public name, to the `filters` builder.
      *
-     * @param mixed $data the initial form data ({@see toFormData()} of the normalised default), null when none
+     * @param ListDefinition $list the list the filter belongs to (e.g. to derive a related class from the provider's options)
+     * @param mixed          $data the initial form data ({@see toFormData()} of the normalised default), null when none
      */
-    public function add(FormBuilderInterface $builder, FilterDefinition $filter, mixed $data): void;
+    public function add(FormBuilderInterface $builder, FilterDefinition $filter, ListDefinition $list, mixed $data): void;
 
     /** Submitted view data of the field to raw input. */
     public function toRaw(FilterDefinition $filter, mixed $viewData): mixed;
