@@ -639,3 +639,17 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
   name uniqueness among *active* filters, at most one sort filter, and every criterion class a filter can emit must be
   supported. A filter whose `providers:` excludes the list's provider is dropped before any check. Field-dependent
   refusals (Doctrine metadata) are the provider's cache-warm-up concern.
+- **Request pipeline** (`Provider\AbstractQueryHandler`, final `handle()`): a filter absent or null in the input takes
+  its default; an explicitly blank value (`''`, `[]`) clears the default; a locked filter ignores the input. An invalid
+  part is reported as a violation (`filters.<name>[.<sub-path>]`, `page`, `per_page`) and falls back to the filter's
+  default (inactive without one). `page` and `per_page` are positive integers or digit strings; `per_page` is bounded by
+  `pagination.max_per_page`. Providers only implement `createContext`, `applyCriterion`, `applySort`, `fetch`,
+  `countNative`; the per-request query object is a `QueryContextInterface`.
+- **In-memory provider** (`provider: in_memory`): list options `source` (id of an `InMemorySourceInterface` service,
+  tagged `sidus_filter.in_memory_source`) and `identifier` (tie-breaker field, default `id`). Strings compare byte-wise
+  (not locale-aware), numbers numerically (a numeric string meets a number), dates as instants (an ISO string meets a
+  date); incomparable values never match. Without a sort filter the source order is kept; a to-many sort column sorts
+  by its first element. JSON paths read nested array keys (or a JSON string), casts follow `Field::CASTS`.
+- **Contract kit** (`Sidus\FilterBundle\Test\Contract`): `FixtureDataset` (arrays), `ContractCases` (data: input, ordered
+  ids, total, violation paths) and `AbstractProviderContractTestCase` (`providerName()`, `listOptions()`,
+  `createHandler()`, optional `knownDivergences()`); also checks single use and a lazily supplied total.
