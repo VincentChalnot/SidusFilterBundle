@@ -11,6 +11,18 @@ All notable changes to this project will be documented in this file.
   the mutable `QueryHandlerRegistry`, `Query/Handler/*`, the v6 form types, the Bootstrap 3/4 themes and the v6
   documentation.
 - Requires PHP 8.4+ and Symfony 8.1+. No dependency on Doctrine, Pagerfanta or symfony/form (optional adapters).
+- Configuration is `sidus_filter.lists` (was `configurations`); see `docs/DESIGN.md` section 7.3 for the mapping.
+
+### Added
+
+- Criterion vocabulary, readonly list/filter definitions, `ListInput`, `ListResult` (lazy total, violations, state).
+- Filter types `text`, `exact`, `choice`, `number`, `date_range`, `null`, `not_null`, `not_empty`, `regexp`, `sort`,
+  `native`, provider-independent and registered by name.
+- Provider SPI with strict compile-time capability negotiation, `providers:` filter restriction, per-provider options.
+- In-memory reference provider and the provider contract test kit (`Sidus\FilterBundle\Test\Contract`).
+- Count strategies (`auto`, `none`, service id) and per-request totals (`ListInput::withTotalCount()`).
+- `QueryHandlerRegistry::createQueryHandler()` (a new handler per call), `ListDefinitionRegistry`, and the
+  `debug:sidus-filter` command. Definitions are validated at container compile time.
 
 ## [6.0.3] - 2026-07-21
 

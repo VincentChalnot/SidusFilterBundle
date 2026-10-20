@@ -657,3 +657,18 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
   `per_page + 1` (skipped when the caller supplies a total), any other `count:` value is a `CountStrategyInterface`
   service id (created without it, `handle()` throws). A strategy may return null (unknown). The provider contract
   kit's `createHandler()` takes the optional strategy.
+- **DI**: `SidusFilterBundle` is an `AbstractBundle` (tree in `configure()`, services in `config/services.php`).
+  Autoconfigured interfaces and their tags: `FilterTypeInterface` → `sidus_filter.filter_type`,
+  `QueryHandlerFactoryInterface` → `sidus_filter.provider_factory`, `CriterionCompilerInterface` →
+  `sidus_filter.criterion_compiler`, `InMemoryCriterionCompilerInterface` → `sidus_filter.in_memory_compiler`,
+  `InMemorySourceInterface` → `sidus_filter.in_memory_source`, `NativeCriterionBuilderInterface` →
+  `sidus_filter.native_builder`. Registries index their tagged iterators once (no `defaultIndexMethod`).
+- `ListDefinitionPass` (before optimisation, priority 0) reads `sidus_filter.raw_lists` (then removes it), resolves
+  `%parameters%`, runs `DefinitionResolver` and passes the resolved arrays as `$definitions` to `ListDefinitionRegistry`;
+  a `count:` service id must exist and implement `CountStrategyInterface`; a provider registered twice is an error.
+  `ListDefinitionRegistry` and `QueryHandlerRegistry` are public; `FilterTypeRegistry` is private.
+- `QueryHandlerRegistry` API: `has`, `getDefinition`, `codes`, `createQueryHandler` (new handler per call).
+  `bin/console debug:sidus-filter [code]` lists lists, or one list with its active filters and the criteria they emit
+  (registered when symfony/console exists).
+- Not validated at compile time (needs runtime services): that an in-memory `source` service exists (reported when the
+  handler is created).
