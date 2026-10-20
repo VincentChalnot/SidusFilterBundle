@@ -17,7 +17,7 @@ the normalised default. What the query carries for a filter is passed on untouch
 violation instead of a silent `null`). A filter type without a mapper (e.g. `native`) has no field; register your own
 mapper (autoconfigured, tag `sidus_filter.form_mapper`) for custom types. Per filter: `form: { label, type, options }`.
 
-The sort field is a hidden input holding the API-style value plus `form.<sort>.vars.columns[key]` =
+The sort field is a hidden input holding the API-style value plus `form.filters.<sortFilterName>.vars.columns[key]` =
 `{key, direction, primary, next}`: render a submit button (or link) per column key, `next` being the value to submit.
 
 Themes (`twig.form_themes`): `@SidusFilter/form/base.html.twig` (unstyled), `@SidusFilter/form/bootstrap_6.html.twig`,

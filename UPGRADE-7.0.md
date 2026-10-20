@@ -103,7 +103,7 @@ the v6 documentation.
 The form is now an adapter: `Sidus\FilterBundle\Form\ListFormFactory`. Themes are `@SidusFilter/form/base.html.twig`,
 `bootstrap_6.html.twig` and `bulma_1.html.twig` (Bootstrap 3/4 themes are gone; a Tailwind example lives in
 `docs/examples`). The global `DateExtension` and `DoctrineEntityExtension` are removed: string defaults are handled by
-the filter types' normalisers. Sorting is a form field with one button per column key (`form.sort.vars.columns[key]`)
+the filter types' normalisers. Sorting is a form field with one button per column key (`form.filters.<sortFilterName>.vars.columns[key]`)
 instead of `OrderButtonType` and hidden sort fields.
 
 ## SidusDataGridBundle

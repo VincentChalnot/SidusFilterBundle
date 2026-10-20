@@ -504,7 +504,7 @@ the Doctrine bridge adds the mapper for `relation` → `EntityType` with the res
 limited to related ids, without touching the main query). The form's submitted data is converted back to *raw input*
 and goes through the same normaliser as an API call; the form never applies anything to a query.
 Sort UI: a `sort` child with one button per column key plus the current state, rendered by `sidus_filter_sort_*` blocks
-(DataGrid header cells use `form.sort.<key>` instead of `formView.sortable[index]`). Global `DateExtension` and
+(DataGrid header cells use `form.filters.<sortFilterName>.vars.columns[key]` instead of `formView.sortable[index]`; the sort field lives in the `filters` child, see §18). Global `DateExtension` and
 `DoctrineEntityExtension` are removed: string defaults are handled by the normalisers. Themes (owner): an unstyled
 base theme, Bootstrap 6 (built against the 6.0 alpha markup), Bulma 1, and a Tailwind skeleton given as an example.
 
@@ -556,8 +556,9 @@ Composer path repository.
   `__sidus_datagrid.<code>` (remove the runtime `addRawQueryHandlerConfiguration`).
 - `DataGrid::buildForm()/handleRequest()` → `ListFormFactory::create()` + `$handler->handle(ListInput)`;
   `getPager()` → `ListResultAdapter`.
-- Twig: `datagrid.queryHandler.configuration.sortable` → `datagrid.definition.sort.columns`,
-  `datagrid.queryHandler.pager` → `datagrid.pager`, `datagrid.formView.sortable[index]` → `datagrid.formView.sort[key]`;
+- Twig: `datagrid.queryHandler.configuration.sortable` → the sort filter's columns (`datagrid.definition.findSortFilter().options.columns`),
+  `datagrid.queryHandler.pager` → `datagrid.pager`, `datagrid.formView.sortable[index]` → `datagrid.formView.filters[<sortFilterName>].vars.columns[key]`
+  (implemented sort field location, see docs/MIGRATION-CONSUMERS.md);
   combo translation keys renamed (`sidus.filter.operator.contains`, ...).
 - Require `sidus/filter-bundle ^7.0` (its current `>=4.0` must be capped).
 
