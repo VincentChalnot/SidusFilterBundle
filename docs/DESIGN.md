@@ -616,3 +616,18 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
   (lazy) total otherwise.
 - **Definitions are dumped as arrays** (`toArray()` / `fromArray()`): the compiler pass resolves configuration into
   these arrays, the registry rebuilds the readonly objects once.
+- **Filter types**: `operators` is an option (`options.operators`), not a top-level filter key; the first entry is the
+  default operator for a bare value. Operator names: text `contains|not_contains|starts_with|not_starts_with|ends_with|
+  not_ends_with|equals|not_equals|is_null|is_not_null|is_empty|is_not_empty`; number `eq|neq|gt|gte|lt|lte|is_null|
+  is_not_null`; regexp `matches|not_matches|imatches|not_imatches`.
+- `choice` without `choices` accepts any scalar; choices derived from the provider's distinct values are an adapter
+  concern, not a core one. `multiple: true` is required to accept a list.
+- `date_range`: date-only bounds are interpreted in the `timezone` option (default UTC); both bounds inclusive.
+- `regexp` patterns are validated against the portable ERE subset (`Criterion\PosixRegex`, also the in-memory
+  reference): no `(?`, no alphanumeric escapes (`\d`, `\1`), no possessive quantifiers, max 255 bytes.
+- `sort`: columns are `key => path | {path,json,cast} | {field, provider_options}`; `provider_options` of the column end
+  up in `OrderBy::providerOptions` keyed by provider (aggregate/expression for Doctrine). Invalid sort input yields
+  violations and the pipeline then falls back to `normalize($filter, null)`, i.e. the configured `default`.
+- `native`: `options.builder` names a `NativeCriterionBuilderInterface` service (tag `sidus_filter.native_builder`).
+- Compile-time methods of filter types (`configureOptions`, `getRequiredOperations`, `normalize`) must be pure: the
+  compiler pass calls them on an instance created without its constructor (see 3c notes).
