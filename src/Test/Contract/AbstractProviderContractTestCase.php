@@ -9,6 +9,8 @@ use PHPUnit\Framework\TestCase;
 use Sidus\FilterBundle\Definition\FilterDefinition;
 use Sidus\FilterBundle\Definition\ListDefinition;
 use Sidus\FilterBundle\Input\ListInput;
+use Sidus\FilterBundle\Provider\CountStrategyInterface;
+use Sidus\FilterBundle\Provider\QueryContextInterface;
 use Sidus\FilterBundle\Provider\QueryHandlerInterface;
 use Sidus\FilterBundle\Registry\FilterTypeRegistry;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -37,7 +39,7 @@ abstract class AbstractProviderContractTestCase extends TestCase
      */
     abstract protected function listOptions(): array;
 
-    abstract protected function createHandler(ListDefinition $definition): QueryHandlerInterface;
+    abstract protected function createHandler(ListDefinition $definition, ?CountStrategyInterface $countStrategy = null): QueryHandlerInterface;
 
     /**
      * @return array<string, string> case id => why this provider cannot match the reference
@@ -118,11 +120,55 @@ abstract class AbstractProviderContractTestCase extends TestCase
         self::assertSame(1, $calls);
     }
 
+    public function testCountNoneGivesNoTotalButKnowsTheNextPage(): void
+    {
+        $first = $this->createHandler($this->definition(count: 'none'))->handle(new ListInput(page: 1, perPage: 4));
+        $last = $this->createHandler($this->definition(count: 'none'))->handle(new ListInput(page: 2, perPage: 4));
+        $exact = $this->createHandler($this->definition(count: 'none'))->handle(new ListInput(page: 2, perPage: 3));
+
+        self::assertSame([1, 2, 3, 4], array_map($this->itemId(...), $first->items()));
+        self::assertNull($first->total());
+        self::assertTrue($first->hasNextPage());
+        self::assertSame([5, 6], array_map($this->itemId(...), $last->items()));
+        self::assertFalse($last->hasNextPage());
+        self::assertSame([4, 5, 6], array_map($this->itemId(...), $exact->items()));
+        self::assertFalse($exact->hasNextPage(), 'a full last page has no next page');
+    }
+
+    public function testCountStrategyServiceReplacesTheNativeCount(): void
+    {
+        $strategy = new class() implements CountStrategyInterface {
+            public int $calls = 0;
+
+            public function count(QueryContextInterface $query, ListDefinition $list, ListInput $input): ?int
+            {
+                ++$this->calls;
+
+                return 1234;
+            }
+        };
+        $result = $this->createHandler($this->definition(count: 'app.count'), $strategy)->handle(new ListInput(perPage: 2));
+
+        self::assertSame(0, $strategy->calls, 'lazy');
+        self::assertSame(1234, $result->total());
+        self::assertSame(1234, $result->total());
+        self::assertSame(1, $strategy->calls);
+    }
+
+    public function testASuppliedTotalWinsOverTheStrategyAndNoneFetchesNoExtraItem(): void
+    {
+        $result = $this->createHandler($this->definition(count: 'none'))->handle(new ListInput(perPage: 2)->withTotalCount(6));
+
+        self::assertCount(2, $result->items());
+        self::assertSame(6, $result->total());
+        self::assertTrue($result->hasNextPage());
+    }
+
     /**
      * @param array<string, array<string, mixed>|null> $overrides filter key => replacement spec (null removes it)
      * @param array<string, int>                       $pagination
      */
-    protected function definition(array $overrides = [], array $pagination = []): ListDefinition
+    protected function definition(array $overrides = [], array $pagination = [], string $count = ListDefinition::COUNT_AUTO): ListDefinition
     {
         $specs = array_filter([...FixtureDataset::filterSpecs(), ...$overrides], static fn (?array $spec): bool => null !== $spec);
         $types = FilterTypeRegistry::builtIn();
@@ -146,7 +192,7 @@ abstract class AbstractProviderContractTestCase extends TestCase
             $this->listOptions(),
             $pagination['per_page'] ?? 10,
             $pagination['max_per_page'] ?? 50,
-            ListDefinition::COUNT_AUTO,
+            $count,
             $filters,
         );
     }

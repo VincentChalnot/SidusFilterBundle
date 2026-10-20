@@ -17,6 +17,10 @@ use Sidus\FilterBundle\Result\ListResult;
  * The request pipeline shared by every provider: normalise the input into criteria (collecting violations, never
  * throwing on user input), hand them to the provider, fetch one page, expose the total lazily. Single use.
  *
+ * Total: `count: auto` is the provider's native count, `none` gives no total (the result knows whether a next page
+ * exists), any other value is a {@see CountStrategyInterface} service; a total supplied with the input
+ * ({@see ListInput::withTotalCount()}) always wins. Computed lazily, once.
+ *
  * Input rules: a filter absent (or null) in the input takes its configured default; an explicitly blank value
  * ('' or []) clears it; a locked filter always takes its default and ignores the input. An invalid part falls back
  * to the filter's default (inactive without one) and is reported as a violation.
@@ -56,7 +60,13 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
             $this->applySort($context, $sort);
         }
 
-        $items = array_values([...$this->fetch($context, ($page - 1) * $perPage, $perPage)]);
+        // Count `none` without a supplied total: fetch one extra item to know whether a next page exists.
+        $fetchAhead = ListDefinition::COUNT_NONE === $this->definition->count && null === $input->totalCount;
+        $items = array_values([...$this->fetch($context, ($page - 1) * $perPage, $perPage + ($fetchAhead ? 1 : 0))]);
+        $hasNextPage = $fetchAhead && \count($items) > $perPage;
+        if ($hasNextPage) {
+            $items = \array_slice($items, 0, $perPage);
+        }
 
         return new ListResult(
             $items,
@@ -65,6 +75,7 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
             $this->totalSource($context, $input),
             new ViolationList(...$violations),
             ['filters' => $filterState, 'page' => $page, 'per_page' => $perPage],
+            $hasNextPage,
         );
     }
 
@@ -91,7 +102,21 @@ abstract class AbstractQueryHandler implements QueryHandlerInterface
             return $input->totalCount;
         }
 
-        return fn (): int => $this->countNative($context);
+        return match ($this->definition->count) {
+            ListDefinition::COUNT_AUTO => fn (): int => $this->countNative($context),
+            ListDefinition::COUNT_NONE => null,
+            default => $this->strategyTotal($context, $input),
+        };
+    }
+
+    /**
+     * @return \Closure(): ?int
+     */
+    private function strategyTotal(QueryContextInterface $context, ListInput $input): \Closure
+    {
+        $strategy = $this->countStrategy ?? throw new \LogicException(\sprintf('List "%s" uses the count strategy "%s" but the handler was created without it.', $this->definition->code, $this->definition->count));
+
+        return fn (): ?int => $strategy->count($context, $this->definition, $input);
     }
 
     /**

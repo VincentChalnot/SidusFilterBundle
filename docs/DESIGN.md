@@ -653,3 +653,7 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
 - **Contract kit** (`Sidus\FilterBundle\Test\Contract`): `FixtureDataset` (arrays), `ContractCases` (data: input, ordered
   ids, total, violation paths) and `AbstractProviderContractTestCase` (`providerName()`, `listOptions()`,
   `createHandler()`, optional `knownDivergences()`); also checks single use and a lazily supplied total.
+- **Count** (section 10): `auto` = `countNative()`, `none` = unknown total and `hasNextPage()` from fetching
+  `per_page + 1` (skipped when the caller supplies a total), any other `count:` value is a `CountStrategyInterface`
+  service id (created without it, `handle()` throws). A strategy may return null (unknown). The provider contract
+  kit's `createHandler()` takes the optional strategy.

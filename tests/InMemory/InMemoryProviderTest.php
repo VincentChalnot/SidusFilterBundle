@@ -7,6 +7,7 @@ namespace Sidus\FilterBundle\Tests\InMemory;
 use Sidus\FilterBundle\Definition\ListDefinition;
 use Sidus\FilterBundle\InMemory\ArraySource;
 use Sidus\FilterBundle\InMemory\InMemoryQueryHandlerFactory;
+use Sidus\FilterBundle\Provider\CountStrategyInterface;
 use Sidus\FilterBundle\Provider\QueryHandlerInterface;
 use Sidus\FilterBundle\Registry\FilterTypeRegistry;
 use Sidus\FilterBundle\Test\Contract\AbstractProviderContractTestCase;
@@ -27,9 +28,9 @@ final class InMemoryProviderTest extends AbstractProviderContractTestCase
         return ['source' => 'posts', 'identifier' => 'id'];
     }
 
-    protected function createHandler(ListDefinition $definition): QueryHandlerInterface
+    protected function createHandler(ListDefinition $definition, ?CountStrategyInterface $countStrategy = null): QueryHandlerInterface
     {
         return InMemoryQueryHandlerFactory::standalone(['posts' => new ArraySource(FixtureDataset::posts())])
-            ->createQueryHandler($definition, FilterTypeRegistry::builtIn(), null);
+            ->createQueryHandler($definition, FilterTypeRegistry::builtIn(), $countStrategy);
     }
 }

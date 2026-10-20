@@ -7,6 +7,7 @@ namespace Sidus\FilterBundle\Tests\Support;
 use Sidus\FilterBundle\Definition\ListDefinition;
 use Sidus\FilterBundle\InMemory\ArraySource;
 use Sidus\FilterBundle\InMemory\InMemoryQueryHandlerFactory;
+use Sidus\FilterBundle\Provider\CountStrategyInterface;
 use Sidus\FilterBundle\Provider\QueryHandlerInterface;
 use Sidus\FilterBundle\Registry\FilterTypeRegistry;
 use Sidus\FilterBundle\Test\Contract\AbstractProviderContractTestCase;
@@ -37,9 +38,9 @@ final class ConfigurableContractSuite extends AbstractProviderContractTestCase
         return $this->divergences;
     }
 
-    protected function createHandler(ListDefinition $definition): QueryHandlerInterface
+    protected function createHandler(ListDefinition $definition, ?CountStrategyInterface $countStrategy = null): QueryHandlerInterface
     {
         return InMemoryQueryHandlerFactory::standalone(['posts' => new ArraySource($this->data)])
-            ->createQueryHandler($definition, FilterTypeRegistry::builtIn(), null);
+            ->createQueryHandler($definition, FilterTypeRegistry::builtIn(), $countStrategy);
     }
 }
