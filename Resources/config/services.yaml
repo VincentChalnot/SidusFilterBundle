@@ -6,7 +6,7 @@ services:
 
     Sidus\FilterBundle\:
         resource: '../../'
-        exclude: '../../{DependencyInjection,Doctrine,Documentation,Model}'
+        exclude: '../../{DependencyInjection,Doctrine,Documentation,Model,vendor,tests,docs,var,Resources}'
 
     Sidus\FilterBundle\Factory\FilterFactoryInterface:
         alias: Sidus\FilterBundle\Factory\FilterFactory
