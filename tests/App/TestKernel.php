@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle\Tests\App;
 
 use Sidus\FilterBundle\SidusFilterBundle;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Bundle\FrameworkBundle\Kernel\MicroKernelTrait;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Kernel;
+use Symfony\Component\Routing\Loader\Configurator\RoutingConfigurator;
 
 /**
  * Boots the bundle with the lists and services given by the test, in an isolated cache directory that is wiped
@@ -26,6 +28,7 @@ final class TestKernel extends Kernel
         private readonly ?\Closure $configure = null,
         private readonly string $id = 'default',
         private readonly bool $wipeCache = true,
+        private readonly ?\Closure $routes = null,
     ) {
         parent::__construct('test', true);
     }
@@ -33,15 +36,17 @@ final class TestKernel extends Kernel
     /**
      * @param array<string, array<string, mixed>>        $lists
      * @param \Closure(ContainerConfigurator): void|null $services
+     * @param array<string, mixed>                       $config   more `sidus_filter` configuration (e.g. `http`)
+     * @param \Closure(RoutingConfigurator): void|null   $routes
      */
-    public static function create(array $lists, ?\Closure $services = null, ?string $id = null, bool $wipeCache = true): self
+    public static function create(array $lists, ?\Closure $services = null, ?string $id = null, bool $wipeCache = true, array $config = [], ?\Closure $routes = null): self
     {
-        return new self(static function (ContainerConfigurator $container) use ($lists, $services): void {
-            $container->extension('sidus_filter', ['lists' => $lists]);
+        return new self(static function (ContainerConfigurator $container) use ($lists, $services, $config): void {
+            $container->extension('sidus_filter', ['lists' => $lists] + $config);
             if (null !== $services) {
                 $services($container);
             }
-        }, $id ?? uniqid('k', true), $wipeCache);
+        }, $id ?? uniqid('k', true), $wipeCache, $routes);
     }
 
     public function registerBundles(): iterable
@@ -73,9 +78,17 @@ final class TestKernel extends Kernel
         return sys_get_temp_dir().'/sidus-filter-bundle-tests/'.$this->id.'/log';
     }
 
+    protected function configureRoutes(RoutingConfigurator $routes): void
+    {
+        if (null !== $this->routes) {
+            ($this->routes)($routes);
+        }
+    }
+
     protected function configureContainer(ContainerConfigurator $container): void
     {
-        $container->extension('framework', ['test' => true, 'secret' => 'test', 'http_method_override' => false]);
+        $container->extension('framework', ['test' => true, 'secret' => 'test', 'http_method_override' => false, 'router' => ['utf8' => true]]);
+        $container->services()->set('logger', NullLogger::class);
         if (null !== $this->configure) {
             ($this->configure)($container);
         }

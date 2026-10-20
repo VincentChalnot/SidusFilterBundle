@@ -691,3 +691,14 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
   `sidus.filter.sort.*` (the v6 `combo` keys are gone with the combo option codes).
 - Small additive core changes made for the adapters: `ListDefinition::findSortFilter()` and the `$sortFilter`
   parameter of `ListInput::fromArray()` (the sort filter need not be named `sort`).
+- **HTTP adapter** (`Sidus\FilterBundle\Http`): `ListRequestParser` (query string, or the same structure as a JSON
+  body; body values replace the query's; keys configurable under `sidus_filter.http`: `filters_key` (empty = top-level
+  parameters are filters), `sort_key`, `page_key`, `per_page_key`; the sort value feeds the list's sort filter whatever
+  its name), `ListResultNormalizer` (`{items, meta: {page, per_page, total, pages, next}}`, items through an optional
+  callable), `ListResponseFactory` (strict by default: `400 application/problem+json` with `violations[{path,
+  message}]`, never the submitted values; `http.strict: false` answers 200 with the defaults and a `violations` key),
+  `#[MapListInput('code')]` + `ListInputValueResolver` (a targeted value resolver). Malformed JSON is a 400 from the
+  parser. Strictness is the response factory's, not the argument resolver's.
+- **Pagerfanta bridge**: `ListResultAdapter::createPager(ListResult)` wraps an already computed result (its own page
+  only, out-of-range pages allowed); with `count: none` the number of results is `(page-1)*per_page + items (+1 if a next
+  page exists)`. A handler-driven adapter is not provided: a handler is single-use and already returns the result.

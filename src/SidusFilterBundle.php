@@ -73,6 +73,17 @@ final class SidusFilterBundle extends AbstractBundle
                         ->end()
                     ->end()
                 ->end()
+                ->arrayNode('http')
+                    ->info('The request parser and response factory (Http adapter)')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+                        ->scalarNode('filters_key')->defaultValue('filters')->info('Query/body key holding the filters; empty = every top-level parameter but the reserved ones')->end()
+                        ->scalarNode('sort_key')->defaultValue('sort')->cannotBeEmpty()->end()
+                        ->scalarNode('page_key')->defaultValue('page')->cannotBeEmpty()->end()
+                        ->scalarNode('per_page_key')->defaultValue('per_page')->cannotBeEmpty()->end()
+                        ->booleanNode('strict')->defaultTrue()->info('Violations answer 400 (problem+json) instead of 200 with the defaults applied')->end()
+                    ->end()
+                ->end()
             ->end();
     }
 
@@ -83,6 +94,10 @@ final class SidusFilterBundle extends AbstractBundle
     {
         $container->import('../config/services.php');
         $container->parameters()->set(ListDefinitionPass::RAW_LISTS_PARAMETER, $config['lists']);
+        foreach ($config['http'] as $key => $value) {
+            $container->parameters()->set('sidus_filter.http.'.$key, $value);
+        }
+        $container->import('../config/http.php');
 
         $builder->registerForAutoconfiguration(FilterTypeInterface::class)->addTag(ListDefinitionPass::FILTER_TYPE_TAG);
         $builder->registerForAutoconfiguration(QueryHandlerFactoryInterface::class)->addTag(ListDefinitionPass::PROVIDER_FACTORY_TAG);
