@@ -57,12 +57,46 @@ Combo option codes (`_like_`, `notlike_`, `greaterthanequals`...) are operator n
 | invalid input: exceptions or silent `null` | violations in the result; the invalid part falls back to its default |
 | `uniqid()` aliases and parameters | deterministic names (Doctrine bundle) |
 
-Removed with no replacement in this package: `DTO\SortConfig`, `Doctrine\*` (moved), `Exception\*`, `Factory\*`
-(`FilterFactory`, `QueryHandlerConfigurationFactory`, `QueryHandlerFactoryInterface`), `Filter\Filter(Interface)`,
-`Filter\Type\*` (the Doctrine filter types), `Form\Extension\DateExtension`, `Form\Extension\DoctrineEntityExtension`,
-`Form\Type\{ComboFilterType, DateRangeType, OrderButtonType, SortConfigType}` (a new `DateRangeType` exists in the form
-adapter), `Pagination\*`, `Query\Handler\*` (including `QueryHandlerConfiguration`), the old `Registry\*`, the
-Bootstrap 3 and 4 form themes and the v6 documentation.
+### Moved or replaced classes (old FQCN → new FQCN)
+
+All in `Sidus\FilterBundle\` unless stated. "Redesigned" means the same name with a different contract: do not just
+update the `use` statement.
+
+| v6 | v7 |
+|---|---|
+| `Factory\QueryHandlerFactoryInterface` | `Provider\QueryHandlerFactoryInterface` (the provider SPI; new signature: static `getProvider()`, static option resolvers, `createQueryHandler(ListDefinition, FilterTypeRegistry, ?CountStrategyInterface)`) |
+| `Query\Handler\QueryHandlerInterface` | `Provider\QueryHandlerInterface` (`handle(ListInput): ListResult`, single use) |
+| `Query\Handler\AbstractQueryHandler` | `Provider\AbstractQueryHandler` (the request pipeline; providers implement five hooks) |
+| `Query\Handler\Configuration\QueryHandlerConfiguration(Interface)` | `Definition\ListDefinition` (readonly) |
+| `Filter\Filter`, `Filter\FilterInterface` | `Definition\FilterDefinition` (readonly) |
+| `Filter\Type\FilterTypeInterface` | `Filter\FilterTypeInterface` (redesigned: static compile-time half, `normalize()` + `buildCriterion()`) |
+| `Filter\Type\AbstractFilterType` | `Filter\Type\AbstractFilterType` (same name, redesigned) |
+| `Registry\QueryHandlerRegistry` | `Registry\QueryHandlerRegistry` (same name, redesigned: `createQueryHandler()`), plus `Registry\ListDefinitionRegistry` |
+| `Registry\FilterTypeRegistry` | `Registry\FilterTypeRegistry` (same name, indexed by name from a tagged iterator) |
+| `Pagination\ManualCountAdapterInterface` | `Provider\CountStrategyInterface` |
+| `Form\Type\DateRangeType` | `Form\Type\DateRangeType` (same name, new: `{from, to}` instead of `{startDate, endDate}`) |
+| `Form\Type\ComboFilterType` | `Form\Type\OperatorValueType` |
+| `Form\Type\OrderButtonType`, `Form\Type\SortConfigType` | `Form\Type\SortType` (one field, per-column state in `vars.columns`) |
+| `Exception\MissingQueryHandlerException` | `Exception\UnknownListException` |
+| `Exception\MissingQueryHandlerFactoryException` | `Exception\UnknownProviderException` |
+| `Exception\MissingFilterException` | `Exception\UnknownFilterTypeException` (and compile-time `Exception\ConfigurationException`) |
+| `Doctrine\Factory\DoctrineQueryHandlerFactory` | `Sidus\DoctrineFilterBundle\Factory\DoctrineQueryHandlerFactory` |
+| `Query\Handler\Doctrine\DoctrineQueryHandler(Interface)` | `Sidus\DoctrineFilterBundle\Query\DoctrineQueryHandler` |
+| `Doctrine\Metadata\DoctrineAttributeMetadataResolver` | `Sidus\DoctrineFilterBundle\Metadata\FieldResolver` |
+| `Doctrine\Filter\Type\{Text,AdvancedText,Exact,Choice,CustomChoice,AdvancedNumber,DateRange,NotNull}FilterType` | the provider-independent `Filter\Type\{Text,Exact,Choice,Number,DateRange,NotNull}FilterType` plus the Doctrine bundle's criterion compilers |
+| `Doctrine\Filter\Type\EntityFilterType` | `relation` filter type, in the Doctrine bundle |
+| `Resources/views/Form/*.twig` | `templates/form/*.html.twig` (`@SidusFilter/form/...`) |
+
+[INFERENCE] The Doctrine bundle's FQCNs above are those of its current sources and may still change before its 1.0.
+
+### Removed, no replacement
+
+`DTO\SortConfig` (sorting is a filter), `DependencyInjection\Configuration` and `SidusFilterExtension` (the bundle
+configures itself), `Factory\FilterFactory(Interface)` and `Factory\QueryHandlerConfigurationFactory(Interface)`
+(definitions are built once at compile time), `Doctrine\Filter\Type\Abstract{Doctrine,Simple}FilterType`,
+`Pagination\DoctrineORMAdapter` (the Doctrine bundle has its own pagination), `Form\Extension\DateExtension`,
+`Form\Extension\DoctrineEntityExtension`, `Exception\BadQueryHandlerException`, the Bootstrap 3 and 4 form themes and
+the v6 documentation.
 
 ## Forms and themes
 
