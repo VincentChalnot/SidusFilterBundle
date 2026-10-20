@@ -1,0 +1,39 @@
+{#- Blocks shared by every Sidus theme; each theme `use`s this file and may override the *_button, *_group blocks. -#}
+
+{% block sidus_sort_row -%}
+    {{- form_widget(form) -}}
+{%- endblock sidus_sort_row %}
+
+{% block sidus_sort_widget -%}
+    <input type="hidden" {{ block('widget_attributes') }} value="{{ value }}">
+    <span class="sidus-sort">
+        {%- for column in columns -%}
+            {{- block('sidus_sort_button') -}}
+        {%- endfor -%}
+    </span>
+{%- endblock sidus_sort_widget %}
+
+{% block sidus_sort_button -%}
+    <button type="submit" name="{{ full_name }}" value="{{ column.next }}"{% if column.direction %} data-sort="{{ column.direction }}"{% endif %}{% if column.primary %} aria-sort="{{ column.direction == 'asc' ? 'ascending' : 'descending' }}"{% endif %}>
+        {{- column.key|humanize -}}{% if column.direction == 'asc' %} &uarr;{% elseif column.direction == 'desc' %} &darr;{% else %} &uarr;&darr;{% endif %}
+    </button>
+{%- endblock sidus_sort_button %}
+
+{% block sidus_operator_value_widget -%}
+    <div {{ block('widget_container_attributes') }}>
+        {{- form_widget(form.operator) -}}
+        {{- form_widget(form.value) -}}
+        {{- form_errors(form.operator) -}}
+        {{- form_errors(form.value) -}}
+    </div>
+{%- endblock sidus_operator_value_widget %}
+
+{% block sidus_date_range_widget -%}
+    <div {{ block('widget_container_attributes') }}>
+        {{- form_widget(form.from) -}}
+        <span class="sidus-date-range-separator">{{ 'sidus.filter.date_range.to'|trans }}</span>
+        {{- form_widget(form.to) -}}
+        {{- form_errors(form.from) -}}
+        {{- form_errors(form.to) -}}
+    </div>
+{%- endblock sidus_date_range_widget %}

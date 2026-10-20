@@ -48,6 +48,7 @@
         "symfony/form": "^8.1",
         "symfony/framework-bundle": "^8.1",
         "symfony/http-foundation": "^8.1",
+        "symfony/translation": "^8.1",
         "symfony/twig-bridge": "^8.1",
         "symfony/yaml": "^8.1"
     },
@@ -67,6 +68,7 @@
         "symfony/http-foundation": "Optional HTTP request parser and result normalizer",
         "pagerfanta/core": "Optional Pagerfanta adapter",
         "symfony/console": "Enables the debug:sidus-filter command",
-        "symfony/twig-bridge": "Form themes"
+        "symfony/twig-bridge": "Form themes",
+        "symfony/translation": "Translated form labels (en, fr shipped)"
     }
 }

@@ -1,0 +1,37 @@
+{#-
+    Tailwind skeleton: an example to copy into your own templates/, not a shipped theme.
+    Register it with:  twig: { form_themes: ['form/tailwind.html.twig'] }
+-#}
+{% extends 'tailwind_2_layout.html.twig' %}
+
+{% use '@SidusFilter/form/_blocks.html.twig' %}
+
+{% block sidus_sort_widget -%}
+    <input type="hidden" {{ block('widget_attributes') }} value="{{ value }}">
+    <span class="sidus-sort inline-flex rounded-md shadow-sm" role="group">
+        {%- for column in columns -%}
+            {{- block('sidus_sort_button') -}}
+        {%- endfor -%}
+    </span>
+{%- endblock sidus_sort_widget %}
+
+{% block sidus_sort_button -%}
+    <button type="submit" class="px-3 py-1 text-sm border border-gray-300 {{ column.direction ? 'bg-gray-100 font-semibold' : 'bg-white' }}" name="{{ full_name }}" value="{{ column.next }}"{% if column.primary %} aria-sort="{{ column.direction == 'asc' ? 'ascending' : 'descending' }}"{% endif %}>
+        {{- column.key|humanize -}}{% if column.direction == 'asc' %} &uarr;{% elseif column.direction == 'desc' %} &darr;{% else %} &uarr;&darr;{% endif %}
+    </button>
+{%- endblock sidus_sort_button %}
+
+{% block sidus_operator_value_widget -%}
+    <div class="flex gap-2">
+        {{- form_widget(form.operator) -}}
+        {{- form_widget(form.value) -}}
+    </div>
+{%- endblock sidus_operator_value_widget %}
+
+{% block sidus_date_range_widget -%}
+    <div class="flex items-center gap-2">
+        {{- form_widget(form.from) -}}
+        <span>{{ 'sidus.filter.date_range.to'|trans }}</span>
+        {{- form_widget(form.to) -}}
+    </div>
+{%- endblock sidus_date_range_widget %}

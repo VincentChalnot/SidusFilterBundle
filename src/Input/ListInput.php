@@ -22,18 +22,19 @@ final readonly class ListInput
     }
 
     /**
-     * Reads `filters`, `page` and `per_page`; a top-level `sort` is taken as the `sort` filter (API style `?sort=-date`).
+     * Reads `filters`, `page` and `per_page`; a top-level `sort` is taken as the value of the sort filter named
+     * `$sortFilter` (API style `?sort=-date`).
      *
      * @param array<string, mixed> $data
      */
-    public static function fromArray(array $data): self
+    public static function fromArray(array $data, string $sortFilter = 'sort'): self
     {
         $filters = $data['filters'] ?? [];
         if (!\is_array($filters)) {
             $filters = [];
         }
-        if (\array_key_exists('sort', $data) && !\array_key_exists('sort', $filters)) {
-            $filters['sort'] = $data['sort'];
+        if (\array_key_exists('sort', $data) && !\array_key_exists($sortFilter, $filters)) {
+            $filters[$sortFilter] = $data['sort'];
         }
 
         return new self($filters, $data['page'] ?? null, $data['per_page'] ?? null);

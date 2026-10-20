@@ -1,0 +1,41 @@
+{#-
+    Bootstrap 6 (0.x / alpha) theme. Symfony ships no Bootstrap 6 layout yet: this extends the Bootstrap 5 layout and
+    only relies on classes that Bootstrap 6 keeps (.btn, .form-control, .form-select, .input-group, .invalid-feedback).
+-#}
+{% extends 'bootstrap_5_layout.html.twig' %}
+
+{% use '@SidusFilter/form/_blocks.html.twig' %}
+
+{% block sidus_sort_widget -%}
+    <input type="hidden" {{ block('widget_attributes') }} value="{{ value }}">
+    <span class="sidus-sort btn-group btn-group-sm" role="group">
+        {%- for column in columns -%}
+            {{- block('sidus_sort_button') -}}
+        {%- endfor -%}
+    </span>
+{%- endblock sidus_sort_widget %}
+
+{% block sidus_sort_button -%}
+    <button type="submit" class="btn btn-outline-secondary{% if column.direction %} active{% endif %}" name="{{ full_name }}" value="{{ column.next }}"{% if column.primary %} aria-sort="{{ column.direction == 'asc' ? 'ascending' : 'descending' }}"{% endif %}>
+        {{- column.key|humanize -}}{% if column.direction == 'asc' %} &uarr;{% elseif column.direction == 'desc' %} &darr;{% else %} &uarr;&darr;{% endif %}
+    </button>
+{%- endblock sidus_sort_button %}
+
+{% block sidus_operator_value_widget -%}
+    <div class="input-group">
+        {{- form_widget(form.operator, {attr: {class: 'flex-grow-0 w-auto'}}) -}}
+        {{- form_widget(form.value) -}}
+    </div>
+    {{- form_errors(form.operator) -}}
+    {{- form_errors(form.value) -}}
+{%- endblock sidus_operator_value_widget %}
+
+{% block sidus_date_range_widget -%}
+    <div class="input-group">
+        {{- form_widget(form.from) -}}
+        <span class="input-group-text">{{ 'sidus.filter.date_range.to'|trans }}</span>
+        {{- form_widget(form.to) -}}
+    </div>
+    {{- form_errors(form.from) -}}
+    {{- form_errors(form.to) -}}
+{%- endblock sidus_date_range_widget %}

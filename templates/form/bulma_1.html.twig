@@ -1,0 +1,97 @@
+{#- Bulma 1 theme: https://bulma.io/documentation/form/ -#}
+{% extends 'form_div_layout.html.twig' %}
+
+{% use '@SidusFilter/form/_blocks.html.twig' %}
+
+{% block form_row -%}
+    {%- set row_attr = row_attr|merge({class: (row_attr.class|default('') ~ ' field')|trim}) -%}
+    <div {% with {attr: row_attr} %}{{ block('attributes') }}{% endwith %}>
+        {{- form_label(form) -}}
+        <div class="control">
+            {{- form_widget(form) -}}
+        </div>
+        {{- form_help(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+{%- endblock form_row %}
+
+{% block form_label -%}
+    {%- set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' label')|trim}) -%}
+    {{- parent() -}}
+{%- endblock form_label %}
+
+{% block form_widget_simple -%}
+    {%- set attr = attr|merge({class: (attr.class|default('') ~ (errors|length ? ' input is-danger' : ' input'))|trim}) -%}
+    {{- parent() -}}
+{%- endblock form_widget_simple %}
+
+{% block choice_widget_collapsed -%}
+    {%- set attr = attr|merge({class: (attr.class|default(''))|trim}) -%}
+    <div class="select{% if multiple %} is-multiple{% endif %}{% if errors|length %} is-danger{% endif %}">
+        {{- parent() -}}
+    </div>
+{%- endblock choice_widget_collapsed %}
+
+{% block checkbox_row -%}
+    <div class="field">
+        <div class="control">
+            {{- form_widget(form) -}}
+        </div>
+        {{- form_help(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+{%- endblock checkbox_row %}
+
+{% block checkbox_widget -%}
+    <label class="checkbox">
+        {%- set text = label is empty ? name|humanize : label -%}
+        {{- parent() }} {{ translation_domain is same as(false) ? text : text|trans(label_translation_parameters, translation_domain) -}}
+    </label>
+{%- endblock checkbox_widget %}
+
+{% block button_widget -%}
+    {%- set attr = attr|merge({class: (attr.class|default('button'))|trim}) -%}
+    {{- parent() -}}
+{%- endblock button_widget %}
+
+{% block form_errors -%}
+    {%- if errors|length > 0 -%}
+        {%- for error in errors -%}
+            <p class="help is-danger">{{ error.message }}</p>
+        {%- endfor -%}
+    {%- endif -%}
+{%- endblock form_errors %}
+
+{% block sidus_sort_widget -%}
+    <input type="hidden" {{ block('widget_attributes') }} value="{{ value }}">
+    <span class="sidus-sort buttons has-addons are-small">
+        {%- for column in columns -%}
+            {{- block('sidus_sort_button') -}}
+        {%- endfor -%}
+    </span>
+{%- endblock sidus_sort_widget %}
+
+{% block sidus_sort_button -%}
+    <button type="submit" class="button{% if column.direction %} is-active{% endif %}" name="{{ full_name }}" value="{{ column.next }}"{% if column.primary %} aria-sort="{{ column.direction == 'asc' ? 'ascending' : 'descending' }}"{% endif %}>
+        {{- column.key|humanize -}}{% if column.direction == 'asc' %} &uarr;{% elseif column.direction == 'desc' %} &darr;{% else %} &uarr;&darr;{% endif %}
+    </button>
+{%- endblock sidus_sort_button %}
+
+{% block sidus_operator_value_widget -%}
+    <div class="field has-addons">
+        <div class="control">{{- form_widget(form.operator) -}}</div>
+        <div class="control is-expanded">{{- form_widget(form.value) -}}</div>
+    </div>
+    {{- form_errors(form.operator) -}}
+    {{- form_errors(form.value) -}}
+{%- endblock sidus_operator_value_widget %}
+
+{% block sidus_date_range_widget -%}
+    <div class="field has-addons">
+        <div class="control is-expanded">{{- form_widget(form.from) -}}</div>
+        <div class="control"><a class="button is-static">{{ 'sidus.filter.date_range.to'|trans }}</a></div>
+        <div class="control is-expanded">{{- form_widget(form.to) -}}</div>
+    </div>
+    {{- form_errors(form.from) -}}
+    {{- form_errors(form.to) -}}
+{%- endblock sidus_date_range_widget %}

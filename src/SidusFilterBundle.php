@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace Sidus\FilterBundle;
 
 use Sidus\FilterBundle\DependencyInjection\ListDefinitionPass;
+use Sidus\FilterBundle\DependencyInjection\OptionalServicesPass;
 use Sidus\FilterBundle\Filter\FilterTypeInterface;
 use Sidus\FilterBundle\Filter\NativeCriterionBuilderInterface;
+use Sidus\FilterBundle\Form\FormFilterMapperInterface;
 use Sidus\FilterBundle\InMemory\InMemoryCriterionCompilerInterface;
 use Sidus\FilterBundle\InMemory\InMemorySourceInterface;
 use Sidus\FilterBundle\Provider\CriterionCompilerInterface;
@@ -14,6 +16,7 @@ use Sidus\FilterBundle\Provider\QueryHandlerFactoryInterface;
 use Symfony\Component\Config\Definition\Configurator\DefinitionConfigurator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpKernel\Bundle\AbstractBundle;
 
 final class SidusFilterBundle extends AbstractBundle
@@ -87,10 +90,17 @@ final class SidusFilterBundle extends AbstractBundle
         $builder->registerForAutoconfiguration(InMemoryCriterionCompilerInterface::class)->addTag('sidus_filter.in_memory_compiler');
         $builder->registerForAutoconfiguration(InMemorySourceInterface::class)->addTag('sidus_filter.in_memory_source');
         $builder->registerForAutoconfiguration(NativeCriterionBuilderInterface::class)->addTag('sidus_filter.native_builder');
+
+        // Optional adapters: loaded only when their package is installed (the core never imports them).
+        if (interface_exists(FormInterface::class)) {
+            $container->import('../config/form.php');
+            $builder->registerForAutoconfiguration(FormFilterMapperInterface::class)->addTag('sidus_filter.form_mapper');
+        }
     }
 
     public function build(ContainerBuilder $container): void
     {
         $container->addCompilerPass(new ListDefinitionPass());
+        $container->addCompilerPass(new OptionalServicesPass());
     }
 }

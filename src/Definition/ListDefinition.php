@@ -55,6 +55,18 @@ final readonly class ListDefinition
         return null;
     }
 
+    /** The filter of type `sort`, if any (at most one per list). */
+    public function findSortFilter(): ?FilterDefinition
+    {
+        foreach ($this->filters as $filter) {
+            if ('sort' === $filter->type) {
+                return $filter;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * @return array<string, mixed>
      */

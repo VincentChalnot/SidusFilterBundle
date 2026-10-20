@@ -672,3 +672,22 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
   (registered when symfony/console exists).
 - Not validated at compile time (needs runtime services): that an in-memory `source` service exists (reported when the
   handler is created).
+- **Form adapter** (`Sidus\FilterBundle\Form`, loaded when symfony/form is installed and the form framework is on;
+  `OptionalServicesPass` removes it otherwise): `ListFormFactory::create()` (a root form named `''`, method GET, one
+  `filters` child with a field per active, non-locked filter whose type has a `FormFilterMapperInterface`, plus a
+  hidden `page`), `submit($form, $query): ListInput`, `addViolations($form, $result)`. Mappers are tagged
+  `sidus_filter.form_mapper` and indexed by filter type; a filter type without a mapper (e.g. `native`) has no field.
+  Initial data = the normalised default converted by `toFormData()`. `submit()` passes the query's value for a
+  filter on untouched (so an invalid value becomes a violation, not a silent null) and only falls back to the field's
+  initial data, through `toRaw()`, for what the query lacks. The filter's `form: {label, type, options}` is applied
+  on top of the mapper's defaults. The form may add its own transformation error next to a violation.
+  Sort field: `SortType` (hidden input with the API-style value) exposes `vars.columns[key] = {key, direction,
+  primary, next}`; themes render one submit button per key (`aria-sort` on the primary one).
+- **Themes** (`@SidusFilter/form/...`): `base` (unstyled), `bootstrap_6`, `bulma_1`, all `use`ing `_blocks.html.twig`;
+  `docs/examples/tailwind.html.twig` is an example, not shipped. Symfony ships no Bootstrap 6 layout, so
+  `bootstrap_6` extends `bootstrap_5_layout.html.twig` and overrides the Sidus blocks with classes expected to stay in
+  Bootstrap 6 (`.btn`, `.input-group`, `.form-select`) [INFERENCE: not checked against a Bootstrap 6 build].
+  Translations en/fr in the `messages` domain: `sidus.filter.date_range.*`, `sidus.filter.operator.<operator>`,
+  `sidus.filter.sort.*` (the v6 `combo` keys are gone with the combo option codes).
+- Small additive core changes made for the adapters: `ListDefinition::findSortFilter()` and the `$sortFilter`
+  parameter of `ListInput::fromArray()` (the sort filter need not be named `sort`).

@@ -1,0 +1,32 @@
+sidus:
+    filter:
+        date_range:
+            to: 'to'
+            start_date: 'Start date'
+            end_date: 'End date'
+        operator:
+            contains: 'Contains'
+            not_contains: 'Does not contain'
+            starts_with: 'Begins with'
+            not_starts_with: 'Does not begin with'
+            ends_with: 'Ends with'
+            not_ends_with: 'Does not end with'
+            equals: 'Equals'
+            not_equals: 'Does not equal'
+            is_null: 'Is null'
+            is_not_null: 'Is not null'
+            is_empty: 'Is empty'
+            is_not_empty: 'Is not empty'
+            eq: 'Equals'
+            neq: 'Not equal to'
+            gt: 'Greater than'
+            gte: 'Greater than or equal to'
+            lt: 'Lower than'
+            lte: 'Lower than or equal to'
+            matches: 'Matches'
+            not_matches: 'Does not match'
+            imatches: 'Matches (case insensitive)'
+            not_imatches: 'Does not match (case insensitive)'
+        sort:
+            asc: 'Ascending'
+            desc: 'Descending'
