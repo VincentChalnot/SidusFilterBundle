@@ -1,6 +1,6 @@
 # Sidus/FilterBundle 7.0: design
 
-Status: proposal, pending the owner's answers to section 15. Branch `v7.x` (forked from `v6.x` at v6.0.4).
+Status: accepted with the owner's answers (section 17). Branch `v7.x` (forked from `v6.x` at v6.0.4).
 Facts are labelled **[read]** (source or history read), **[verified]** (executed, mostly in
 `filter-bundle-review.md`), or **[inference]**.
 
@@ -145,44 +145,43 @@ provider).
 
 ## 3. Packages and namespaces
 
-Recommendation: **one Composer package, `sidus/filter-bundle` 7.0, with hard namespace boundaries**, plus a separate
-package for Elasticsearch later. Rationale: one owner, a small codebase, and providers that are all his; a monorepo
-split costs a release pipeline (subtree split, synchronized tags) for no current consumer benefit. Boundaries are
-enforced by a test (no `use` of Doctrine/Form/Pagerfanta classes outside their namespace), so a later split is a
-mechanical move.
+Decision (owner): **split now**. Two Composer packages, two repositories:
+
+- `sidus/filter-bundle` 7.0 (this repository): contracts, criterion vocabulary, filter types, the request pipeline,
+  the in-memory reference provider, the shared contract test kit, and the optional Form / HTTP / Pagerfanta adapters.
+  No dependency on Doctrine.
+- `sidus/doctrine-filter-bundle` 1.0 (new repository `../SidusDoctrineFilterBundle`): the Doctrine ORM provider. It is
+  the template the other providers (EAV, Elasticsearch, remote API) will follow later.
 
 ```
-src/                                 PSR-4 Sidus\FilterBundle\ (moved from the repository root; Tests/ stays out of the dist)
-  Contract/                          interfaces + value objects; depends on nothing
-    Criterion/                       Criterion vocabulary (section 4)
-    Definition/                      ListDefinition, FilterDefinition, SortDefinition, ... (readonly)
-    Input/                           ListInput, Violation, ViolationList
-    Result/                          ListResult, Page
-    Provider/                        QueryHandlerFactoryInterface, QueryHandlerInterface, CriterionCompilerInterface,
-                                     Capabilities, Support, CountStrategyInterface
-    Filter/                          FilterTypeInterface
-  Core/                              provider-agnostic implementation
-    Filter/Type/                     built-in filter types (text, choice, number, date_range, null, not_empty, regexp, sort, ...)
-    Registry/                        ListDefinitionRegistry, QueryHandlerRegistry, FilterTypeRegistry
-    Handler/                         AbstractQueryHandler (pipeline), InputNormaliser
-  Provider/
-    InMemory/                        reference provider (arrays/objects), executable semantics
-    Doctrine/                        Doctrine ORM provider (requires doctrine/orm, suggested)
-  Bridge/
-    Form/                            Symfony Form adapter, form themes (requires symfony/form, suggested)
-    Pagerfanta/                      ListResult → Pagerfanta adapter (requires pagerfanta/core, suggested)
-    HttpFoundation/                  Request → ListInput, ListResult → JsonResponse payload
-  Bundle/                            SidusFilterBundle (AbstractBundle), configuration tree, compiler passes, commands
+SidusFilterBundle/src/                PSR-4 Sidus\FilterBundle\ (code moved from the repository root to src/, tests/ out of the dist)
+  Criterion/                          criterion vocabulary (section 4)
+  Definition/                         ListDefinition, FilterDefinition, SortColumn, ... (readonly) + DefinitionFactory
+  Input/                              ListInput, Violation, ViolationList
+  Result/                             ListResult
+  Provider/                           SPI: QueryHandlerFactoryInterface, QueryHandlerInterface, Capabilities,
+                                      CountStrategyInterface, AbstractQueryHandler (pipeline)
+  Filter/                             FilterTypeInterface + Type/ built-ins (text, choice, number, date_range, null, ...)
+  Registry/                           ListDefinitionRegistry, QueryHandlerRegistry, FilterTypeRegistry
+  InMemory/                           reference provider (arrays/objects): executable semantics
+  Form/                               optional Symfony Form adapter and themes
+  Http/                               optional request parser and result normalizer (API endpoints)
+  Pagerfanta/                         optional ListResult → Pagerfanta adapter
+  Test/Contract/                      shared contract suite shipped for provider packages (autoload only with PHPUnit)
+  DependencyInjection/, SidusFilterBundle.php
+SidusDoctrineFilterBundle/src/        PSR-4 Sidus\DoctrineFilterBundle\
+  Factory/, Query/ (DoctrineQueryContext, JoinRegistry), Compiler/ (criterion compilers), Metadata/ (FieldResolver),
+  Count/, Form/ (relation → EntityType mapper), DependencyInjection/, SidusDoctrineFilterBundle.php
 ```
 
-Composer `require`: `php ^8.4`, `symfony/config`, `symfony/dependency-injection`, `symfony/http-kernel`,
-`symfony/property-access` (in-memory provider), `symfony/options-resolver`. `suggest`/`require-dev`: `doctrine/orm ^3.3`,
-`doctrine/doctrine-bundle`, `symfony/form`, `symfony/twig-bridge`, `pagerfanta/core`, `symfony/http-foundation`.
-Every optional integration is registered only when its classes exist (`class_exists`/`ContainerBuilder::willBeAvailable`).
+Core `require`: `php >=8.4`, `symfony/config`, `symfony/dependency-injection`, `symfony/http-kernel`,
+`symfony/options-resolver`, `symfony/property-access` (all `^8.1`). Optional (`suggest`, `require-dev`):
+`symfony/form`, `symfony/twig-bridge`, `symfony/http-foundation`, `pagerfanta/core`. Optional integrations are
+registered only when their classes exist.
 
-External packages: `sidus/eav-filter-bundle` 3.0 builds on `Provider/Doctrine` (it is a Doctrine dialect: same
-compilers, its own field resolver and result hydrator); `sidus/elastica-filter-bundle` (or a new
-`sidus/filter-elasticsearch`) depends on `Contract` + `Core` only; a remote-API provider likewise.
+Later: `sidus/eav-filter-bundle` 3.0 builds on the Doctrine bundle (a Doctrine dialect: own field resolver, root
+condition customizer, result hydrator); Elasticsearch and remote-API providers depend on the core only.
+
 
 ## 4. Criterion vocabulary
 
@@ -212,8 +211,10 @@ Rules common to every criterion:
   logic collapsed to false, so `Not(Contains(x))` is true for null. Arrays, SQL and ES all get this right only if
   compilers are written for it, hence contract tests (section 13) cover nulls explicitly.
 
-Sorting and pagination use two more value objects, not criteria (they do not change set membership): `OrderBy(field,
-direction, nulls=last)` (list, stable: the provider appends the identifier as tie-breaker) and `Page(number, size)`.
+Sorting is a criterion too: `Sort(list<OrderBy(field, direction)>)`, emitted by the `sort` filter type and compiled by
+each provider like any other criterion (stable: the provider appends the identifier as tie-breaker; nulls sort first
+ascending, last descending, as in PHP's `<=>` reference). At most one sort filter can be active per list. Pagination
+(`page`, `per_page`) is not a criterion: it is part of `ListInput` and validated against `pagination.max_per_page`.
 
 ## 5. Filter types (user-facing layer)
 
@@ -264,43 +265,50 @@ compiles to one `EXISTS` per to-many path, i.e. exactly what `GamePlayerFilterTy
 
 ## 6. Capability negotiation and vendor-specific realisation
 
-Each provider factory publishes a `Capabilities` table: criterion class → `Support`:
+Decision (owner): **strict**. A provider either realises a criterion with the reference meaning or refuses it; there
+are no approximations. Each provider factory publishes `Capabilities`: for each criterion class, supported or not,
+possibly depending on the field (`supports(criterion class, field): ?string` returns null or the refusal reason).
+Examples: `Matches` on Doctrine is supported only if the configured regexp DQL functions are registered; an
+Elasticsearch `Contains` would be supported on `keyword`/`wildcard` fields only, never on analysed `text`.
 
-- `Support::native()`: faithful realisation of the reference meaning.
-- `Support::approximate(string $note)`: realised with a documented difference (example: Elasticsearch `Contains` on an
-  analysed `text` field via `match_phrase` matches token sequences, not substrings).
-- `Support::unsupported(string $reason)`.
+Resolution happens at container compile time for everything that does not need runtime services (filter type exists,
+options valid, provider capability tables) and at cache warm-up for field-dependent checks (Doctrine metadata): an
+unsupported criterion is a **configuration error** naming the list, the filter, the criterion and the reason. A filter
+may narrow its own operators (`operators: [contains, starts_with]`) so that an unsupported one is never emitted.
+There is no "silently skip at runtime" mode.
 
-Support can depend on the field (`supportsField(criterion, ResolvedField)`): `Matches` on Doctrine is native only if
-a `REGEXP`-family DQL function is registered; on ES `Contains` is native on `keyword`/`wildcard` fields and
-approximate on `text`.
+**Provider-specific filters** (owner's requirement): a filter may declare `providers: [elasticsearch]`. It is then
+active only when the list's provider is one of those, and *ignored entirely* otherwise (no form field, no API input,
+no capability check). Together with a public `name` (defaults to the filter key, must be unique among the filters
+active for the list's provider) this lets one configuration carry different strategies over the same attribute and
+switch providers without editing it:
 
-Resolution, per filter, at compile time (structure) and at warm-up (field-dependent checks):
+```yaml
+provider: '%app.list_provider%'   # a parameter, not an env var: the provider must be known at compile time
+                                  # (parameters: app.list_provider: elasticsearch; when@dev: parameters: app.list_provider: doctrine)
+filters:
+    title_fulltext: { name: title, type: es_match, attributes: [title], providers: [elasticsearch] }
+    title_like:     { name: title, type: text, attributes: [title], providers: [doctrine, in_memory] }
+    status:         { type: choice, options: { choices: [draft, published] } }   # portable: no 'providers'
+```
 
-1. The filter type lists the criteria it can emit for this definition (`getRequiredOperations`).
-2. For each, the provider's table answers. `unsupported` → **configuration error** naming the list, filter, criterion
-   and reason. `approximate` → allowed, reported by `bin/console debug:sidus-filter <list>` and logged once at warm-up;
-   a global `strict_semantics: true` turns approximations into errors.
-3. **Explicit opt-out**: a filter may narrow its own operators (`operators: [contains, starts_with]`) so an unsupported
-   one is never emitted; there is no "silently skip a filter at runtime" mode.
+An approximate realisation (ES `match_phrase_prefix` for "contains") is therefore never a variant of a portable
+criterion: it is a provider-specific filter type (or criterion) shipped by that provider and used under `providers:`.
 
-Vendor-specific overrides live **per filter, under the provider's name**, and are validated by that provider
-(each factory contributes a config sub-tree):
+**Vendor-specific options** stay per filter, under the provider's name, validated by that provider and ignored by the
+others; they tune *how* a supported criterion is realised, never *what* it means:
 
 ```yaml
 filters:
     title:
         type: text
         provider_options:
-            elasticsearch: { strategy: match_phrase_prefix, field: title.raw }   # ignored by other providers
-            doctrine: { case_insensitive: lower }   # 'lower' (LOWER() both sides, default) | 'ilike' (custom function) | 'collation'
+            doctrine: { case_insensitive: ilike }   # lower (LOWER() both sides, default) | ilike (custom DQL function)
 ```
 
-Compilers are services tagged `sidus_filter.criterion_compiler` with `provider` and `criterion` attributes
-(autoconfigured through a PHP attribute `#[AsCriterionCompiler(provider: 'doctrine', criterion: Contains::class)]`),
-indexed by the provider factory itself in its constructor (iterable + read the attribute values), not through a
-`defaultIndexMethod` locator. An app or a provider package can add a compiler for a new criterion or decorate an
-existing one; `provider_options.<provider>.strategy` selects among several registered strategies.
+Compilers are services implementing `CriterionCompilerInterface` of their provider, indexed by the provider factory
+from an autoconfigured tagged iterator (criterion class read from the compiler), not through a `defaultIndexMethod`
+locator. An app or provider package adds a compiler for a new criterion, or decorates an existing one.
 
 ## 7. Configuration
 
@@ -308,15 +316,12 @@ existing one; `provider_options.<provider>.strategy` selects among several regis
 
 ```yaml
 sidus_filter:
-    strict_semantics: false
     lists:                                   # was: configurations
         posts:
             provider: doctrine
             options: { entity: App\Entity\Post }   # provider-validated
             pagination: { per_page: 15, max_per_page: 100 }   # was: results_per_page
-            count: { strategy: auto }               # auto | none | <service id>; section 10
-            fields:                                 # optional public names for paths (API contract)
-                author: author.name
+            count: auto                             # auto | none | <service id>; section 10
             filters:
                 title: { type: text, operators: [contains, starts_with, equals] }
                 author: { type: text, attributes: [author.name, author.email] }
@@ -332,7 +337,9 @@ sidus_filter:
 
 `label` and `form_type`/`form_options` move to a `form:` sub-key read only by the form adapter. `hidden` becomes
 `locked: true` (value fixed by configuration, never read from input, still normalised through the same filter type:
-fixes v6 hidden filters bypassing transformers).
+fixes v6 hidden filters bypassing transformers). `name` (public input name, defaults to the key) and `providers`
+(section 6) are optional. An attribute is a dotted path string, or `{ path: totals, json: [regression], cast: integer }`
+for JSON documents (section 8.3).
 
 ### 7.2 Compilation
 
@@ -345,20 +352,25 @@ Field resolution that needs runtime services (Doctrine metadata) runs in a cache
 
 ### 7.3 Old → new mapping (upgrade note)
 
+Decision (owner): **clean break**, no shorthands and no compatibility loader; `UPGRADE-7.0.md` lists the mapping:
+
 | v6 | v7 |
 |---|---|
 | `sidus_filter.configurations.<code>` | `sidus_filter.lists.<code>` |
 | `results_per_page: 15` | `pagination.per_page: 15` |
-| `sortable: [a, b.c]` + `default_sort: {a: desc}` | accepted as shorthand, expanded into a `sort` filter with `columns: {a: a, b.c: b.c}` |
-| `type: advanced_text` | `type: text` with `operators: [...]` (all operators by default for the old name) |
-| `type: advanced_number` | `type: number` |
+| `sortable: [a, b.c]` + `default_sort: {a: desc}` | a `sort` filter: `columns: {a: a, c: b.c}`, `default: [{column: a, direction: desc}]` |
+| `type: text` | `type: text` (operator `contains`) |
+| `type: advanced_text` | `type: text` with `operators: [contains, starts_with, ...]` |
+| `type: advanced_number` | `type: number` with `operators: [...]` |
 | `type: custom_choice` / `choice` | `type: choice` |
-| `type: entity` | `type: relation` |
+| `type: entity` | `type: relation` (Doctrine bundle) |
+| `type: not_null` | `type: not_null` |
 | `options.hidden: true` | `locked: true` |
 | `label`, `form_type`, `form_options` | `form: { label, type, options }` |
 | `default:` | unchanged, normalised like user input |
+| `provider: doctrine` | unchanged, requires `sidus/doctrine-filter-bundle` |
 | qk `options.joins` | `options.joins` (section 8.3, renamed keys) |
-| qk `totals->regression::int` | unchanged shorthand, or `{ path: totals, json: [regression], cast: integer }` |
+| qk `totals->regression::int` | `{ path: totals, json: [regression], cast: integer }` |
 
 ## 8. Doctrine provider
 
@@ -434,12 +446,11 @@ consumer outside a customizer, so there is no ordering trap.
 
 ## 9. Sorting as a filter
 
-The `sort` filter type takes `sort=-date,title` (API), `sort[]=date:desc` or the form adapter's structure, and emits
-`OrderBy[]`. Its `columns` option maps **public keys** to fields: the input names a key, never a property path, so the
-allow-list is structural (`author.password` is not a key, therefore cannot be requested). Unknown key, malformed
-direction, or more than `max_columns` → violations (section 11). The provider appends the identifier as final
-tie-breaker (stable pages). `default` applies when the input has no valid sort. Top-level `sortable`/`default_sort`
-remain as shorthand (7.3).
+The `sort` filter type takes `-date,title` (API style), `[{column: date, direction: desc}]`, or the form adapter's
+structure, and emits a `Sort` criterion. Its `columns` option maps **public keys** to fields: the input names a key,
+never a property path, so the allow-list is structural (`author.password` is not a key, therefore cannot be
+requested). Unknown key, malformed direction, or more than `max_columns` → violations (section 11). The provider
+appends the identifier as final tie-breaker (stable pages). `default` applies when the input has no valid sort.
 
 ## 10. Count strategy
 
@@ -494,8 +505,8 @@ limited to related ids, without touching the main query). The form's submitted d
 and goes through the same normaliser as an API call; the form never applies anything to a query.
 Sort UI: a `sort` child with one button per column key plus the current state, rendered by `sidus_filter_sort_*` blocks
 (DataGrid header cells use `form.sort.<key>` instead of `formView.sortable[index]`). Global `DateExtension` and
-`DoctrineEntityExtension` are removed: string defaults are handled by the normalisers. Themes: base + Bootstrap 5
-(pending question 6).
+`DoctrineEntityExtension` are removed: string defaults are handled by the normalisers. Themes (owner): an unstyled
+base theme, Bootstrap 6 (built against the 6.0 alpha markup), Bulma 1, and a Tailwind skeleton given as an example.
 
 ### 12.2 API endpoint
 
@@ -512,7 +523,8 @@ groups). An `ArgumentValueResolver` for `ListInput` and an optional generic cont
 ## 13. Testing strategy
 
 Run in Docker (local PHP lacks `pdo_sqlite`): `docker run --rm -v $PWD:/app -w /app comtso-php-dev composer test`
-(PHP 8.5, pdo_sqlite, pdo_pgsql). PHPUnit 12.
+(PHP 8.5, pdo_sqlite, pdo_pgsql). PHPUnit 12. The Doctrine bundle mounts the parent directory to use the core through a
+Composer path repository.
 
 1. **Worker-mode test** (first, red on v6 code): micro-kernel with SQLite, one booted kernel, three requests through
    the same container; asserts no exception, no leaked filter, single ORDER BY, stable DQL. Plus two handlers for one
@@ -524,14 +536,15 @@ Run in Docker (local PHP lacks `pdo_sqlite`): `docker run --rm -v $PWD:/app -w /
    total, expected violations]`. `AbstractProviderContractTestCase` runs every case; `InMemoryProviderTest` is the
    reference, `DoctrineSqliteProviderTest` second, `DoctrinePostgresProviderTest` when `SIDUS_FILTER_PG_DSN` is set,
    Elasticsearch in its own package with the same suite class.
-4. **Divergences are data too**: each provider test declares `knownDivergences(): array<caseId, reason>` (for example
-   SQLite `LOWER()` is ASCII-only, so Unicode case folding diverges). The suite asserts that a declared divergence
-   *does* diverge, so the list cannot rot, and `docs/divergences.md` is generated from it.
+4. **Divergences are data too**: strict mode means a supported criterion must behave like the reference. A provider
+   test may still declare `knownDivergences(): array<caseId, reason>` for a platform limitation found by the suite
+   (for example SQLite `LOWER()` folds ASCII only); the suite asserts that a declared divergence *does* diverge, so the
+   list cannot rot, and each entry is either fixed or turned into a capability refusal before release.
 5. **Doctrine-specific**: DQL determinism, one join per to-one prefix, EXISTS per to-many criterion, count query shape,
    named joins, JSON paths (PostgreSQL only).
-6. **Container**: compiles with zero deprecations under Symfony 7.4 and 8.x, misconfigurations fail at compile/warm-up
-   with the intended messages, layering test (no Doctrine/Form imports outside their namespaces).
-7. CI: GitHub Actions matrix PHP 8.4/8.5 × Symfony 7.4/8.x, lowest/highest dependencies, PostgreSQL service.
+6. **Container**: compiles with zero deprecations under Symfony 8.1, misconfigurations fail at compile/warm-up
+   with the intended messages.
+7. CI: GitHub Actions matrix PHP 8.4/8.5 × Symfony 8.1/8.x, lowest/highest dependencies, PostgreSQL service.
 
 ## 14. Migration
 
@@ -574,9 +587,18 @@ customizer, own hydrating result post-processor (hook `ResultHydratorInterface` 
 | `ManualCountAdapterInterface`, own `DoctrineORMAdapter` | replaced by `CountStrategyInterface` and per-request totals |
 | `getQueryBuilder()`/`setQueryBuilder()` on the handler | replaced by customizers; `ChoiceFilterType` no longer swaps builders |
 | `uniqid()` aliases/parameters | deterministic names |
-| Bootstrap 3/4 form themes (pending answer) | DataGrid owns presentation |
+| Bootstrap 3/4 form themes | replaced by base, Bootstrap 6, Bulma 1, Tailwind example |
 | Tagged locator with `defaultIndexMethod` | deprecated in Symfony 8.1 |
 
-## 17. Open questions for the owner
+## 17. Owner's decisions (2026-10-20)
 
-See the message accompanying this document; answers will be recorded here.
+| Question | Decision |
+|---|---|
+| Packaging | Split now: core `sidus/filter-bundle` + new `sidus/doctrine-filter-bundle` repository; other providers follow later |
+| Unsupported operations | Strict: configuration error on any divergence, no approximations; filters can be restricted with `providers: [...]` and are ignored for other providers |
+| Vendor overrides | Per filter, under the provider name (`provider_options.<provider>`) |
+| Invalid input | Collect violations; adapters decide (API 400, form errors) |
+| API endpoints | Request parser + result normalizer in 7.0 |
+| Versions, themes | PHP 8.4+, Symfony 8.1+; Bootstrap 6, Bulma 1, Tailwind skeleton example |
+| Doctrine pagination/count | Own implementation |
+| v6 YAML | Clean break, upgrade note only |
