@@ -32,6 +32,16 @@
     </div>
 {%- endblock choice_widget_collapsed %}
 
+{% block choice_widget_expanded -%}
+    {#- Each option is a label.checkbox / label.radio that holds its own text: no form_label(child) after it. -#}
+    {%- set attr = attr|merge({class: ((multiple ? 'checkboxes' : 'radios') ~ ' ' ~ attr.class|default(''))|trim}) -%}
+    <div {{ block('widget_container_attributes') }}>
+        {%- for child in form -%}
+            {{- form_widget(child) -}}
+        {%- endfor -%}
+    </div>
+{%- endblock choice_widget_expanded %}
+
 {% block checkbox_row -%}
     <div class="field">
         <div class="control">
@@ -42,12 +52,23 @@
     </div>
 {%- endblock checkbox_row %}
 
+{% block radio_row -%}
+    {{- block('checkbox_row') -}}
+{%- endblock radio_row %}
+
 {% block checkbox_widget -%}
     <label class="checkbox">
-        {%- set text = label is empty ? name|humanize : label -%}
-        {{- parent() }} {{ translation_domain is same as(false) ? text : text|trans(label_translation_parameters, translation_domain) -}}
+        {{- parent() -}}
+        {%- if label is not same as(false) %} {{ block('form_label_content') }}{% endif -%}
     </label>
 {%- endblock checkbox_widget %}
+
+{% block radio_widget -%}
+    <label class="radio">
+        {{- parent() -}}
+        {%- if label is not same as(false) %} {{ block('form_label_content') }}{% endif -%}
+    </label>
+{%- endblock radio_widget %}
 
 {% block button_widget -%}
     {%- set attr = attr|merge({class: (attr.class|default('button'))|trim}) -%}

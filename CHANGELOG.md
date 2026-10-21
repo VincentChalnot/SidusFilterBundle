@@ -33,6 +33,14 @@ All notable changes to this project will be documented in this file.
 - Optional Pagerfanta bridge: `ListResultAdapter`.
 - Documentation (`docs/`), `UPGRADE-7.0.md` and a GitHub Actions matrix (PHP 8.4/8.5, Symfony 8.1/8.x, lowest/highest).
 
+### Fixed (7.0.2)
+
+- `bulma_1` theme: expanded choices (`expanded: true`, checkboxes and radios) were rendered with every option labelled
+  twice (`label.checkbox` wrapping the input, then the default `form_label(child)`) and without the Bulma wrapper
+  class. Added `choice_widget_expanded` (`.checkboxes` / `.radios` of `label.checkbox` / `label.radio`), a
+  `radio_widget` and `radio_row` on the same model as the checkbox ones; the checkbox label now goes through
+  `form_label_content` (`label_html`, `label_format`, and `label: false` renders no text).
+
 ## [6.0.3] - 2026-07-21
 
 ### Fixed
